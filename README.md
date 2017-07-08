@@ -16,4 +16,4 @@ A Pygame soccer environment.
 
 - [Visual Studio Code](https://code.visualstudio.com/) for editing and running Python files.
 - [Python extension for VSCode](https://marketplace.visualstudio.com/items?itemName=donjayamanne.python) for linting Python files.
-- [Tiled Map Editor](http://www.mapeditor.org/) for editing `.tsx` files
+- [Tiled Map Editor](http://www.mapeditor.org/) for editing `.tsx` files.
