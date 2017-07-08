@@ -11,22 +11,23 @@ class EnvironmentState(object):
   ]
 
   # Bounds (x, y, w, h)
-  bounds = (1, 0, 7, 6)
+  bounds = [1, 0, 7, 6]
 
   # Player
   player = [
       {
-          'pos': (2, 2),
+          'pos': [3, 2],
           'ball': True,
       },
       {
-          'pos': (4, 2),
+          'pos': [5, 2],
           'ball': False,
       },
   ]
 
   def take_action(self, index, action):
-    pos = self.get_player_pos(index)
+    # Copy the player position
+    pos = list(self.get_player_pos(index))
     if action == 'MOVE_RIGHT':
       pos[0] += 1
     elif action == 'MOVE_UP':
@@ -45,8 +46,7 @@ class EnvironmentState(object):
   def get_player_pos(self, index):
     return self.player[index]['pos']
 
-  def set_player_pos(self, val):
-    (index, pos) = val
+  def set_player_pos(self, index, pos):
     if self.is_pos_in_bounds(pos):
       self.player[index]['pos'] = pos
 

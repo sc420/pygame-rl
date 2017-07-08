@@ -69,20 +69,61 @@ class Soccer(TiledRenderer):
     self.clock = pygame.time.Clock()
 
   def render(self):
-    # Redraw the overlays
+    # Clear the overlays
     self.players.clear(self.screen, self.background)
+
+    # Update the overlays by the environment state
+    self.players.empty()
+    player1 = self.overlays['player1']
+    player1_ball = self.overlays['player1_ball']
+    player2 = self.overlays['player2']
+    player2_ball = self.overlays['player2_ball']
+    player_obj = [
+        [player1, player1_ball],
+        [player2, player2_ball],
+    ]
+    for player_ind in range(0, 2):
+      # Get the player state
+      player_list = player_obj[player_ind]
+      player_pos = self.env_state.get_player_pos(player_ind)
+      has_ball = self.env_state.get_player_ball(player_ind)
+      # Choose the player
+      player = player_list[1 if has_ball else 0]
+      # Set the player position
+      player.set_pos(player_pos)
+      # Add the sprite to the group
+      self.players.add(player)
+
+    # Draw the overlays
     dirty = self.players.draw(self.screen)
 
     # Update only the dirty surface
     pygame.display.update(dirty)
+    pygame.display.flip()
 
     # Limit the max frames per second
     self.clock.tick(self.MAX_FPS)
 
     # Handle the event
     for event in pygame.event.get():
+      # Detect quit event
       if event.type == pygame.locals.QUIT:
+        # Indicate the rendering should stop
         return False
-      elif event.type == pygame.locals.K_RIGHT:
-        self.env_state.take_action('MOVE_RIGHT')
+      # Detect keydown event
+      elif event.type == pygame.locals.KEYDOWN:
+        if event.key == pygame.locals.K_RIGHT:
+          self.env_state.take_action(0, 'MOVE_RIGHT')
+        elif event.key == pygame.locals.K_UP:
+          self.env_state.take_action(0, 'MOVE_UP')
+        elif event.key == pygame.locals.K_LEFT:
+          self.env_state.take_action(0, 'MOVE_LEFT')
+        elif event.key == pygame.locals.K_DOWN:
+          self.env_state.take_action(0, 'MOVE_DOWN')
+        elif event.key == pygame.locals.K_1:
+          self.env_state.set_player_ball(0, True)
+        elif event.key == pygame.locals.K_2:
+          self.env_state.set_player_ball(0, False)
+
+    # Indicate the rendering should continue
     return True
