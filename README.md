@@ -7,4 +7,5 @@ A Pygame soccer environment.
 ### Requirements
 
 - [Python 3.6](https://www.continuum.io/)
-- [Pygame](https://www.pygame.org/wiki/GettingStarted#Pygame Installation)
+- [Pygame](https://www.pygame.org/wiki/GettingStarted#Pygame%20Installation)
+- [PyTMX](https://github.com/bitcraft/PyTMX)
