@@ -1,0 +1,22 @@
+level:
+  tileset: data/ground.png
+  map: |
+    b.........
+    .#####.##.
+    .#...#..#.
+    .#..b####.
+    .##.##..b.
+    ......b...
+block:
+  '.':
+    name: floor
+    tile: 0, 3
+  '#':
+    name: wall
+    wall: true
+    block: true
+  'b':
+    name: crate
+    tile: 0, 3
+    block: true,
+    sprite: data/crate.png
