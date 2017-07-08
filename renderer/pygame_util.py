@@ -36,7 +36,7 @@ class TiledRenderer(object):
   def get_display_size(self):
     width = self.tiled_map.width * self.tiled_map.tilewidth
     height = self.tiled_map.height * self.tiled_map.tileheight
-    return (width, height)
+    return [width, height]
 
   def get_background(self):
     # Get the background layer
@@ -45,13 +45,13 @@ class TiledRenderer(object):
     background = pygame.Surface(self.screen.get_size())
     for layer in background_layers:
       for (x, y, image) in layer.tiles():
-        area = (x * self.tiled_map.tilewidth, y * self.tiled_map.tileheight)
+        area = [x * self.tiled_map.tilewidth, y * self.tiled_map.tileheight]
         background.blit(image, area)
     return background
 
   def get_overlays(self):
     # Get the tile dimension
-    tile_dim = (self.tiled_map.tilewidth, self.tiled_map.tileheight)
+    tile_dim = [self.tiled_map.tilewidth, self.tiled_map.tileheight]
     # Get the overlay layer
     overlay_layers = self.layers['overlay']
     # Get all the overlay images

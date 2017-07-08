@@ -38,7 +38,7 @@ class Soccer(TiledRenderer):
   def load(self):
     # Initialize Pygame
     pygame.display.init()
-    pygame.display.set_mode((400, 300))
+    pygame.display.set_mode([400, 300])
     pygame.display.set_caption(self.TITLE)
 
     # Initialize the renderer
@@ -60,7 +60,7 @@ class Soccer(TiledRenderer):
       self.players.add(overlay)
 
     # Blit the background to the screen
-    self.screen.blit(self.background, (0, 0))
+    self.screen.blit(self.background, [0, 0])
 
     # Update the full display
     pygame.display.flip()
@@ -82,7 +82,7 @@ class Soccer(TiledRenderer):
         [player1, player1_ball],
         [player2, player2_ball],
     ]
-    for player_ind in range(0, 2):
+    for player_ind in range(2):
       # Get the player state
       player_list = player_obj[player_ind]
       player_pos = self.env_state.get_player_pos(player_ind)
