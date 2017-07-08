@@ -9,9 +9,9 @@ def main():
   # Create an environment state
   env_state = EnvironmentState()
 
-  # Create a renderer environment
+  # Create a renderer
   soccer = Soccer(env_state)
-  # Initialize the renderer environment
+  # Initialize the renderer
   soccer.load()
 
   # Keep rendering until the renderer window is closed
