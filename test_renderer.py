@@ -1,14 +1,19 @@
 #!/usr/bin/python
 
 # User-defined modules
+from environment import EnvironmentState
 from renderer import Soccer
 
 
 def main():
+  # Create an environment state
+  env_state = EnvironmentState()
+
   # Create a renderer environment
-  soccer = Soccer()
+  soccer = Soccer(env_state)
   # Initialize the renderer environment
-  soccer.init()
+  soccer.load()
+
   # Keep rendering until the renderer window is closed
   is_running = True
   while is_running:
