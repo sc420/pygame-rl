@@ -1,6 +1,6 @@
-# pygame-soccer
+# Pygame Soccer
 
-A pygame soccer environment.
+A Pygame soccer environment.
 
 ## Installation
 
