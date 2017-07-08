@@ -1,0 +1,12 @@
+player1:
+  x: 2
+  y: 2
+player1_ball:
+  x: 6
+  y: 2
+player2:
+  x: 2
+  y: 3
+player2_ball:
+  x: 6
+  y: 3
