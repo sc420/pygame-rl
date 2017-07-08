@@ -12,7 +12,7 @@ A Pygame soccer environment.
 
 ## Running
 
-To test the renderer, run `test_renderer.py`. Press the arrow keys to control the player 1. Press key `1` to make the player 1 has ball; Press key `2` to take the ball away from the player 2.
+To test the renderer, run `test_renderer.py`. Press the arrow keys to control the player 1. Press key `1` to make the player 1 has ball; Press key `2` to take the ball away from the player 1.
 
 ## Development
 
