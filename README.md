@@ -7,14 +7,18 @@ A Pygame soccer environment.
 ### Requirements
 
 - [Python 3.6](https://www.continuum.io/)
-- [Pygame](https://www.pygame.org/wiki/GettingStarted#Pygame%20Installation)
-- [PyTMX](https://github.com/bitcraft/PyTMX#installation)
+
+Run the following to install all the dependencies locally.
+
+```
+pip install -e .
+```
 
 ## Running
 
-To test the reinforcement learning environment with the random agent, run `test_env.py`.
+To test the reinforcement learning environment with the random agent, run `examples/test_env.py`.
 
-To test the renderer, run `test_renderer.py`. Press the arrow keys to control the player 1. Press key `1` to make the player 1 has ball; Press key `2` to take the ball away from the player 1.
+To test the renderer, run `examples/test_renderer.py`. Press the arrow keys to control the player 1. Press key `1` to make the player 1 has ball; Press key `2` to take the ball away from the player 1.
 
 ## Development
 
