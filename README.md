@@ -8,7 +8,7 @@ A Pygame soccer environment.
 
 - [Python 3.6](https://www.continuum.io/)
 - [Pygame](https://www.pygame.org/wiki/GettingStarted#Pygame%20Installation)
-- [PyTMX](https://github.com/bitcraft/PyTMX)
+- [PyTMX](https://github.com/bitcraft/PyTMX#installation)
 
 ## Running
 
