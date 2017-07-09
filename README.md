@@ -20,6 +20,7 @@ To test the renderer, run `test_renderer.py`. Press the arrow keys to control th
 
 ### Software
 
-- [Visual Studio Code](https://code.visualstudio.com/) for editing and running Python files.
+- [Visual Studio Code](https://code.visualstudio.com/) for editing the text files.
 - [Python extension for VSCode](https://marketplace.visualstudio.com/items?itemName=donjayamanne.python) for linting Python files.
 - [Tiled Map Editor](http://www.mapeditor.org/) for editing `.tmx` and `.tsx` files.
+- [GIMP](https://www.gimp.org/) for editing the image files.
