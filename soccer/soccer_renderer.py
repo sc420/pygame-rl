@@ -12,13 +12,15 @@ class SoccerRenderer(TiledRenderer):
   # Constants
   TITLE = 'Soccer'
   MAP_FILENAME = 'data/map/soccer.tmx'
-  MAX_FPS = 60
 
   # Environment state
   env_state = None
 
   # Whether to enable the key events
   enable_key_events = False
+
+  # Max FPS
+  max_fps = 60
 
   # TMX objects
   tiled_map = None
@@ -34,10 +36,11 @@ class SoccerRenderer(TiledRenderer):
   # Render updates (pygame.sprite.RenderUpdates)
   players = None
 
-  def __init__(self, env_state, enable_key_events=False):
+  def __init__(self, env_state, enable_key_events=False, max_fps=60):
     super().__init__(self.MAP_FILENAME)
     self.env_state = env_state
     self.enable_key_events = enable_key_events
+    self.max_fps = max_fps
 
   def load(self):
     # Initialize Pygame
@@ -105,7 +108,7 @@ class SoccerRenderer(TiledRenderer):
     pygame.display.update(dirty)
 
     # Limit the max frames per second
-    self.clock.tick(self.MAX_FPS)
+    self.clock.tick(self.max_fps)
 
     # Handle the events
     for event in pygame.event.get():
