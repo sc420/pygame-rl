@@ -125,9 +125,9 @@ class SoccerRenderer(TiledRenderer):
           elif event.key == pygame.locals.K_DOWN:
             self.env_state.take_action('MOVE_DOWN')
           elif event.key == pygame.locals.K_1:
-            self.env_state.set_player_ball(0, True)
+            self.env_state.state.set_player_ball(0, True)
           elif event.key == pygame.locals.K_2:
-            self.env_state.set_player_ball(0, False)
+            self.env_state.state.set_player_ball(0, False)
 
     # Indicate the rendering should continue
     return True
