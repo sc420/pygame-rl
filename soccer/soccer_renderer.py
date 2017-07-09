@@ -17,6 +17,9 @@ class SoccerRenderer(TiledRenderer):
   # Environment state
   env_state = None
 
+  # Whether to enable the key events
+  enable_key_events = False
+
   # TMX objects
   tiled_map = None
   overlays = None
@@ -31,9 +34,10 @@ class SoccerRenderer(TiledRenderer):
   # Render updates (pygame.sprite.RenderUpdates)
   players = None
 
-  def __init__(self, env_state):
+  def __init__(self, env_state, enable_key_events=False):
     super().__init__(self.MAP_FILENAME)
     self.env_state = env_state
+    self.enable_key_events = enable_key_events
 
   def load(self):
     # Initialize Pygame
@@ -85,8 +89,8 @@ class SoccerRenderer(TiledRenderer):
     for player_ind in range(2):
       # Get the player state
       player_list = player_obj[player_ind]
-      player_pos = self.env_state.get_player_pos(player_ind)
-      has_ball = self.env_state.get_player_ball(player_ind)
+      player_pos = self.env_state.state.get_player_pos(player_ind)
+      has_ball = self.env_state.state.get_player_ball(player_ind)
       # Choose the player
       player = player_list[1 if has_ball else 0]
       # Set the player position
@@ -99,31 +103,31 @@ class SoccerRenderer(TiledRenderer):
 
     # Update only the dirty surface
     pygame.display.update(dirty)
-    pygame.display.flip()
 
     # Limit the max frames per second
     self.clock.tick(self.MAX_FPS)
 
-    # Handle the event
+    # Handle the events
     for event in pygame.event.get():
-      # Detect quit event
+      # Detect the quit event
       if event.type == pygame.locals.QUIT:
         # Indicate the rendering should stop
         return False
-      # Detect keydown event
-      elif event.type == pygame.locals.KEYDOWN:
-        if event.key == pygame.locals.K_RIGHT:
-          self.env_state.take_action(0, 'MOVE_RIGHT')
-        elif event.key == pygame.locals.K_UP:
-          self.env_state.take_action(0, 'MOVE_UP')
-        elif event.key == pygame.locals.K_LEFT:
-          self.env_state.take_action(0, 'MOVE_LEFT')
-        elif event.key == pygame.locals.K_DOWN:
-          self.env_state.take_action(0, 'MOVE_DOWN')
-        elif event.key == pygame.locals.K_1:
-          self.env_state.set_player_ball(0, True)
-        elif event.key == pygame.locals.K_2:
-          self.env_state.set_player_ball(0, False)
+      # Detect the keydown event
+      if self.enable_key_events:
+        if event.type == pygame.locals.KEYDOWN:
+          if event.key == pygame.locals.K_RIGHT:
+            self.env_state.take_action('MOVE_RIGHT')
+          elif event.key == pygame.locals.K_UP:
+            self.env_state.take_action('MOVE_UP')
+          elif event.key == pygame.locals.K_LEFT:
+            self.env_state.take_action('MOVE_LEFT')
+          elif event.key == pygame.locals.K_DOWN:
+            self.env_state.take_action('MOVE_DOWN')
+          elif event.key == pygame.locals.K_1:
+            self.env_state.set_player_ball(0, True)
+          elif event.key == pygame.locals.K_2:
+            self.env_state.set_player_ball(0, False)
 
     # Indicate the rendering should continue
     return True

@@ -1,63 +1,18 @@
-class EnvironmentState(object):
-  """The internal state of the environment.
+# Native modules
+from abc import ABCMeta, abstractmethod
+
+
+class Environment(metaclass=ABCMeta):
+  """The abstract class for the enviornment.
   """
-  # Action
-  actions = [
-      'MOVE_RIGHT',
-      'MOVE_UP',
-      'MOVE_LEFT',
-      'MOVE_DOWN',
-      'STAND'
-  ]
+  @abstractmethod
+  def reset(self):
+    raise NotImplementedError()
 
-  # Bounds (x, y, w, h)
-  bounds = [1, 0, 7, 6]
+  @abstractmethod
+  def take_action(self, action):
+    raise NotImplementedError()
 
-  # Player
-  player = [
-      {
-          'pos': [3, 2],
-          'ball': True,
-      },
-      {
-          'pos': [5, 2],
-          'ball': False,
-      },
-  ]
-
-  def take_action(self, index, action):
-    # Copy the player position
-    pos = list(self.get_player_pos(index))
-    if action == 'MOVE_RIGHT':
-      pos[0] += 1
-    elif action == 'MOVE_UP':
-      pos[1] -= 1
-    elif action == 'MOVE_LEFT':
-      pos[0] -= 1
-    elif action == 'MOVE_DOWN':
-      pos[1] += 1
-    elif action == 'STAND':
-      pass
-    else:
-      raise ValueError('Unknown action {}'.format(action))
-    if self.is_pos_in_bounds(pos):
-      self.set_player_pos(index, pos)
-
-  def get_player_pos(self, index):
-    return self.player[index]['pos']
-
-  def set_player_pos(self, index, pos):
-    if self.is_pos_in_bounds(pos):
-      self.player[index]['pos'] = pos
-
-  def get_player_ball(self, index):
-    return self.player[index]['ball']
-
-  def set_player_ball(self, index, has_ball):
-    self.player[index]['ball'] = has_ball
-
-  def is_pos_in_bounds(self, pos):
-    return (pos[0] >= self.bounds[0] and
-            pos[1] >= self.bounds[1] and
-            pos[0] < self.bounds[0] + self.bounds[2] and
-            pos[1] < self.bounds[1] + self.bounds[3])
+  @abstractmethod
+  def render(self):
+    raise NotImplementedError()
