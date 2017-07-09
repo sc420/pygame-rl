@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Native packages
+# Native modules
 from setuptools import setup, find_packages
 
 
