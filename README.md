@@ -45,11 +45,15 @@ observation = soccer_env.reset()
 ```python
 soccer_env.render()
 ```
-4. Take an action and get the observation. The action list is defined in `soccer/soccer_environment.py:SoccerEnvironment`.
+4. Get the screenshot. The returned `screenshot` is `bytes` containing R, G, B, and A channel of each pixel in flattened order by default. The flattened order is row-major (A row has the same x value) and started from the top-left pixel.
+```
+screenshot = soccer_env.renderer.get_screenshot()
+```
+5. Take an action and get the observation. The action list is defined in `soccer/soccer_environment.py:SoccerEnvironment`.
 ```python
 observation = soccer_env.take_action(action)
 ```
-5. Check whether the state is terminal. The state is the internal state of the environment and defined in `soccer/soccer_environment.py:SoccerState`.
+6. Check whether the state is terminal. The state is the internal state of the environment and defined in `soccer/soccer_environment.py:SoccerState`.
 ```python
 if soccer_env.state.is_terminal():
   # Do something

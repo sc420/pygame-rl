@@ -134,3 +134,6 @@ class SoccerRenderer(TiledRenderer):
 
     # Indicate the rendering should continue
     return True
+
+  def get_screenshot(self, image_format='RGBA'):
+    return pygame.image.tostring(self.screen, image_format)

@@ -28,6 +28,8 @@ def main():
     while is_running:
       # Render the environment
       soccer_env.render()
+      # Get the screenshot
+      screenshot = soccer_env.renderer.get_screenshot()
       # Take a random action
       action = random.choice(soccer_env.actions)
       observation = soccer_env.take_action(action)
