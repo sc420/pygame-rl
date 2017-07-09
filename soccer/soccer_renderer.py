@@ -6,8 +6,8 @@ import pygame.locals
 from renderer.pygame_util import TiledRenderer
 
 
-class Soccer(TiledRenderer):
-  """Soccer environment.
+class SoccerRenderer(TiledRenderer):
+  """Soccer renderer.
   """
   # Constants
   TITLE = 'Soccer'
