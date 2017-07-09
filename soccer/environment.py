@@ -7,7 +7,7 @@ class EnvironmentState(object):
       'MOVE_UP',
       'MOVE_LEFT',
       'MOVE_DOWN',
-      'IDLE'
+      'STAND'
   ]
 
   # Bounds (x, y, w, h)
@@ -36,7 +36,7 @@ class EnvironmentState(object):
       pos[0] -= 1
     elif action == 'MOVE_DOWN':
       pos[1] += 1
-    elif action == 'IDLE':
+    elif action == 'STAND':
       pass
     else:
       raise ValueError('Unknown action {}'.format(action))
