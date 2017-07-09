@@ -14,6 +14,7 @@ def main():
   # Create a soccer environment
   soccer_env = soccer.SoccerEnvironment(renderer_max_fps=10)
 
+  # Run many episodes
   for episode_ind in range(10):
     # Print the episode number
     print('')
