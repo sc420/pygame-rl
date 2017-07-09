@@ -12,6 +12,8 @@ A Pygame soccer environment.
 
 ## Running
 
+To test the RL environment with a random agent, run `test_env.py`.
+
 To test the renderer, run `test_renderer.py`. Press the arrow keys to control the player 1. Press key `1` to make the player 1 has ball; Press key `2` to take the ball away from the player 1.
 
 ## Development

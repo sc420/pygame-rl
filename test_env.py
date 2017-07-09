@@ -8,19 +8,6 @@ import soccer
 
 
 def main():
-  # # Create an environment state
-  # env_state = soccer.EnvironmentState()
-
-  # # Create a renderer
-  # renderer = soccer.SoccerRenderer(env_state)
-  # # Initialize the renderer
-  # renderer.load()
-
-  # # Keep rendering until the renderer window is closed
-  # is_running = True
-  # while is_running:
-  #   is_running = renderer.render()
-
   # Initialize the random number generator
   random.seed(0)
 
