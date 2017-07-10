@@ -45,7 +45,7 @@ observation = soccer_env.reset()
 ```python
 soccer_env.render()
 ```
-4. Get the screenshot. The returned `screenshot` is `bytes` containing R, G, B, and A channel of each pixel in flattened order by default. The flattened order is row-major (A row has the same x value) and started from the top-left pixel. This step requires the previous step has been called.
+4. Get the screenshot. The returned `screenshot` is `bytes` containing R, G, B, and A channel of each pixel in flattened order by default. The flattened order is row-major (A row has the same y value, from left to right) and started from the top-left pixel. This step requires the previous step has been called.
 ```
 screenshot = soccer_env.renderer.get_screenshot()
 ```
