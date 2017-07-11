@@ -65,6 +65,7 @@ setup(
     install_requires=[
         'pygame',
         'pytmx',
+        'numpy',
     ],
 
     # List additional groups of dependencies here (e.g. development
@@ -72,7 +73,7 @@ setup(
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'dev': ['check-manifest'],
+        'dev': ['scipy'],
         'test': ['coverage'],
     },
 

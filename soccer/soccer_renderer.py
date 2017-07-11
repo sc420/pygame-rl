@@ -1,4 +1,5 @@
 # Third-party modules
+import numpy as np
 import pygame
 import pygame.locals
 
@@ -152,5 +153,7 @@ class SoccerRenderer(TiledRenderer):
     # Indicate the rendering should continue
     return True
 
-  def get_screenshot(self, image_format='RGBA'):
-    return pygame.image.tostring(self.screen, image_format)
+  def get_screenshot(self):
+    image = pygame.surfarray.array3d(self.screen)
+    # Swap the axes as the X and Y axes in Pygame and Scipy are opposite
+    return np.swapaxes(image, 0, 1)

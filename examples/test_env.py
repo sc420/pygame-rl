@@ -3,6 +3,9 @@
 # Native modules
 import random
 
+# Third-party modules
+import scipy.misc
+
 # User-defined modules
 import soccer
 
@@ -39,6 +42,8 @@ def main():
         print('Episode {} ends at time step {}'.format(
             episode_ind + 1, soccer_env.state.time_step + 1))
         is_running = False
+    # Save the last image
+    scipy.misc.imsave('screenshot.png', screenshot)
 
 
 if __name__ == '__main__':
