@@ -79,12 +79,12 @@ is_terminal = state.is_terminal()
 ```python
 has_won = state.is_player_win(player_index)
 ```
-* Get of set the player position.
+* Get or set the player position.
 ```python
 pos = state.get_player_pos(player_index)
 state.set_player_pos(player_index, pos)
 ```
-* Get the possession of the ball.
+* Get or set the possession of the ball.
 ```python
 has_ball = state.get_player_ball(player_index)
 state.set_player_pos(player_index, has_ball)
