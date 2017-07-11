@@ -31,6 +31,8 @@ To test the renderer, run `examples/test_renderer.py`. Press the arrow keys to c
 
 ## Environment
 
+### Controlling
+
 The example code can be found in `examples/test_env.py`. The procedure to control the environment is as follows.
 
 1. Create an enrionment. An optional argument `renderer_options` can be used to control the renderer behaviors. The definition of renderer options can be found in `soccer/renderer_options.py:RendererOptions`.
@@ -53,8 +55,41 @@ screenshot = soccer_env.renderer.get_screenshot()
 ```python
 observation = soccer_env.take_action(action)
 ```
-6. Check whether the state is terminal. The state is the internal state of the environment and defined in `soccer/soccer_environment.py:SoccerState`.
+6. Check whether the state is terminal. See the [State](#state) section for details.
 ```python
 if soccer_env.state.is_terminal():
   # Do something
+```
+
+### State
+
+The state represents the internal state of the environment. The definition can be found in `soccer/soccer_environment.py:SoccerState`.
+
+The state contains several things that can be controlled.
+
+* Reset the state. The player positions, ball possession, and computer agent mode will be randomized. The time step will be set to 0.
+```python
+state.reset()
+```
+* Whether the state is terminal.
+```python
+is_terminal = state.is_terminal()
+```
+* Whether the player has won. The `player_index` is either 0 (Player) or 1 (Computer).
+```python
+has_won = state.is_player_win(player_index)
+```
+* Get of set the player position.
+```python
+pos = state.get_player_pos(player_index)
+state.set_player_pos(player_index, pos)
+```
+* Get the possession of the ball.
+```python
+has_ball = state.get_player_ball(player_index)
+state.set_player_pos(player_index, has_ball)
+```
+* Set the computer agent mode. The `mode` is either `DEFENSIVE` (Defensive) or `OFFENSIVE` (Offensive).
+```python
+state.set_computer_agent_mode(mode)
 ```
