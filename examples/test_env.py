@@ -43,7 +43,9 @@ def main():
             episode_ind + 1, soccer_env.state.time_step + 1))
         is_running = False
     # Save the last image
-    scipy.misc.imsave('screenshot.png', screenshot)
+    screenshot_path = 'screenshot.png'
+    scipy.misc.imsave(screenshot_path, screenshot)
+    print('The last screenshot is saved to {}'.format(screenshot_path))
 
 
 if __name__ == '__main__':
