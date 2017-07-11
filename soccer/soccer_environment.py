@@ -9,23 +9,6 @@ from soccer.soccer_renderer import SoccerRenderer
 
 class SoccerEnvironment(Environment):
   """The soccer environment.
-
-  The environment is a reproduction of the soccer game described in the paper:
-  See He, He, et al. "Opponent modeling in deep reinforcement learning."
-  International Conference on Machine Learning. 2016.
-
-  The computer agent has 4 strategies according to the scenarios described in
-  the paper. The internal algorithm of either approaching or avoiding is by
-  randomly moving the direction in either axis so that the Euclidean distance
-  from the target is shorter or further.
-
-  * "Avoid opponent": See where the player is, avoid him.
-  * "Advance to goal": See where the leftmost goal is, approach it.
-  * "Defend goal": See where the rightmost goal is, approach it.
-  * "Intercept goal": See where the player is, approach him.
-
-  The two agents move in random order, i.e., every time the player moves, the
-  computer agent either moves first or follows the move by the player.
   """
   # State
   state = None
