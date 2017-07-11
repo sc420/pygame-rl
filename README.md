@@ -2,6 +2,8 @@
 
 A Pygame soccer environment.
 
+![screenshot](docs/screenshot.png "Screenshot")
+
 ## Installation
 
 ### Requirements
