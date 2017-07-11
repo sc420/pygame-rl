@@ -264,6 +264,10 @@ class SoccerState(object):
   def __init__(self):
     self.randomize()
 
+  def reset(self):
+    self.randomize()
+    self.time_step = 0
+
   def is_terminal(self):
     # When the time step exceeds 100
     if self.time_step >= 100:
@@ -275,12 +279,8 @@ class SoccerState(object):
     # Otherwise, the state isn't terminal
     return False
 
-  def reset(self):
-    self.randomize()
-    self.time_step = 0
-
   def randomize(self):
-    # Randomize the player position
+    # Randomize the player positions
     for player_ind in range(len(self.spawn_bounds_list)):
       spawn_bounds = self.spawn_bounds_list[player_ind]
       x_range = [spawn_bounds[0], spawn_bounds[0] + spawn_bounds[2]]
