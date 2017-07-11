@@ -1,6 +1,6 @@
 # Pygame Soccer
 
-A Pygame soccer environment.
+A reproduction of the game described in the paper [He, He, et al. "Opponent modeling in deep reinforcement learning." International Conference on Machine Learning. 2016](https://www.umiacs.umd.edu/~hal/docs/daume16opponent.pdf). Pygame is used as the rendering framework. PyTMX is used to read the map file.
 
 ![screenshot](docs/screenshot.png "Screenshot")
 
