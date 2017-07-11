@@ -87,7 +87,7 @@ state.set_player_pos(player_index, pos)
 * Get or set the possession of the ball.
 ```python
 has_ball = state.get_player_ball(player_index)
-state.set_player_pos(player_index, has_ball)
+state.set_player_ball(player_index, has_ball)
 ```
 * Set the computer agent mode. The `mode` is either `DEFENSIVE` (Defensive) or `OFFENSIVE` (Offensive).
 ```python
