@@ -314,6 +314,9 @@ class SoccerState(object):
   def set_player_ball(self, index, has_ball):
     self.player_list[index]['ball'] = has_ball
 
+  def set_computer_agent_mode(self, mode):
+    self.computer_agent_mode = mode
+
   def increase_time_step(self):
     self.time_step += 1
 
