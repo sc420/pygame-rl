@@ -1,8 +1,10 @@
 # Pygame Soccer
 
-A reproduction of the game described in the paper [He, He, et al. "Opponent modeling in deep reinforcement learning." International Conference on Machine Learning. 2016](https://www.umiacs.umd.edu/~hal/docs/daume16opponent.pdf). Pygame is used as the rendering framework. PyTMX is used to read the map file.
+A variant of the game described in the paper [He, He, et al. "Opponent modeling in deep reinforcement learning." International Conference on Machine Learning. 2016][paper]. Pygame is used as the rendering framework. PyTMX is used to read the map file.
 
 ![screenshot](docs/screenshot.png "Screenshot")
+
+Customized Minecraft texture is used for displaying the tiles. Reinforcement learning agent controls the player 1 (shown as the player Steve head), the computer agent controls the player 2 (shown as the creeper head). The goal field height has been extended to 4. See the [paper][paper] for the game rules.
 
 ## Installation
 
@@ -95,3 +97,5 @@ state.set_player_ball(player_index, has_ball)
 ```python
 state.set_computer_agent_mode(mode)
 ```
+
+[paper]: https://www.umiacs.umd.edu/~hal/docs/daume16opponent.pdf
