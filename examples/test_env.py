@@ -12,7 +12,7 @@ def main():
   random.seed(0)
 
   # Create a soccer environment
-  soccer_env = soccer.SoccerEnvironment(renderer_max_fps=10)
+  soccer_env = soccer.SoccerEnvironment()
 
   # Run many episodes
   for episode_ind in range(10):

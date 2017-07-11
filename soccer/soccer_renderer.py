@@ -4,6 +4,7 @@ import pygame.locals
 
 # User-defined modules
 from renderer.pygame_util import TiledRenderer
+from soccer.renderer_options import RendererOptions
 
 
 class SoccerRenderer(TiledRenderer):
@@ -16,11 +17,11 @@ class SoccerRenderer(TiledRenderer):
   # Environment state
   env_state = None
 
-  # Whether to enable the key events
-  enable_key_events = False
+  # Renderer options
+  renderer_options = None
 
-  # Max FPS
-  max_fps = 60
+  # Display state
+  display_quitted = False
 
   # TMX objects
   tiled_map = None
@@ -36,11 +37,13 @@ class SoccerRenderer(TiledRenderer):
   # Render updates (pygame.sprite.RenderUpdates)
   players = None
 
-  def __init__(self, env_state, enable_key_events=False, max_fps=60):
+  def __init__(self, env_state, renderer_options=None):
     super().__init__(self.MAP_FILENAME)
     self.env_state = env_state
-    self.enable_key_events = enable_key_events
-    self.max_fps = max_fps
+    if renderer_options:
+      self.renderer_options = renderer_options
+    else:
+      self.renderer_options = RendererOptions()
 
   def load(self):
     # Initialize Pygame
@@ -70,12 +73,23 @@ class SoccerRenderer(TiledRenderer):
     self.screen.blit(self.background, [0, 0])
 
     # Update the full display
-    pygame.display.flip()
+    if self.renderer_options.show_display:
+      pygame.display.flip()
 
     # Create the clock
     self.clock = pygame.time.Clock()
 
   def render(self):
+    # Uninitialize the display if the renderer options is set to disable the
+    # display
+    if not self.display_quitted and not self.renderer_options.show_display:
+      # Replace the screen surface with in-memory surface
+      self.screen = self.screen.copy()
+      # Uninitialize the display
+      pygame.display.quit()
+      # Prevent from further unitialization
+      self.display_quitted = True
+
     # Clear the overlays
     self.players.clear(self.screen, self.background)
 
@@ -105,32 +119,35 @@ class SoccerRenderer(TiledRenderer):
     dirty = self.players.draw(self.screen)
 
     # Update only the dirty surface
-    pygame.display.update(dirty)
+    if self.renderer_options.show_display:
+      pygame.display.update(dirty)
 
     # Limit the max frames per second
-    self.clock.tick(self.max_fps)
+    if self.renderer_options.show_display:
+      self.clock.tick(self.renderer_options.max_fps)
 
     # Handle the events
-    for event in pygame.event.get():
-      # Detect the quit event
-      if event.type == pygame.locals.QUIT:
-        # Indicate the rendering should stop
-        return False
-      # Detect the keydown event
-      if self.enable_key_events:
-        if event.type == pygame.locals.KEYDOWN:
-          if event.key == pygame.locals.K_RIGHT:
-            self.env_state.take_action('MOVE_RIGHT')
-          elif event.key == pygame.locals.K_UP:
-            self.env_state.take_action('MOVE_UP')
-          elif event.key == pygame.locals.K_LEFT:
-            self.env_state.take_action('MOVE_LEFT')
-          elif event.key == pygame.locals.K_DOWN:
-            self.env_state.take_action('MOVE_DOWN')
-          elif event.key == pygame.locals.K_1:
-            self.env_state.state.set_player_ball(0, True)
-          elif event.key == pygame.locals.K_2:
-            self.env_state.state.set_player_ball(0, False)
+    if self.renderer_options.show_display:
+      for event in pygame.event.get():
+        # Detect the quit event
+        if event.type == pygame.locals.QUIT:
+          # Indicate the rendering should stop
+          return False
+        # Detect the keydown event
+        if self.renderer_options.enable_key_events:
+          if event.type == pygame.locals.KEYDOWN:
+            if event.key == pygame.locals.K_RIGHT:
+              self.env_state.take_action('MOVE_RIGHT')
+            elif event.key == pygame.locals.K_UP:
+              self.env_state.take_action('MOVE_UP')
+            elif event.key == pygame.locals.K_LEFT:
+              self.env_state.take_action('MOVE_LEFT')
+            elif event.key == pygame.locals.K_DOWN:
+              self.env_state.take_action('MOVE_DOWN')
+            elif event.key == pygame.locals.K_1:
+              self.env_state.state.set_player_ball(0, True)
+            elif event.key == pygame.locals.K_2:
+              self.env_state.state.set_player_ball(0, False)
 
     # Indicate the rendering should continue
     return True

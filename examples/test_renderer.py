@@ -5,11 +5,15 @@ import soccer
 
 
 def main():
-  # Create a soccer environment
-  soccer_env = soccer.SoccerEnvironment()
+  # Create a renderer options
+  renderer_options = soccer.RendererOptions(
+      show_display=True, max_fps=60, enable_key_events=True)
 
-  # Create a renderer
-  renderer = soccer.SoccerRenderer(soccer_env, enable_key_events=True)
+  # Create a soccer environment
+  soccer_env = soccer.SoccerEnvironment(renderer_options)
+
+  # Get the renderer wrapped in the environment
+  renderer = soccer_env.renderer
 
   # Initialize the renderer
   renderer.load()

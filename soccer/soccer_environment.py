@@ -53,10 +53,9 @@ class SoccerEnvironment(Environment):
   renderer = None
   renderer_loaded = False
 
-  def __init__(self, renderer_max_fps=30):
+  def __init__(self, renderer_options=None):
     self.state = SoccerState()
-    self.renderer = SoccerRenderer(self, enable_key_events=False,
-                                   max_fps=renderer_max_fps)
+    self.renderer = SoccerRenderer(self, renderer_options)
 
   def reset(self):
     self.state.reset()
