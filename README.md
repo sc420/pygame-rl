@@ -107,6 +107,6 @@ The computer agent has 4 strategies according to the scenarios described in the 
 * "Defend goal": See where the rightmost goal is, select a random grid, approach it.
 * "Intercept goal": See where the player is, approach him.
 
-The two agents move in random order, i.e., every time the player moves, the computer agent either moves first or follows the move by the player.
+The two agents move in random order, i.e., every time the player plans to moves, the computer agent either moves first or follows the move by the player.
 
 [paper]: https://www.umiacs.umd.edu/~hal/docs/daume16opponent.pdf
