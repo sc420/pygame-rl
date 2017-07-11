@@ -43,10 +43,10 @@ class SoccerEnvironment(Environment):
   bounds_list = [
       # Field
       [1, 0, 7, 6],
-      # Left goal
-      [0, 2, 1, 2],
-      # Right goal
-      [8, 2, 1, 2],
+      # Leftmost goal
+      [0, 1, 1, 4],
+      # Rightmost goal
+      [8, 1, 1, 4],
   ]
 
   # Renderer
@@ -123,21 +123,13 @@ class SoccerEnvironment(Environment):
         target_pos = player_pos
         strategic_mode = 'AVOID'
       else:
-        # If the computer agent is on top half, select the top grid as the
-        # target
-        if computer_pos[1] <= 2:
-          target_pos = [7, 2]
-        else:
-          target_pos = [7, 3]
+        # Select a random grid in the rightmost goal
+        target_pos = self.get_random_pos(self.bounds_list[2])
         strategic_mode = 'APPROACH'
     elif agent_mode == 'OFFENSIVE':
       if has_ball:
-        # If the computer agent is on top half, select the top grid as the
-        # target
-        if computer_pos[1] <= 2:
-          target_pos = [0, 2]
-        else:
-          target_pos = [0, 3]
+        # Select a random grid in the leftmost goal
+        target_pos = self.get_random_pos(self.bounds_list[1])
         strategic_mode = 'APPROACH'
       else:
         target_pos = player_pos
@@ -197,6 +189,11 @@ class SoccerEnvironment(Environment):
     else:
       raise ValueError('Unknown action {}'.format(action))
     return pos
+
+  def get_random_pos(self, bounds):
+    x = random.randrange(bounds[0], bounds[0] + bounds[2])
+    y = random.randrange(bounds[1], bounds[1] + bounds[3])
+    return [x, y]
 
   def get_pos_distance(self, pos1, pos2):
     vec = [pos2[0] - pos1[0], pos2[1] - pos1[1]]
