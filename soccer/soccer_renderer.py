@@ -1,3 +1,6 @@
+# Native modules
+import os
+
 # Third-party modules
 import numpy as np
 import pygame
@@ -13,7 +16,7 @@ class SoccerRenderer(TiledRenderer):
   """
   # Constants
   TITLE = 'Soccer'
-  MAP_FILENAME = 'data/map/soccer.tmx'
+  MAP_PATH = '../data/map/soccer.tmx'
 
   # Environment state
   env_state = None
@@ -39,12 +42,13 @@ class SoccerRenderer(TiledRenderer):
   players = None
 
   def __init__(self, env_state, renderer_options=None):
-    super().__init__(self.MAP_FILENAME)
+    # Load the map
+    map_path = self._get_map_path()
+    super().__init__(map_path)
+    # Save the environment state
     self.env_state = env_state
-    if renderer_options:
-      self.renderer_options = renderer_options
-    else:
-      self.renderer_options = RendererOptions()
+    # Use or create the renderer options
+    self.renderer_options = renderer_options or RendererOptions()
 
   def load(self):
     # Initialize Pygame
@@ -157,3 +161,9 @@ class SoccerRenderer(TiledRenderer):
     image = pygame.surfarray.array3d(self.screen)
     # Swap the axes as the X and Y axes in Pygame and Scipy are opposite
     return np.swapaxes(image, 0, 1)
+
+  def _get_map_path(self):
+    # Get the directory at which the file is
+    file_dir = os.path.dirname(__file__)
+    # Join the paths of the file directory and the map path
+    return os.path.join(file_dir, self.MAP_PATH)
