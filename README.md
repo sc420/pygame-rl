@@ -33,19 +33,19 @@ To test the renderer, run `examples/test_renderer.py`. Press the arrow keys to c
 
 The example code can be found in `examples/test_env.py`. The procedure to control the environment is as follows.
 
-1. Create an enrionment. An optional argument `renderer_max_fps` is given to restrain the max frames per second of the rendering.
+1. Create an enrionment. An optional argument `renderer_options` can be used to control the renderer behaviors. The definition of renderer options can be found in `soccer/renderer_options.py:RendererOptions`.
 ```python
-soccer_env = soccer.SoccerEnvironment(renderer_max_fps=10)
+soccer_env = soccer.SoccerEnvironment()
 ```
 2. Reset the environment and get the initial observation. The observation is class containing the old state, the taken action, reward, and the next state. The definition can be found in `soccer/soccer_environment.py:SoccerObservation`.
 ```python
 observation = soccer_env.reset()
 ```
-3. Render the environment. The renderer will lazy load on the first call. Skip the call if you don't need the rendering to speed up the running.
+3. Render the environment. The renderer will lazy load on the first call. Skip the call if you don't need the rendering.
 ```python
 soccer_env.render()
 ```
-4. Get the screenshot. The returned `screenshot` is `bytes` containing R, G, B, and A channel of each pixel in flattened order by default. The flattened order is row-major (A row has the same y value, from left to right) and started from the top-left pixel. This step requires the previous step has been called.
+4. Get the screenshot. The returned `screenshot` is a `numpy.ndarray`, the format is the same as the returned value of `scipy.misc.imread`. The previous step is required for this call to work.
 ```
 screenshot = soccer_env.renderer.get_screenshot()
 ```
