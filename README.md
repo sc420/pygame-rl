@@ -33,9 +33,9 @@ To test the renderer, run `examples/test_renderer.py`. Press the arrow keys to c
 - [Tiled Map Editor](http://www.mapeditor.org/) for editing `.tmx` and `.tsx` files.
 - [GIMP](https://www.gimp.org/) for editing the image files.
 
-## Environment
+## Using
 
-### Controlling
+### Interacting with the Environment
 
 The example code can be found in `examples/test_env.py`. The procedure to control the environment is as follows.
 
@@ -65,7 +65,7 @@ if soccer_env.state.is_terminal():
   # Do something
 ```
 
-### State
+### Controlling the State
 
 The state represents the internal state of the environment. The definition can be found in `soccer/soccer_environment.py:SoccerState`.
 
@@ -98,6 +98,18 @@ state.set_agent_ball(agent_index, has_ball)
 state.set_computer_agent_mode(mode)
 ```
 
+### Changing the Map
+
+Map data is embedded in the map file `data/map/soccer.tmx`. Config file path is associated with layers regarding the name to positions mapping. See `renderer/pygame_util.py` for more information.
+
+To modify the map, for example.
+
+* Change the walkable field: Modify the layer `ground` in `data/map/soccer.tmx` as `data/map/ground_tile.yaml` is associated with the layer.
+* Change the goal field: Modify the layer `goal` in `data/map/soccer.tmx` as `data/map/goal_tile.yaml` is associated with the layer.
+* Change the spawn field: Modify `soccer/soccer_environment.py:SoccerState.spawn_bounds_list`. It's the only positions that are not embedded in the map file.
+
+## Knowledge
+
 ### Computer Agent Algorithm
 
 The computer agent has 4 strategies according to the scenarios described in the [paper][paper]. The internal algorithm of either approaching or avoiding is by randomly moving the direction in either axis so that the Euclidean distance from the target is shorter or further.
@@ -108,15 +120,5 @@ The computer agent has 4 strategies according to the scenarios described in the 
 * "Intercept goal": See where the player is, approach him.
 
 The two agents move in random order, i.e., every time the player plans to moves, the computer agent either moves first or follows the move by the player.
-
-### Map
-
-Map data is embedded in the map file `data/map/soccer.tmx`. Config file path is associated with layers regarding the name to positions mapping. See `renderer/pygame_util.py` for more information.
-
-To modify the map, for example.
-
-* Change the walkable field: Modify the layer `ground` in `data/map/soccer.tmx` as `data/map/ground_tile.yaml` is associated with the layer.
-* Change the goal field: Modify the layer `goal` in `data/map/soccer.tmx` as `data/map/goal_tile.yaml` is associated with the layer.
-* Change the spawn field: Modify `soccer/soccer_environment.py:SoccerState.spawn_bounds_list`. It's the only positions that are not embedded in the map file.
 
 [paper]: https://www.umiacs.umd.edu/~hal/docs/daume16opponent.pdf
