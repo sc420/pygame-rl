@@ -43,7 +43,7 @@ def main():
             episode_ind + 1, soccer_env.state.time_step + 1))
         is_running = False
 
-  # Save the last image
+  # Save the last screenshot
   soccer_env.render()
   screenshot = soccer_env.renderer.get_screenshot()
   screenshot_path = 'screenshot.png'
