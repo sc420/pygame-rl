@@ -4,7 +4,7 @@ A variant of the game described in the paper [He, He, et al. "Opponent modeling 
 
 ![screenshot](docs/screenshot.png "Screenshot")
 
-Customized Minecraft texture is used for displaying the tiles. Reinforcement learning agent controls the player 1 (shown as the player Steve head), the computer agent controls the player 2 (shown as the creeper head). The agent who has the ball is bordered by a blue square (in this case, the creeper has the ball shown in the image). The goal field height has been extended to 4. See the [paper][paper] for the game rules.
+Customized Minecraft texture is used for displaying the tiles. Reinforcement learning agent controls the player 1 (shown as the player Steve head), the computer agent controls the player 2 (shown as the creeper head). The agent who has the ball is bordered by a blue square (in this case, the creeper has the ball shown in the image). See the [paper][paper] for the game rules.
 
 ## Installation
 
