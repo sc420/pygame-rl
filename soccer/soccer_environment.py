@@ -1,6 +1,8 @@
 # Native modules
-import math
 import random
+
+# Third-party modules
+import numpy as np
 
 # User-defined modules
 from renderer.file_util import resolve_path
@@ -110,13 +112,23 @@ class SoccerEnvironment(Environment):
         target_pos = player_pos
         strategic_mode = 'AVOID'
       else:
-        # Select a random grid in the player goal
-        target_pos = random.choice(self.soccer_pos.goals['player'])
+        # Calculate the distance from the player
+        goals = self.soccer_pos.goals['player']
+        distances = [self.get_pos_distance(goal_pos, player_pos)
+                     for goal_pos in goals]
+        # Select the minimum distance
+        min_distance_ind = np.argmin(distances)
+        target_pos = goals[min_distance_ind]
         strategic_mode = 'APPROACH'
     elif agent_mode == 'OFFENSIVE':
       if has_ball:
-        # Select a random grid in the computer goal
-        target_pos = random.choice(self.soccer_pos.goals['computer'])
+        # Calculate the distance from the player
+        goals = self.soccer_pos.goals['computer']
+        distances = [self.get_pos_distance(goal_pos, player_pos)
+                     for goal_pos in goals]
+        # Select the minimum distance
+        min_distance_ind = np.argmax(distances)
+        target_pos = goals[min_distance_ind]
         strategic_mode = 'APPROACH'
       else:
         target_pos = player_pos
@@ -179,8 +191,7 @@ class SoccerEnvironment(Environment):
 
   def get_pos_distance(self, pos1, pos2):
     vec = [pos2[0] - pos1[0], pos2[1] - pos1[1]]
-    pow_sum = math.pow(vec[0], 2) + math.pow(vec[1], 2)
-    return math.sqrt(pow_sum)
+    return np.linalg.norm(vec)
 
 
 class SoccerPosition(object):
