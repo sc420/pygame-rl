@@ -1,10 +1,8 @@
-# Native modules
-import os
-
 # Third-party modules
 import numpy as np
 import pygame
 import pygame.locals
+import pytmx
 
 # User-defined modules
 from renderer.pygame_util import TiledRenderer
@@ -15,8 +13,7 @@ class SoccerRenderer(TiledRenderer):
   """Soccer renderer.
   """
   # Constants
-  TITLE = 'Soccer'
-  MAP_PATH = '../data/map/soccer.tmx'
+  title = 'Soccer'
 
   # Environment state
   env_state = None
@@ -28,7 +25,6 @@ class SoccerRenderer(TiledRenderer):
   display_quitted = False
 
   # TMX objects
-  tiled_map = None
   overlays = None
 
   # Clock object (pygame.time.Clock)
@@ -41,9 +37,7 @@ class SoccerRenderer(TiledRenderer):
   # Render updates (pygame.sprite.RenderUpdates)
   players = None
 
-  def __init__(self, env_state, renderer_options=None):
-    # Load the map
-    map_path = self._get_map_path()
+  def __init__(self, map_path, env_state, renderer_options=None):
     super().__init__(map_path)
     # Save the environment state
     self.env_state = env_state
@@ -54,7 +48,7 @@ class SoccerRenderer(TiledRenderer):
     # Initialize Pygame
     pygame.display.init()
     pygame.display.set_mode([400, 300])
-    pygame.display.set_caption(self.TITLE)
+    pygame.display.set_caption(self.title)
 
     # Initialize the renderer
     super().load()
@@ -161,9 +155,3 @@ class SoccerRenderer(TiledRenderer):
     image = pygame.surfarray.array3d(self.screen)
     # Swap the axes as the X and Y axes in Pygame and Scipy are opposite
     return np.swapaxes(image, 0, 1)
-
-  def _get_map_path(self):
-    # Get the directory at which the file is
-    file_dir = os.path.dirname(__file__)
-    # Join the paths of the file directory and the map path
-    return os.path.join(file_dir, self.MAP_PATH)

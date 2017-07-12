@@ -3,6 +3,8 @@ import math
 import random
 
 # User-defined modules
+from renderer.file_util import resolve_path
+from renderer.pygame_util import TiledData
 from soccer.environment import Environment
 from soccer.soccer_renderer import SoccerRenderer
 
@@ -10,6 +12,9 @@ from soccer.soccer_renderer import SoccerRenderer
 class SoccerEnvironment(Environment):
   """The soccer environment.
   """
+  # Map path relative to this file
+  map_relative_path = '../data/map/soccer.tmx'
+
   # State
   state = None
 
@@ -22,23 +27,22 @@ class SoccerEnvironment(Environment):
       'STAND',
   ]
 
-  # Bounds list (x, y, w, h)
-  bounds_list = [
-      # Field
-      [1, 0, 7, 6],
-      # Leftmost goal
-      [0, 1, 1, 4],
-      # Rightmost goal
-      [8, 1, 1, 4],
-  ]
+  # Positions
+  soccer_pos = None
 
   # Renderer
   renderer = None
   renderer_loaded = False
 
   def __init__(self, renderer_options=None):
-    self.state = SoccerState()
-    self.renderer = SoccerRenderer(self, renderer_options)
+    # Resolve the map absolute path
+    map_path = resolve_path(__file__, self.map_relative_path)
+    # Load the tile positions
+    self.soccer_pos = SoccerPosition(map_path)
+    # Initialize the state
+    self.state = SoccerState(self.soccer_pos)
+    # Initialize the renderer
+    self.renderer = SoccerRenderer(map_path, self, renderer_options)
 
   def reset(self):
     self.state.reset()
@@ -80,7 +84,7 @@ class SoccerEnvironment(Environment):
     self.renderer.render()
 
   def update_agent_pos(self, agent_ind, pos):
-    if is_pos_in_bounds(self.bounds_list, pos):
+    if pos in self.soccer_pos.walkable:
       update = True
       # Check whether one agent loses his ball
       other_agent_index = self.state.get_other_agent_index(agent_ind)
@@ -106,19 +110,19 @@ class SoccerEnvironment(Environment):
         target_pos = player_pos
         strategic_mode = 'AVOID'
       else:
-        # Select a random grid in the rightmost goal
-        target_pos = self.get_random_pos(self.bounds_list[2])
+        # Select a random grid in the player goal
+        target_pos = random.choice(self.soccer_pos.goals['player'])
         strategic_mode = 'APPROACH'
     elif agent_mode == 'OFFENSIVE':
       if has_ball:
-        # Select a random grid in the leftmost goal
-        target_pos = self.get_random_pos(self.bounds_list[1])
+        # Select a random grid in the computer goal
+        target_pos = random.choice(self.soccer_pos.goals['computer'])
         strategic_mode = 'APPROACH'
       else:
         target_pos = player_pos
         strategic_mode = 'APPROACH'
     else:
-      raise ValueError('Unknown computer agent mode {}'.format(agent_mode))
+      raise KeyError('Unknown computer agent mode {}'.format(agent_mode))
     # Get the strategic action
     action = self.get_strategic_action(
         computer_pos, target_pos, strategic_mode)
@@ -139,7 +143,7 @@ class SoccerEnvironment(Environment):
       # Get the moved position after doing the action
       moved_pos = self.get_moved_pos(source_pos, action)
       # Check whether the moved position is valid
-      if not is_pos_in_bounds(self.bounds_list, moved_pos):
+      if not moved_pos in self.soccer_pos.walkable:
         continue
       # Calculate the new Euclidean distance
       moved_dist = self.get_pos_distance(moved_pos, target_pos)
@@ -152,7 +156,7 @@ class SoccerEnvironment(Environment):
           best_action = action
           best_dist = moved_dist
       else:
-        raise ValueError('Unknown mode {}'.format(mode))
+        raise KeyError('Unknown mode {}'.format(mode))
     return best_action
 
   def get_moved_pos(self, pos, action):
@@ -170,18 +174,31 @@ class SoccerEnvironment(Environment):
     elif action == 'STAND':
       pass
     else:
-      raise ValueError('Unknown action {}'.format(action))
+      raise KeyError('Unknown action {}'.format(action))
     return pos
-
-  def get_random_pos(self, bounds):
-    x = random.randrange(bounds[0], bounds[0] + bounds[2])
-    y = random.randrange(bounds[1], bounds[1] + bounds[3])
-    return [x, y]
 
   def get_pos_distance(self, pos1, pos2):
     vec = [pos2[0] - pos1[0], pos2[1] - pos1[1]]
     pow_sum = math.pow(vec[0], 2) + math.pow(vec[1], 2)
     return math.sqrt(pow_sum)
+
+
+class SoccerPosition(object):
+  """The soccer position as the geographical info.
+  """
+  # Tile positions
+  walkable = []
+  goals = []
+
+  def __init__(self, map_path):
+    # Create a tile data and load
+    tiled_data = TiledData(map_path)
+    tiled_data.load()
+    # Get the background tile positions
+    tile_pos = tiled_data.get_background_tile_positions()
+    # Build the tile positions
+    self.walkable = tile_pos['ground']['walkable']
+    self.goals = tile_pos['goal']
 
 
 class SoccerObservation(object):
@@ -228,6 +245,9 @@ class SoccerState(object):
   # Time step
   time_step = 0
 
+  # Soccer position
+  soccer_pos = None
+
   # Spawn bounds list for randomization (x, y, w, h)
   spawn_bounds_list = [
       # Left half
@@ -236,15 +256,8 @@ class SoccerState(object):
       [5, 0, 3, 6],
   ]
 
-  # Goal bounds list (x, y, w, h)
-  goal_bounds_list = [
-      # Right goal for the player
-      [8, 2, 1, 2],
-      # Left goal for the computer
-      [0, 2, 1, 2],
-  ]
-
-  def __init__(self):
+  def __init__(self, soccer_pos):
+    self.soccer_pos = soccer_pos
     self.randomize()
 
   def reset(self):
@@ -281,9 +294,16 @@ class SoccerState(object):
     self.computer_agent_mode = random.choice(self.computer_agent_mode_list)
 
   def is_player_win(self, index):
-    bounds_list = [self.goal_bounds_list[index]]
     player_pos = self.get_player_pos(index)
-    return is_pos_in_bounds(bounds_list, player_pos)
+    has_ball = self.get_player_ball(index)
+    if not has_ball:
+      return False
+    index_to_goal_name = {
+        0: 'player',
+        1: 'computer',
+    }
+    goal_name = index_to_goal_name[index]
+    return player_pos in self.soccer_pos.goals[goal_name]
 
   def get_player_pos(self, index):
     return self.player_list[index]['pos']
@@ -340,14 +360,3 @@ class SoccerState(object):
       hash_list.extend(self.get_player_pos(player_ind))
       hash_list.append(self.get_player_ball(player_ind))
     return hash(tuple(hash_list))
-
-
-def is_pos_in_bounds(bounds_list, pos):
-  for bounds in bounds_list:
-    in_bounds = (pos[0] >= bounds[0]
-                 and pos[1] >= bounds[1]
-                 and pos[0] < bounds[0] + bounds[2]
-                 and pos[1] < bounds[1] + bounds[3])
-    if in_bounds:
-      return True
-  return False
