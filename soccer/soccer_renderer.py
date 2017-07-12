@@ -35,7 +35,7 @@ class SoccerRenderer(TiledRenderer):
   background = None
 
   # Render updates (pygame.sprite.RenderUpdates)
-  players = None
+  agents = None
 
   def __init__(self, map_path, env_state, renderer_options=None):
     super().__init__(map_path)
@@ -63,10 +63,10 @@ class SoccerRenderer(TiledRenderer):
     # Get the overlay
     self.overlays = super().get_overlays()
 
-    # Create the players sprite group
-    self.players = pygame.sprite.RenderUpdates()
+    # Create the agent sprite group
+    self.agents = pygame.sprite.RenderUpdates()
     for overlay in self.overlays.values():
-      self.players.add(overlay)
+      self.agents.add(overlay)
 
     # Blit the background to the screen
     self.screen.blit(self.background, [0, 0])
@@ -90,32 +90,32 @@ class SoccerRenderer(TiledRenderer):
       self.display_quitted = True
 
     # Clear the overlays
-    self.players.clear(self.screen, self.background)
+    self.agents.clear(self.screen, self.background)
 
     # Update the overlays by the environment state
-    self.players.empty()
-    player1 = self.overlays['player1']
-    player1_ball = self.overlays['player1_ball']
-    player2 = self.overlays['player2']
-    player2_ball = self.overlays['player2_ball']
-    player_obj = [
-        [player1, player1_ball],
-        [player2, player2_ball],
+    self.agents.empty()
+    agent1 = self.overlays['agent1']
+    agent1_ball = self.overlays['agent1_ball']
+    agent2 = self.overlays['agent2']
+    agent2_ball = self.overlays['agent2_ball']
+    agent_obj = [
+        [agent1, agent1_ball],
+        [agent2, agent2_ball],
     ]
-    for player_ind in range(2):
-      # Get the player state
-      player_list = player_obj[player_ind]
-      player_pos = self.env_state.state.get_player_pos(player_ind)
-      has_ball = self.env_state.state.get_player_ball(player_ind)
-      # Choose the player
-      player = player_list[1 if has_ball else 0]
-      # Set the player position
-      player.set_pos(player_pos)
+    for agent_ind in range(2):
+      # Get the agent state
+      agent_list = agent_obj[agent_ind]
+      agent_pos = self.env_state.state.get_agent_pos(agent_ind)
+      has_ball = self.env_state.state.get_agent_ball(agent_ind)
+      # Choose the agent
+      agent = agent_list[1 if has_ball else 0]
+      # Set the agent position
+      agent.set_pos(agent_pos)
       # Add the sprite to the group
-      self.players.add(player)
+      self.agents.add(agent)
 
     # Draw the overlays
-    dirty = self.players.draw(self.screen)
+    dirty = self.agents.draw(self.screen)
 
     # Update only the dirty surface
     if self.renderer_options.show_display:
@@ -144,9 +144,9 @@ class SoccerRenderer(TiledRenderer):
             elif event.key == pygame.locals.K_DOWN:
               self.env_state.take_action('MOVE_DOWN')
             elif event.key == pygame.locals.K_1:
-              self.env_state.state.set_player_ball(0, True)
+              self.env_state.state.set_agent_ball(0, True)
             elif event.key == pygame.locals.K_2:
-              self.env_state.state.set_player_ball(0, False)
+              self.env_state.state.set_agent_ball(0, False)
 
     # Indicate the rendering should continue
     return True

@@ -1,12 +1,12 @@
-player1:
+agent1:
   x: 2
   y: 2
-player1_ball:
+agent1_ball:
   x: 2
   y: 3
-player2:
+agent2:
   x: 6
   y: 2
-player2_ball:
+agent2_ball:
   x: 6
   y: 3
