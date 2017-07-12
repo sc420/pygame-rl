@@ -30,6 +30,7 @@
  <layer name="object" width="9" height="6">
   <properties>
    <property name="block" type="file" value="block.yaml"/>
+   <property name="overlay" type="bool" value="true"/>
   </properties>
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,

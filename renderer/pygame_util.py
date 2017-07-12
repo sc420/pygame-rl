@@ -39,6 +39,13 @@ class TiledRenderer(object):
     return [width, height]
 
   def get_background(self):
+    """Get the background surface.
+
+    All background layers will be blitted to the single surface.
+
+    Returns:
+      pygame.Surface: The background surface.
+    """
     # Get the background layer
     background_layers = self.layers['background']
     # Create a new Pygame surface by bliting all the images
@@ -50,6 +57,13 @@ class TiledRenderer(object):
     return background
 
   def get_overlays(self):
+    """Get the overlay surfaces.
+
+
+
+    Returns:
+      pygame.Surface: The background surface.
+    """
     # Get the tile dimension
     tile_dim = [self.tiled_map.tilewidth, self.tiled_map.tileheight]
     # Get the overlay layer
@@ -57,16 +71,19 @@ class TiledRenderer(object):
     # Get all the overlay images
     overlays = {}
     for layer in overlay_layers:
-      # Build the table by pointing the position to the image
-      pos_to_image = {}
-      for (x, y, image) in layer.tiles():
-        pos_to_image[(x, y)] = image
       # Add the overlay images
       prop = layer.properties
       if 'block' in prop:
+        # Build the table by pointing the position to the image
+        pos_to_image = {}
+        for (x, y, image) in layer.tiles():
+          pos_to_image[(x, y)] = image
+        # Get the block file path relative to the map file
         path = prop['block']
         resolved_path = self._get_config_path(path)
+        # Read the block file
         block = read_yaml(resolved_path)
+        # Map the name to the sprite
         for (name, pos) in block.items():
           x = pos['x']
           y = pos['y']
@@ -97,7 +114,7 @@ class TiledRenderer(object):
       prop = layer.properties
       if 'background' in prop and prop['background']:
         layers['background'].append(layer)
-      else:
+      elif 'overlay' in prop and prop['overlay']:
         layers['overlay'].append(layer)
     return layers
 
