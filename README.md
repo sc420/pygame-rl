@@ -4,7 +4,7 @@ A variant of the game described in the paper [He, He, et al. "Opponent modeling 
 
 ![screenshot](docs/screenshot.png "Screenshot")
 
-Customized Minecraft texture is used for displaying the tiles. Reinforcement learning agent controls the player 1 (shown as the player Steve head), the computer agent controls the player 2 (shown as the creeper head). The agent who has the ball is bordered by a blue square (in this case, the creeper has the ball shown in the image). See the [paper][paper] for the game rules.
+Customized Minecraft texture is used for displaying the tiles. Reinforcement learning agent controls the player 1 (shown as the player Steve head), the computer agent controls the player 2 (shown as the creeper head). The agent who has the ball is bordered by a blue square (in this case, the player has the ball shown in the image). When the player carries the ball to the rightmost goal field, a reward of 1.0 is given. The episode ends when either agent carries the ball to the goal field or the time step reaches 100. See the [paper][paper] for the game rules.
 
 ## Installation
 
@@ -103,8 +103,8 @@ state.set_computer_agent_mode(mode)
 The computer agent has 4 strategies according to the scenarios described in the [paper][paper]. The internal algorithm of either approaching or avoiding is by randomly moving the direction in either axis so that the Euclidean distance from the target is shorter or further.
 
 * "Avoid opponent": See where the player is, avoid him.
-* "Advance to goal": See where the leftmost goal is, select a random grid, approach it.
-* "Defend goal": See where the rightmost goal is, select a random grid, approach it.
+* "Advance to goal": See where the leftmost goal field is, select a grid which has the maximum distance from the player, approach it.
+* "Defend goal": See where the rightmost goal field is, select a grid which has the minimum distance from the player, approach it.
 * "Intercept goal": See where the player is, approach him.
 
 The two agents move in random order, i.e., every time the player plans to moves, the computer agent either moves first or follows the move by the player.
