@@ -70,6 +70,8 @@ class SoccerEnvironment(Environment):
     # Determine the reward
     if self.state.is_agent_win(player_ind):
       reward = 1.0
+    elif self.state.is_agent_win(computer_ind):
+      reward = -1.0
     else:
       reward = 0.0
     # Return the observation, the original state is not returned to increase

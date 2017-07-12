@@ -4,7 +4,9 @@ A variant of the game described in the paper [He, He, et al. "Opponent modeling 
 
 ![screenshot](docs/screenshot.png "Screenshot")
 
-Reinforcement learning agent controls the agent 1 (shown as the player Steve head), the computer agent controls the agent 2 (shown as the creeper head). The agent who has the ball is bordered by a blue square (in this case, the player has the ball shown in the image). When the player carries the ball to the rightmost goal field, a reward of 1.0 is given. The episode ends when either one of the agent carries the ball to its goal field or the time step reaches 100. See the [paper][paper] for the game rules.
+Reinforcement learning agent controls the agent 1 (shown as the player Steve head), the computer agent controls the agent 2 (shown as the creeper head). The agent who has the ball is bordered by a blue square (in this case, the player has the ball shown in the image).
+
+When the player carries the ball to the rightmost goal field, a reward of 1.0 is given; When the computer carries the ball to the leftmost goal field, a reward of -1.0 is given. The episode ends when either one of the agent carries the ball to its goal field or the time step reaches 100. See the [paper][paper] for the game rules.
 
 ## Installation
 
