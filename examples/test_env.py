@@ -18,7 +18,7 @@ def main():
   soccer_env = soccer.SoccerEnvironment()
 
   # Run many episodes
-  for episode_ind in range(10):
+  for episode_ind in range(20):
     # Print the episode number
     print('')
     print('Episode {}:'.format(episode_ind + 1))
@@ -42,10 +42,13 @@ def main():
         print('Episode {} ends at time step {}'.format(
             episode_ind + 1, soccer_env.state.time_step + 1))
         is_running = False
-    # Save the last image
-    screenshot_path = 'screenshot.png'
-    scipy.misc.imsave(screenshot_path, screenshot)
-    print('The last screenshot is saved to {}'.format(screenshot_path))
+
+  # Save the last image
+  soccer_env.render()
+  screenshot = soccer_env.renderer.get_screenshot()
+  screenshot_path = 'screenshot.png'
+  scipy.misc.imsave(screenshot_path, screenshot)
+  print('The last screenshot is saved to {}'.format(screenshot_path))
 
 
 if __name__ == '__main__':
