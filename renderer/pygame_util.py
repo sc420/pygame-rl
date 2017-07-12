@@ -73,18 +73,18 @@ class TiledRenderer(object):
     for layer in overlay_layers:
       # Add the overlay images
       prop = layer.properties
-      if 'block' in prop:
+      if 'sprite' in prop:
         # Build the table by pointing the position to the image
         pos_to_image = {}
         for (x, y, image) in layer.tiles():
           pos_to_image[(x, y)] = image
-        # Get the block file path relative to the map file
-        path = prop['block']
+        # Get the sprite file path relative to the map file
+        path = prop['sprite']
         resolved_path = self._get_config_path(path)
-        # Read the block file
-        block = read_yaml(resolved_path)
+        # Read the sprite file
+        sprite = read_yaml(resolved_path)
         # Map the name to the sprite
-        for (name, pos) in block.items():
+        for (name, pos) in sprite.items():
           x = pos['x']
           y = pos['y']
           pos = (x, y)
@@ -98,9 +98,9 @@ class TiledRenderer(object):
           # Save the sprite in the overlays
           overlays[name] = sprite
       else:
-        raise ValueError(
-            '"block" property in required for the layer {} to load the overlays'
-            .format(layer.name))
+        raise ValueError('"sprite" property in required for the layer {} to'
+                         ' load the overlays'
+                         .format(layer.name))
     return overlays
 
   def _get_layers(self):
