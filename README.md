@@ -4,7 +4,7 @@ A variant of the game described in the paper [He, He, et al. "Opponent modeling 
 
 ![screenshot](docs/screenshot.png "Screenshot")
 
-Reinforcement learning agent controls the player 1 (shown as the player Steve head), the computer agent controls the player 2 (shown as the creeper head). The agent who has the ball is bordered by a blue square (in this case, the player has the ball shown in the image). When the player carries the ball to the rightmost goal field, a reward of 1.0 is given. The episode ends when either agent carries the ball to the goal field or the time step reaches 100. See the [paper][paper] for the game rules.
+Reinforcement learning agent controls the agent 1 (shown as the player Steve head), the computer agent controls the agent 2 (shown as the creeper head). The agent who has the ball is bordered by a blue square (in this case, the player has the ball shown in the image). When the player carries the ball to the rightmost goal field, a reward of 1.0 is given. The episode ends when either agent carries the ball to the goal field or the time step reaches 100. See the [paper][paper] for the game rules.
 
 ## Installation
 
@@ -22,7 +22,7 @@ pip install -e .
 
 To test the reinforcement learning environment with the random agent, run `examples/test_env.py`.
 
-To test the renderer, run `examples/test_renderer.py`. Press the arrow keys to control the player 1. Press key `1` to make the player 1 has ball; Press key `2` to take the ball away from the player 1.
+To test the renderer, run `examples/test_renderer.py`. Press the arrow keys to control the agent 1. Press key `1` to make the agent 1 has ball; Press key `2` to take the ball away from the agent 1.
 
 ## Development
 
@@ -71,7 +71,7 @@ The state represents the internal state of the environment. The definition can b
 
 The state contains several things that can be controlled.
 
-* Reset the state. The player positions, ball possession, and computer agent mode will be randomized. The time step will be set to 0.
+* Reset the state. The agent positions, ball possession, and computer agent mode will be randomized. The time step will be set to 0.
 ```python
 state.reset()
 ```
@@ -79,19 +79,19 @@ state.reset()
 ```python
 is_terminal = state.is_terminal()
 ```
-* Whether the player has won. The `player_index` is either 0 (Player) or 1 (Computer).
+* Whether the agent has won. The `agent_index` is either 0 (Player) or 1 (Computer).
 ```python
-has_won = state.is_player_win(player_index)
+has_won = state.is_agent_win(agent_index)
 ```
-* Get or set the player position.
+* Get or set the agent position.
 ```python
-pos = state.get_player_pos(player_index)
-state.set_player_pos(player_index, pos)
+pos = state.get_agent_pos(agent_index)
+state.set_agent_pos(agent_index, pos)
 ```
 * Get or set the possession of the ball.
 ```python
-has_ball = state.get_player_ball(player_index)
-state.set_player_ball(player_index, has_ball)
+has_ball = state.get_agent_ball(agent_index)
+state.set_agent_ball(agent_index, has_ball)
 ```
 * Set the computer agent mode. The `mode` is either `DEFENSIVE` (Defensive) or `OFFENSIVE` (Offensive).
 ```python
@@ -108,5 +108,15 @@ The computer agent has 4 strategies according to the scenarios described in the 
 * "Intercept goal": See where the player is, approach him.
 
 The two agents move in random order, i.e., every time the player plans to moves, the computer agent either moves first or follows the move by the player.
+
+### Map
+
+Map data is embedded in the map file `data/map/soccer.tmx`. Config file path is associated with layers regarding the name to positions mapping. See `renderer/pygame_util.py` for more information.
+
+To modify the map, for example.
+
+* Change the walkable field: Modify the layer `ground` in `data/map/soccer.tmx` as `data/map/ground_tile.yaml` is associated with the layer.
+* Change the goal field: Modify the layer `goal` in `data/map/soccer.tmx` as `data/map/goal_tile.yaml` is associated with the layer.
+* Change the spawn field: Modify `soccer/soccer_environment.py:SoccerState.spawn_bounds_list`. It's the only positions that are not embedded in the map file.
 
 [paper]: https://www.umiacs.umd.edu/~hal/docs/daume16opponent.pdf
