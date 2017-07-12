@@ -59,7 +59,7 @@ screenshot = soccer_env.renderer.get_screenshot()
 ```python
 observation = soccer_env.take_action(action)
 ```
-6. Check whether the state is terminal. See the [State](#state) section for details.
+6. Check whether the state is terminal. See the [Controlling the State](#controlling-the-state) section for details.
 ```python
 if soccer_env.state.is_terminal():
   # Do something
