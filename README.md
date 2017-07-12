@@ -1,10 +1,10 @@
 # Pygame Soccer
 
-A variant of the game described in the paper [He, He, et al. "Opponent modeling in deep reinforcement learning." International Conference on Machine Learning. 2016][paper]. Pygame is used as the rendering framework. PyTMX is used to read the map file.
+A variant of the game described in the paper [He, He, et al. "Opponent modeling in deep reinforcement learning." International Conference on Machine Learning. 2016][paper]. Pygame is used as the rendering framework. PyTMX is used to read the map file. Customized Minecraft texture is used for displaying the tiles.
 
 ![screenshot](docs/screenshot.png "Screenshot")
 
-Customized Minecraft texture is used for displaying the tiles. Reinforcement learning agent controls the player 1 (shown as the player Steve head), the computer agent controls the player 2 (shown as the creeper head). The agent who has the ball is bordered by a blue square (in this case, the player has the ball shown in the image). When the player carries the ball to the rightmost goal field, a reward of 1.0 is given. The episode ends when either agent carries the ball to the goal field or the time step reaches 100. See the [paper][paper] for the game rules.
+Reinforcement learning agent controls the player 1 (shown as the player Steve head), the computer agent controls the player 2 (shown as the creeper head). The agent who has the ball is bordered by a blue square (in this case, the player has the ball shown in the image). When the player carries the ball to the rightmost goal field, a reward of 1.0 is given. The episode ends when either agent carries the ball to the goal field or the time step reaches 100. See the [paper][paper] for the game rules.
 
 ## Installation
 
