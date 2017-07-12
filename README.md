@@ -20,9 +20,9 @@ pip install -e .
 
 ## Running
 
-To test the reinforcement learning environment with the random agent, run `examples/test_env.py`.
+To test the reinforcement learning environment with the random player agent, run `examples/test_env.py`.
 
-To test the renderer, run `examples/test_renderer.py`. Press the arrow keys to control the agent 1. Press key `1` to make the agent 1 has ball; Press key `2` to take the ball away from the agent 1.
+To test the renderer, run `examples/test_renderer.py`. Press the arrow keys to control the agent 1. Press key `1` to give the ball to agent 1; Press key `2` to take the ball away from agent 1.
 
 ## Development
 
@@ -100,7 +100,7 @@ state.set_computer_agent_mode(mode)
 
 ### Changing the Map
 
-Map data is embedded in the map file `data/map/soccer.tmx`. Config file path is associated with layers regarding the name to positions mapping. See `renderer/pygame_util.py` for more information.
+The map data is embedded in the map file `data/map/soccer.tmx`. Config file path is associated with layers regarding the name to positions mapping. See `renderer/pygame_util.py` for more information.
 
 To modify the map, for example.
 
