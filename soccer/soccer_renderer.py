@@ -2,14 +2,12 @@
 import numpy as np
 import pygame
 import pygame.locals
-import pytmx
 
 # User-defined modules
-from renderer.pygame_util import TiledRenderer
-from soccer.renderer_options import RendererOptions
+import renderer.pygame_util as pygame_util
 
 
-class SoccerRenderer(TiledRenderer):
+class SoccerRenderer(pygame_util.TiledRenderer):
   """Soccer renderer.
   """
   # Constants
@@ -155,3 +153,16 @@ class SoccerRenderer(TiledRenderer):
     image = pygame.surfarray.array3d(self.screen)
     # Swap the axes as the X and Y axes in Pygame and Scipy are opposite
     return np.swapaxes(image, 0, 1)
+
+
+class RendererOptions(object):
+  """Renderer options.
+  """
+  show_display = False
+  max_fps = 0
+  enable_key_events = False
+
+  def __init__(self, show_display=False, max_fps=0, enable_key_events=False):
+    self.show_display = show_display
+    self.max_fps = max_fps
+    self.enable_key_events = enable_key_events

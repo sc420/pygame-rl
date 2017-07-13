@@ -1,3 +1,3 @@
-from soccer.renderer_options import RendererOptions
 from soccer.soccer_environment import SoccerEnvironment
+from soccer.soccer_renderer import RendererOptions
 from soccer.soccer_renderer import SoccerRenderer

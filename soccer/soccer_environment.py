@@ -5,13 +5,13 @@ import random
 import numpy as np
 
 # User-defined modules
-from renderer.file_util import resolve_path
-from renderer.pygame_util import TiledData
-from soccer.environment import Environment
-from soccer.soccer_renderer import SoccerRenderer
+import renderer.file_util as file_util
+import renderer.pygame_util as pygame_util
+import soccer.environment as environment
+import soccer.soccer_renderer as soccer_renderer
 
 
-class SoccerEnvironment(Environment):
+class SoccerEnvironment(environment.Environment):
   """The soccer environment.
   """
   # Map path relative to this file
@@ -38,13 +38,14 @@ class SoccerEnvironment(Environment):
 
   def __init__(self, renderer_options=None):
     # Resolve the map absolute path
-    map_path = resolve_path(__file__, self.map_relative_path)
+    map_path = file_util.resolve_path(__file__, self.map_relative_path)
     # Load the tile positions
     self.soccer_pos = SoccerPosition(map_path)
     # Initialize the state
     self.state = SoccerState(self.soccer_pos)
     # Initialize the renderer
-    self.renderer = SoccerRenderer(map_path, self, renderer_options)
+    self.renderer = soccer_renderer.SoccerRenderer(
+        map_path, self, renderer_options)
 
   def reset(self):
     self.state.reset()
@@ -205,7 +206,7 @@ class SoccerPosition(object):
 
   def __init__(self, map_path):
     # Create a tile data and load
-    tiled_data = TiledData(map_path)
+    tiled_data = pygame_util.TiledData(map_path)
     tiled_data.load()
     # Get the background tile positions
     tile_pos = tiled_data.get_background_tile_positions()

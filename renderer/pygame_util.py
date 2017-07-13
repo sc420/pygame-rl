@@ -1,16 +1,16 @@
 # Native modules
-from abc import ABCMeta
+import abc
 
 # Third-party modules
 import pygame
 import pytmx
-from pytmx.util_pygame import load_pygame
+import pytmx.util_pygame
 
 # User-defined modules
-from renderer.file_util import read_yaml, resolve_path
+import renderer.file_util as file_util
 
 
-class TiledLoader(metaclass=ABCMeta):
+class TiledLoader(metaclass=abc.ABCMeta):
   # Map filename
   filename = None
 
@@ -77,9 +77,9 @@ class TiledData(TiledLoader):
       if 'tile' in layer.properties:
         # Get the tile file path relative to the map file
         path = layer.properties['tile']
-        resolved_path = resolve_path(self.filename, path)
+        resolved_path = file_util.resolve_path(self.filename, path)
         # Read the tile file
-        tile_name_to_tid = read_yaml(resolved_path)
+        tile_name_to_tid = file_util.read_yaml(resolved_path)
         # Build the inverse lookup of the mapping from tile name to tid
         tid_to_tile_name = {v: k for (k, v) in tile_name_to_tid.items()}
         # Create the 2nd mapping
@@ -112,7 +112,7 @@ class TiledRenderer(TiledLoader):
 
   def load(self):
     # Load the tiled map
-    self.tiled_map = load_pygame(self.filename)
+    self.tiled_map = pytmx.util_pygame.load_pygame(self.filename)
 
     # Load the layers
     self.load_layers()
@@ -166,9 +166,9 @@ class TiledRenderer(TiledLoader):
           pos_to_image[(x, y)] = image
         # Get the sprite file path relative to the map file
         path = layer.properties['sprite']
-        resolved_path = resolve_path(self.filename, path)
+        resolved_path = file_util.resolve_path(self.filename, path)
         # Read the sprite file
-        sprite = read_yaml(resolved_path)
+        sprite = file_util.read_yaml(resolved_path)
         # Map the name to the sprite
         for (name, pos) in sprite.items():
           x = pos['x']
