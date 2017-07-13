@@ -7,8 +7,8 @@ import numpy as np
 # User-defined modules
 import renderer.file_util as file_util
 import renderer.pygame_util as pygame_util
+import soccer
 import soccer.environment as environment
-import soccer.soccer_renderer as soccer_renderer
 
 
 class SoccerEnvironment(environment.Environment):
@@ -44,8 +44,7 @@ class SoccerEnvironment(environment.Environment):
     # Initialize the state
     self.state = SoccerState(self.soccer_pos)
     # Initialize the renderer
-    self.renderer = soccer_renderer.SoccerRenderer(
-        map_path, self, renderer_options)
+    self.renderer = soccer.SoccerRenderer(map_path, self, renderer_options)
 
   def reset(self):
     self.state.reset()

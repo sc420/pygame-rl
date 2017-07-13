@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+"""Sample from https://github.com/pypa/sampleproject/blob/master/setup.py
+"""
+
 # Native modules
 from setuptools import setup, find_packages
 
@@ -63,9 +66,10 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
+        'numpy',
         'pygame',
         'pytmx',
-        'numpy',
+        'pyyaml',
     ],
 
     # List additional groups of dependencies here (e.g. development
@@ -73,8 +77,14 @@ setup(
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'dev': ['scipy'],
-        'test': ['coverage'],
+        'dev': [
+            'scipy',
+        ],
+        'test': [
+            'coverage',
+            'pytest-runner',
+            'pytest',
+        ],
     },
 
     # If there are data files included in your packages that need to be
