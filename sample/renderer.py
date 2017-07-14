@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 # User-defined modules
 import pygame_soccer.soccer.soccer_environment as soccer_environment

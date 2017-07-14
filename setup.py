@@ -1,5 +1,4 @@
-#!/usr/bin/python
-
+#!/usr/bin/env python3
 """Sample from https://github.com/pypa/sampleproject/blob/master/setup.py
 """
 
