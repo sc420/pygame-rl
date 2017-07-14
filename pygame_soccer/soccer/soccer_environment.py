@@ -4,6 +4,7 @@ import random
 # Third-party modules
 import numpy as np
 
+
 # User-defined modules
 import pygame_soccer.renderer.pygame_renderer as pygame_renderer
 import pygame_soccer.soccer.environment as environment
@@ -14,8 +15,8 @@ import pygame_soccer.util.file_util as file_util
 class SoccerEnvironment(environment.Environment):
   """The soccer environment.
   """
-  # Map path relative to this file
-  map_relative_path = '../../data/map/soccer.tmx'
+  # Resource names
+  map_resource_name = 'pygame_soccer/data/map/soccer.tmx'
 
   # State
   state = None
@@ -37,8 +38,8 @@ class SoccerEnvironment(environment.Environment):
   renderer_loaded = False
 
   def __init__(self, renderer_options=None):
-    # Resolve the map absolute path
-    map_path = file_util.resolve_path(__file__, self.map_relative_path)
+    # Resolve the map path
+    map_path = file_util.get_resource_path(self.map_resource_name)
     # Load the tile positions
     self.soccer_pos = SoccerPosition(map_path)
     # Initialize the state

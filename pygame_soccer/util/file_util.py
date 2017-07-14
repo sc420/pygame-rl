@@ -2,7 +2,26 @@
 import os
 
 # Third-party modules
+import pkg_resources
 import yaml
+
+
+# Package name
+PACKAGE_NAME = 'pygame_soccer'
+
+
+def get_resource_path(resource_name):
+  """Get the resource path.
+
+  Args:
+    resource_name (str): The resource name relative to the project root
+    directory.
+
+  Returns:
+    str: The true resource path on the system.
+  """
+  package = pkg_resources.Requirement.parse(PACKAGE_NAME)
+  return pkg_resources.resource_filename(package, resource_name)
 
 
 def read_yaml(filename):
