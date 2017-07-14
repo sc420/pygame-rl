@@ -4,10 +4,10 @@ import pygame
 import pygame.locals
 
 # User-defined modules
-import renderer.pygame_util as pygame_util
+import pygame_soccer.renderer.pygame_renderer as pygame_renderer
 
 
-class SoccerRenderer(pygame_util.TiledRenderer):
+class SoccerRenderer(pygame_renderer.TiledRenderer):
   """Soccer renderer.
   """
   # Constants

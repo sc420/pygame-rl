@@ -2,11 +2,11 @@
 import pytest
 
 # Testing targets
-import soccer
+import pygame_soccer.soccer.soccer_environment as soccer_environment
 
 
 class SoccerEnvironmentTest:
-  env = soccer.SoccerEnvironment()
+  env = soccer_environment.SoccerEnvironment()
 
   def test_init(self):
     # The soccer positions should be non-empty

@@ -7,7 +7,7 @@ import pytmx
 import pytmx.util_pygame
 
 # User-defined modules
-import renderer.file_util as file_util
+import pygame_soccer.util.file_util as file_util
 
 
 class TiledLoader(metaclass=abc.ABCMeta):
