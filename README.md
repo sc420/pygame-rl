@@ -17,35 +17,26 @@ When the player carries the ball to the rightmost goal field, a reward of 1.0 is
 Run the following to install all the dependencies locally.
 
 ```shell
-pip install -e .
+pip install .
 ```
 
-## Running
+## Running the Samples
 
-To test the reinforcement learning environment with the random player agent, run `examples/test_env.py`.
+To test the reinforcement learning environment with the random player agent, run `sample/environment.py`.
 
-To test the renderer, run `examples/test_renderer.py`. Press the arrow keys to control the agent 1. Press key `1` to give the ball to agent 1; Press key `2` to take the ball away from agent 1.
-
-## Development
-
-### Software
-
-- [Visual Studio Code](https://code.visualstudio.com/) for editing the text files.
-- [Python extension for VSCode](https://marketplace.visualstudio.com/items?itemName=donjayamanne.python) for linting Python files.
-- [Tiled Map Editor](http://www.mapeditor.org/) for editing `.tmx` and `.tsx` files.
-- [GIMP](https://www.gimp.org/) for editing the image files.
+To test the renderer, run `sample/renderer.py`. Press the arrow keys to control the agent 1. Press key `1` to give the ball to agent 1; Press key `2` to take the ball away from agent 1.
 
 ## Using
 
 ### Interacting with the Environment
 
-The example code can be found in `examples/test_env.py`. The procedure to control the environment is as follows.
+The sample code can be found in `sample/environment.py`. The procedure to control the environment is as follows.
 
-1. Create an enrionment. An optional argument `renderer_options` can be used to control the renderer behaviors. The definition of renderer options can be found in `soccer/renderer_options.py:RendererOptions`.
+1. Create an enrionment. An optional argument `renderer_options` can be used to control the renderer behaviors. The definition of the renderer options can be found in `pygame_soccer/soccer/soccer_renderer.py:RendererOptions`.
 ```python
-soccer_env = soccer.SoccerEnvironment()
+soccer_env = soccer_environment.SoccerEnvironment()
 ```
-2. Reset the environment and get the initial observation. The observation is class containing the old state, the taken action, reward, and the next state. The definition can be found in `soccer/soccer_environment.py:SoccerObservation`.
+2. Reset the environment and get the initial observation. The observation is class containing the old state, the taken action, reward, and the next state. The definition can be found in `pygame_soccer/soccer/soccer_environment.py:SoccerObservation`.
 ```python
 observation = soccer_env.reset()
 ```
@@ -57,7 +48,7 @@ soccer_env.render()
 ```
 screenshot = soccer_env.renderer.get_screenshot()
 ```
-5. Take an action and get the observation. The action list is defined in `soccer/soccer_environment.py:SoccerEnvironment`.
+5. Take an action and get the observation. The action list is defined in `pygame_soccer/soccer/soccer_environment.py:SoccerEnvironment`.
 ```python
 observation = soccer_env.take_action(action)
 ```
@@ -69,7 +60,7 @@ if soccer_env.state.is_terminal():
 
 ### Controlling the State
 
-The state represents the internal state of the environment. The definition can be found in `soccer/soccer_environment.py:SoccerState`.
+The state represents the internal state of the environment. The definition can be found in `pygame_soccer/soccer/soccer_environment.py:SoccerState`.
 
 The state contains several things that can be controlled.
 
@@ -102,13 +93,13 @@ state.set_computer_agent_mode(mode)
 
 ### Changing the Map
 
-The map data is embedded in the map file `data/map/soccer.tmx`. Config file path is associated with layers regarding the name to positions mapping. See `renderer/pygame_util.py` for more information.
+The map data is embedded in the map file `pygame_soccer/data/map/soccer.tmx`. Config file path is associated with layers regarding the name to positions mapping. See `pygame_soccer/renderer/pygame_renderer.py` for more information.
 
 To modify the map, for example.
 
-* Change the walkable field: Modify the layer `ground` in `data/map/soccer.tmx` as `data/map/ground_tile.yaml` is associated with the layer.
-* Change the goal field: Modify the layer `goal` in `data/map/soccer.tmx` as `data/map/goal_tile.yaml` is associated with the layer.
-* Change the spawn field: Modify `soccer/soccer_environment.py:SoccerState.spawn_bounds_list`. It's the only positions that are not embedded in the map file.
+* Change the walkable field: Modify the layer `ground` in `pygame_soccer/data/map/soccer.tmx` as `pygame_soccer/data/map/ground_tile.yaml` is associated with the layer.
+* Change the goal field: Modify the layer `goal` in `pygame_soccer/data/map/soccer.tmx` as `pygame_soccer/data/map/goal_tile.yaml` is associated with the layer.
+* Change the spawn field: Modify `pygame_soccer/soccer/soccer_environment.py:SoccerState.spawn_bounds_list`. It's the only positions that are not embedded in the map file.
 
 ## Knowledge
 
@@ -122,5 +113,25 @@ The computer agent has 4 strategies according to the scenarios described in the 
 * "Intercept goal": See where the player is, approach him.
 
 The two agents move in random order, i.e., every time the player plans to moves, the computer agent either moves first or follows the move by the player.
+
+## Development
+
+### Software
+
+- [Visual Studio Code](https://code.visualstudio.com/) for editing the text files.
+- [Python extension for VSCode](https://marketplace.visualstudio.com/items?itemName=donjayamanne.python) for linting Python files.
+- [Tiled Map Editor](http://www.mapeditor.org/) for editing `.tmx` and `.tsx` files.
+- [GIMP](https://www.gimp.org/) for editing the image files.
+
+### Running the Tests
+
+1. Install the test dependencies.
+```shell
+pip install .[test]
+```
+2. Run the tests with Pytest.
+```shell
+pytest
+```
 
 [paper]: https://www.umiacs.umd.edu/~hal/docs/daume16opponent.pdf
