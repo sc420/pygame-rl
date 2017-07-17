@@ -17,7 +17,7 @@ When the player carries the ball to the rightmost goal field, a reward of 1.0 is
 Run the following to install all the dependencies locally.
 
 ```shell
-pip install .
+pip install -e .
 ```
 
 ## Running the Samples
