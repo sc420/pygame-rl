@@ -29,10 +29,10 @@
 0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer name="object" width="9" height="6">
+ <layer name="agent" width="9" height="6">
   <properties>
    <property name="overlay" type="bool" value="true"/>
-   <property name="sprite" type="file" value="object_sprite.yaml"/>
+   <property name="sprite" type="file" value="agent_sprite.yaml"/>
   </properties>
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,

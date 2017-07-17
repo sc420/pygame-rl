@@ -39,7 +39,7 @@ class SoccerEnvironmentTest:
     # The player agent should have no mode, the computer agent should have a
     # random mode
     assert state.get_agent_mode(0) is None
-    assert state.get_agent_mode(1) in state.modes
+    assert state.get_agent_mode(1) in self.env.modes
     # The time step should be 0
     assert state.time_step == 0
 
@@ -55,7 +55,7 @@ class SoccerEnvironmentTest:
       expected_time_step += 1
       # Check the observation
       assert observation.state is None
-      assert observation.action == action
+      assert observation.action == [action]
       assert observation.reward >= -1.0 and observation.reward <= 1.0
       assert observation.next_state.time_step == expected_time_step
       # The computer agent should have the last taken action
@@ -64,7 +64,7 @@ class SoccerEnvironmentTest:
   def test_renderer(self):
     self.env.render()
     # The renderer should contain the environment
-    assert self.env.renderer.env_state == self.env
+    assert self.env.renderer.env == self.env
     # The renderer display should have been quitted
     assert self.env.renderer.display_quitted
 

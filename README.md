@@ -4,7 +4,7 @@ A variant of the game described in the paper [He, He, et al. "Opponent modeling 
 
 ![screenshot](docs/screenshot.png "Screenshot")
 
-Reinforcement learning agent controls the agent 1 (shown as the player Steve head), the computer agent controls the agent 2 (shown as the creeper head). The agent who has the ball is bordered by a blue square (in this case, the player has the ball shown in the image).
+Reinforcement learning agent controls the agent 1 (shown as the player Steve head), the computer agent controls the agent 2 (shown as the pig head). The agent who has the ball is bordered by a blue square (in this case, the pig has the ball shown in the image).
 
 When the player carries the ball to the rightmost goal field, a reward of 1.0 is given; When the computer carries the ball to the leftmost goal field, a reward of -1.0 is given. The episode ends when either one of the agent carries the ball to its goal field or the time step reaches 100. See the [paper][paper] for the game rules.
 
@@ -24,7 +24,7 @@ pip install -e .
 
 To test the reinforcement learning environment with the random player agent, run `sample/environment.py`.
 
-To test the renderer, run `sample/renderer.py`. Press the arrow keys to control the agent 1. Press key `1` to give the ball to agent 1; Press key `2` to take the ball away from agent 1.
+To test the renderer with 4 agents, run `sample/renderer.py`. Press the arrow keys to control the agent 1.
 
 ## Using
 
@@ -32,28 +32,32 @@ To test the renderer, run `sample/renderer.py`. Press the arrow keys to control 
 
 The sample code can be found in `sample/environment.py`. The procedure to control the environment is as follows.
 
-1. Create an enrionment. An optional argument `renderer_options` can be used to control the renderer behaviors. The definition of the renderer options can be found in `pygame_soccer/soccer/soccer_renderer.py:RendererOptions`.
+1. Create an environment options. An optional argument `team_size` of either 1 or 2 can be specified to set the team size. An optional argument `spawn_bounds` can be specified to set the spawn bounds. The definition can be found in `pygame_soccer/soccer/soccer_environment.py:SoccerEnvironmentOptions`.
 ```python
-soccer_env = soccer_environment.SoccerEnvironment()
+env_options = soccer_environment.SoccerEnvironmentOptions(team_size=1)
 ```
-2. Reset the environment and get the initial observation. The observation is class containing the old state, the taken action, reward, and the next state. The definition can be found in `pygame_soccer/soccer/soccer_environment.py:SoccerObservation`.
+2. Create an environment with the options. An optional argument `renderer_options` can be used to control the renderer behaviors. The definition can be found in `pygame_soccer/soccer/soccer_renderer.py:RendererOptions`.
+```python
+soccer_env = soccer_environment.SoccerEnvironment(options=env_options)
+```
+3. Reset the environment and get the initial observation. The observation is a class containing the old state, the taken action, reward, and the next state. The definition can be found in `pygame_soccer/soccer/soccer_environment.py:SoccerObservation`.
 ```python
 observation = soccer_env.reset()
 ```
-3. Render the environment. The renderer will lazy load on the first call. Skip the call if you don't need the rendering.
+4. Render the environment. The renderer will lazy load on the first call. Skip the call if you don't need the rendering.
 ```python
 soccer_env.render()
 ```
-4. Get the screenshot. The returned `screenshot` is a `numpy.ndarray`, the format is the same as the returned value of `scipy.misc.imread`. The previous step is required for this call to work.
+5. Get the screenshot. The returned `screenshot` is a `numpy.ndarray`, the format is the same as the returned value of `scipy.misc.imread`. The previous step is required for this call to work.
 ```
 screenshot = soccer_env.renderer.get_screenshot()
 ```
-5. Take an action and get the observation. A list of actions can be used in `soccer_env.actions`.
+6. Take an action and get the observation. A list of actions can be used in `soccer_env.actions`. If the team size is bigger than 1, `action` should be a list of actions.
 ```python
 action = soccer_env.actions[0]
 observation = soccer_env.take_action(action)
 ```
-6. Check whether the state is terminal. See the [Controlling the State](#controlling-the-state) section for details.
+7. Check whether the state is terminal. See the [Controlling the State](#controlling-the-state) section for details.
 ```python
 if soccer_env.state.is_terminal():
   # Do something
@@ -63,9 +67,9 @@ if soccer_env.state.is_terminal():
 
 The state represents the internal state of the environment. The definition can be found in `pygame_soccer/soccer/soccer_environment.py:SoccerState`.
 
-The state contains several things that can be controlled. `agent_index` is either 0 (Player) or 1 (Computer).
+The state contains several things that can be controlled. `agent_index` should be calculated by calling `soccer_env.get_agent_index(team_name, team_agent_index)`, where a list of team name in `soccer_env.team_names` can be used as `team_name` and `team_agent_index` should be smaller than `env_options.team_size`.
 
-* Reset the state. The agent positions, ball possession, and computer agent mode will be randomized. The time step will be set to 0.
+* Reset the state. The agent positions, ball possession and agent mode will be randomized. The last taken action will be cleared. The time step will be set to 0.
 ```python
 state.reset()
 ```
@@ -73,9 +77,9 @@ state.reset()
 ```python
 is_terminal = state.is_terminal()
 ```
-* Whether the agent has won.
+* Whether one team has won. ``
 ```python
-has_won = state.is_agent_win(agent_index)
+has_won = state.is_team_win(team_name)
 ```
 * Get or set the agent position. `pos` is a list with 2 elements which represent x and y positions on the grid.
 ```python
@@ -87,15 +91,15 @@ state.set_agent_pos(agent_index, pos)
 has_ball = state.get_agent_ball(agent_index)
 state.set_agent_ball(agent_index, has_ball)
 ```
-* Get the last taken action of the computer agent. `agent_index` should be the computer agent index, otherwise, `None` is returned.
-```python
-action = state.get_agent_action(agent_index)
-```
-* Get or set the computer agent mode. `agent_index` should be the computer agent index, otherwise, `None` is returned in get method and it has no effect in set method.
+* Get or set the agent mode. `agent_index` should be the computer agent index, otherwise, `None` is returned in get method and it has no effect in set method.
 ```python
 state.get_agent_mode(agent_index)
 mode = soccer_env.modes[0]
 state.set_agent_mode(agent_index, mode)
+```
+* Get the last taken action of the computer agent. The action is always a list. `agent_index` should be the computer agent index, otherwise, `None` is returned.
+```python
+action = state.get_agent_action(agent_index)
 ```
 
 ### Changing the Map
@@ -106,7 +110,7 @@ To modify the map, for example.
 
 * Change the walkable field: Modify the layer `ground` in `pygame_soccer/data/map/soccer.tmx` as `pygame_soccer/data/map/ground_tile.yaml` is associated with the layer.
 * Change the goal field: Modify the layer `goal` in `pygame_soccer/data/map/soccer.tmx` as `pygame_soccer/data/map/goal_tile.yaml` is associated with the layer.
-* Change the spawn field: Modify `pygame_soccer/soccer/soccer_environment.py:SoccerState.spawn_bounds_list`. It's the only positions that are not embedded in the map file.
+* Change the moving agents: Modify the layer `agent` in `pygame_soccer/data/map/soccer.tmx` and the mapping file `pygame_soccer/data/map/agent_sprite.yaml`.
 
 ## Knowledge
 
@@ -114,10 +118,10 @@ To modify the map, for example.
 
 The computer agent has 4 strategies according to the scenarios described in the [paper][paper]. The internal algorithm of either approaching or avoiding is by randomly moving the direction in either axis so that the Euclidean distance from the target is shorter or further.
 
-* "Avoid opponent": See where the player is, avoid him.
-* "Advance to goal": See where the leftmost goal field is, select a grid which has the maximum distance from the player, approach it.
-* "Defend goal": See where the rightmost goal field is, select a grid which has the minimum distance from the player, approach it.
-* "Intercept goal": See where the player is, approach him.
+* "Avoid opponent": See where the nearest player is, avoid him.
+* "Advance to goal": See where the leftmost goal field is, select a grid which has the maximum distance from the nearest player, approach it.
+* "Defend goal": See where the rightmost goal field is, select a grid which has the minimum distance from the player who possesses the ball, approach it.
+* "Intercept goal": See where the player who possesses the ball is, approach him.
 
 The two agents move in random order, i.e., every time the player plans to moves, the computer agent either moves first or follows the move by the player.
 

@@ -13,8 +13,8 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
   # Constants
   title = 'Soccer'
 
-  # Environment state
-  env_state = None
+  # Environment
+  env = None
 
   # Renderer options
   renderer_options = None
@@ -35,10 +35,10 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
   # Render updates (pygame.sprite.RenderUpdates)
   agents = None
 
-  def __init__(self, map_path, env_state, renderer_options=None):
+  def __init__(self, map_path, env, renderer_options=None):
     super().__init__(map_path)
-    # Save the environment state
-    self.env_state = env_state
+    # Save the environment
+    self.env = env
     # Use or create the renderer options
     self.renderer_options = renderer_options or RendererOptions()
 
@@ -92,22 +92,20 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
 
     # Update the overlays by the environment state
     self.agents.empty()
-    agent1 = self.overlays['agent1']
-    agent1_ball = self.overlays['agent1_ball']
-    agent2 = self.overlays['agent2']
-    agent2_ball = self.overlays['agent2_ball']
-    agent_obj = [
-        [agent1, agent1_ball],
-        [agent2, agent2_ball],
-    ]
-    for agent_ind in range(2):
+    for agent_index in range(self.env.options.get_agent_size()):
+      name_no_ball = 'agent{}'.format(agent_index + 1)
+      name_has_ball = 'agent{}_ball'.format(agent_index + 1)
+      agent_no_ball = self.overlays[name_no_ball]
+      agent_has_ball = self.overlays[name_has_ball]
       # Get the agent state
-      agent_list = agent_obj[agent_ind]
-      agent_pos = self.env_state.state.get_agent_pos(agent_ind)
-      has_ball = self.env_state.state.get_agent_ball(agent_ind)
-      # Choose the agent
-      agent = agent_list[1 if has_ball else 0]
-      # Set the agent position
+      agent_pos = self.env.state.get_agent_pos(agent_index)
+      has_ball = self.env.state.get_agent_ball(agent_index)
+      # Choose the overlay
+      if has_ball:
+        agent = agent_has_ball
+      else:
+        agent = agent_no_ball
+      # Set the overlay position
       agent.set_pos(agent_pos)
       # Add the sprite to the group
       self.agents.add(agent)
@@ -134,17 +132,13 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
         if self.renderer_options.enable_key_events:
           if event.type == pygame.locals.KEYDOWN:
             if event.key == pygame.locals.K_RIGHT:
-              self.env_state.take_action('MOVE_RIGHT')
+              self.env.take_action(self._get_action('MOVE_RIGHT'))
             elif event.key == pygame.locals.K_UP:
-              self.env_state.take_action('MOVE_UP')
+              self.env.take_action(self._get_action('MOVE_UP'))
             elif event.key == pygame.locals.K_LEFT:
-              self.env_state.take_action('MOVE_LEFT')
+              self.env.take_action(self._get_action('MOVE_LEFT'))
             elif event.key == pygame.locals.K_DOWN:
-              self.env_state.take_action('MOVE_DOWN')
-            elif event.key == pygame.locals.K_1:
-              self.env_state.state.set_agent_ball(0, True)
-            elif event.key == pygame.locals.K_2:
-              self.env_state.state.set_agent_ball(0, False)
+              self.env.take_action(self._get_action('MOVE_DOWN'))
 
     # Indicate the rendering should continue
     return True
@@ -153,6 +147,11 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
     image = pygame.surfarray.array3d(self.screen)
     # Swap the axes as the X and Y axes in Pygame and Scipy are opposite
     return np.swapaxes(image, 0, 1)
+
+  def _get_action(self, first_player_action):
+    action = ['STAND'] * self.env.options.team_size
+    action[0] = first_player_action
+    return action
 
 
 class RendererOptions(object):

@@ -15,14 +15,17 @@ def main():
   # Initialize the random number generator
   random.seed(0)
 
+  # Create a soccer environment options
+  env_options = soccer_environment.SoccerEnvironmentOptions(team_size=1)
+
   # Create a soccer environment
-  soccer_env = soccer_environment.SoccerEnvironment()
+  soccer_env = soccer_environment.SoccerEnvironment(options=env_options)
 
   # Run many episodes
-  for episode_ind in range(20):
+  for episode_index in range(20):
     # Print the episode number
     print('')
-    print('Episode {}:'.format(episode_ind + 1))
+    print('Episode {}:'.format(episode_index + 1))
     # Reset the environment
     observation = soccer_env.reset()
     # Print the initial state
@@ -41,7 +44,7 @@ def main():
       if soccer_env.state.is_terminal():
         print('Terminal state:\n{}'.format(observation))
         print('Episode {} ends at time step {}'.format(
-            episode_ind + 1, soccer_env.state.time_step + 1))
+            episode_index + 1, soccer_env.state.time_step + 1))
         is_running = False
 
   # Save the last screenshot
