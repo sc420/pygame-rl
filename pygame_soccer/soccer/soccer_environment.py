@@ -56,10 +56,13 @@ class SoccerEnvironment(environment.Environment):
     # Select the agent indexes
     player_ind = 0
     computer_ind = 1
-    # Calculate the positions of the two agents
+    # Calculate the positions of the player agent
     player_pos = self.state.get_agent_pos(player_ind)
     player_moved_pos = self.get_moved_pos(player_pos, action)
-    computer_moved_pos = self.get_computer_moved_pos()
+    # Get the action and the position of the computer agent
+    computer_pos = self.state.get_agent_pos(computer_ind)
+    computer_action = self.get_computer_action()
+    computer_moved_pos = self.get_moved_pos(computer_pos, computer_action)
     # Randomly let one of the agent take the action first
     if random.choice([player_ind, computer_ind]) == player_ind:
       self.update_agent_pos(player_ind, player_moved_pos)
@@ -101,13 +104,13 @@ class SoccerEnvironment(environment.Environment):
       if update:
         self.state.set_agent_pos(agent_ind, pos)
 
-  def get_computer_moved_pos(self):
+  def get_computer_action(self):
     # Select the agent indexes
     player_ind = 0
     computer_ind = 1
     # Get the state info
     has_ball = self.state.get_agent_ball(computer_ind)
-    agent_mode = self.state.computer_agent_mode
+    agent_mode = self.state.get_agent_mode(computer_ind)
     # Choose the target position
     player_pos = self.state.get_agent_pos(player_ind)
     computer_pos = self.state.get_agent_pos(computer_ind)
@@ -142,9 +145,7 @@ class SoccerEnvironment(environment.Environment):
     # Get the strategic action
     action = self.get_strategic_action(
         computer_pos, target_pos, strategic_mode)
-    # Calculate the moved position
-    moved_pos = self.get_moved_pos(computer_pos, action)
-    return moved_pos
+    return action
 
   def get_strategic_action(self, source_pos, target_pos, mode):
     # Calculate the original Euclidean distance
@@ -238,29 +239,23 @@ class SoccerObservation(object):
 class SoccerState(object):
   """The internal soccer state.
   """
-  # Computer agent mode list
-  computer_agent_mode_list = [
+  # Computer mode list
+  mode_list = [
       'DEFENSIVE',
       'OFFENSIVE',
   ]
 
-  # Agent list as the state, the initial position and ball possession should not
-  # be used.
-  agent_list = [{
-      'pos': [3, 2],
-      'ball': True,
-  }, {
-      'pos': [5, 2],
-      'ball': False,
-  }]
-
-  # Computer agent mode, the initial mode should not be used.
-  computer_agent_mode = 'DEFENSIVE'
+  # Agent statuses as a list
+  # - pos: Positions
+  # - ball: Possession of the ball
+  # - mode: Mode for the computer agent
+  # - action: Last taken action for the computer agent
+  agent_list = [{}, {}]
 
   # Time step
   time_step = 0
 
-  # Soccer position
+  # Soccer position used as the bounds info
   soccer_pos = None
 
   # Spawn bounds list for randomization (x, y, w, h)
@@ -273,26 +268,22 @@ class SoccerState(object):
 
   def __init__(self, soccer_pos):
     self.soccer_pos = soccer_pos
-    self.randomize()
+    self.reset()
 
   def reset(self):
-    self.randomize()
-    self.time_step = 0
-
-  def is_terminal(self):
-    # When the time step exceeds 100
-    if self.time_step >= 100:
-      return True
-    # When one of the agent reaches the goal
+    # Initialize the agent list
     for agent_ind in range(len(self.agent_list)):
-      if self.is_agent_win(agent_ind):
-        return True
-    # Otherwise, the state isn't terminal
-    return False
+      self.set_agent_pos(agent_ind, None)
+      self.set_agent_ball(agent_ind, False)
+      self.set_agent_mode(agent_ind, None)
+    # Randomize the agent statuses
+    self.randomize()
+    # Initialize the time step
+    self.time_step = 0
 
   def randomize(self):
     # Randomize the agent positions
-    for agent_ind in range(len(self.spawn_bounds_list)):
+    for agent_ind in range(len(self.agent_list)):
       spawn_bounds = self.spawn_bounds_list[agent_ind]
       x_range = [spawn_bounds[0], spawn_bounds[0] + spawn_bounds[2]]
       y_range = [spawn_bounds[1], spawn_bounds[1] + spawn_bounds[3]]
@@ -306,7 +297,20 @@ class SoccerState(object):
     self.set_agent_ball(0, has_ball)
     self.set_agent_ball(1, not has_ball)
     # Randomize the computer agent mode
-    self.computer_agent_mode = random.choice(self.computer_agent_mode_list)
+    computer_mode = random.choice(self.mode_list)
+    computer_ind = 1
+    self.set_agent_mode(computer_ind, computer_mode)
+
+  def is_terminal(self):
+    # When the time step exceeds 100
+    if self.time_step >= 100:
+      return True
+    # When one of the agent reaches the goal
+    for agent_ind in range(len(self.agent_list)):
+      if self.is_agent_win(agent_ind):
+        return True
+    # Otherwise, the state isn't terminal
+    return False
 
   def is_agent_win(self, index):
     agent_pos = self.get_agent_pos(index)
@@ -332,8 +336,11 @@ class SoccerState(object):
   def set_agent_ball(self, index, has_ball):
     self.agent_list[index]['ball'] = has_ball
 
-  def set_computer_agent_mode(self, mode):
-    self.computer_agent_mode = mode
+  def get_agent_mode(self, index):
+    return self.agent_list[index]['mode']
+
+  def set_agent_mode(self, index, mode):
+    self.agent_list[index]['mode'] = mode
 
   def increase_time_step(self):
     self.time_step += 1
@@ -361,14 +368,13 @@ class SoccerState(object):
         self.get_agent_pos(0),
         self.get_agent_pos(1),
         1 if self.get_agent_ball(0) else 2,
-        self.computer_agent_mode,
+        self.get_agent_mode(1),
         self.time_step)
 
   def __eq__(self, other):
     if not isinstance(other, SoccerState):
       return False
     return (self.agent_list == other.agent_list
-            and self.computer_agent_mode == other.computer_agent_mode
             and self.time_step == other.time_step)
 
   def __hash__(self):
@@ -376,4 +382,6 @@ class SoccerState(object):
     for agent_ind in range(len(self.agent_list)):
       hash_list.extend(self.get_agent_pos(agent_ind))
       hash_list.append(self.get_agent_ball(agent_ind))
+      hash_list.append(self.get_agent_mode(agent_ind))
+    hash_list.append(self.time_step)
     return hash(tuple(hash_list))
