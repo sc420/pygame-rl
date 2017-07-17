@@ -70,6 +70,8 @@ class SoccerEnvironment(environment.Environment):
     else:
       self.update_agent_pos(computer_ind, computer_moved_pos)
       self.update_agent_pos(player_ind, player_moved_pos)
+    # Save the action taken by the computer agent
+    self.state.set_agent_action(computer_ind, computer_action)
     # Increase the time step
     self.state.increase_time_step()
     # Determine the reward
@@ -248,8 +250,8 @@ class SoccerState(object):
   # Agent statuses as a list
   # - pos: Positions
   # - ball: Possession of the ball
-  # - mode: Mode for the computer agent
   # - action: Last taken action for the computer agent
+  # - mode: Mode for the computer agent
   agent_list = [{}, {}]
 
   # Time step
@@ -275,6 +277,7 @@ class SoccerState(object):
     for agent_ind in range(len(self.agent_list)):
       self.set_agent_pos(agent_ind, None)
       self.set_agent_ball(agent_ind, False)
+      self.set_agent_action(agent_ind, None)
       self.set_agent_mode(agent_ind, None)
     # Randomize the agent statuses
     self.randomize()
@@ -335,6 +338,12 @@ class SoccerState(object):
 
   def set_agent_ball(self, index, has_ball):
     self.agent_list[index]['ball'] = has_ball
+
+  def get_agent_action(self, index):
+    return self.agent_list[index]['action']
+
+  def set_agent_action(self, index, action):
+    self.agent_list[index]['action'] = action
 
   def get_agent_mode(self, index):
     return self.agent_list[index]['mode']

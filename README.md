@@ -63,7 +63,7 @@ if soccer_env.state.is_terminal():
 
 The state represents the internal state of the environment. The definition can be found in `pygame_soccer/soccer/soccer_environment.py:SoccerState`.
 
-The state contains several things that can be controlled.
+The state contains several things that can be controlled. `agent_index` is either 0 (Player) or 1 (Computer).
 
 * Reset the state. The agent positions, ball possession, and computer agent mode will be randomized. The time step will be set to 0.
 ```python
@@ -73,11 +73,11 @@ state.reset()
 ```python
 is_terminal = state.is_terminal()
 ```
-* Whether the agent has won. The `agent_index` is either 0 (Player) or 1 (Computer).
+* Whether the agent has won.
 ```python
 has_won = state.is_agent_win(agent_index)
 ```
-* Get or set the agent position.
+* Get or set the agent position. `pos` is a list with 2 elements which represent x and y positions on the grid.
 ```python
 pos = state.get_agent_pos(agent_index)
 state.set_agent_pos(agent_index, pos)
@@ -87,12 +87,13 @@ state.set_agent_pos(agent_index, pos)
 has_ball = state.get_agent_ball(agent_index)
 state.set_agent_ball(agent_index, has_ball)
 ```
-* Get the computer agent mode. `agent_index` should be the computer agent index, otherwise, `None` is returned.
+* Get the last taken action of the computer agent. `agent_index` should be the computer agent index, otherwise, `None` is returned.
+```python
+action = state.get_agent_action(agent_index)
+```
+* Get or set the computer agent mode. `agent_index` should be the computer agent index, otherwise, `None` is returned in get method and it has no effect in set method.
 ```python
 state.get_agent_mode(agent_index)
-```
-* Set the computer agent mode. A list of modes can be used in `state.modes`. `agent_index` should be the computer agent index, otherwise, it has no effect.
-```python
 mode = soccer_env.modes[0]
 state.set_agent_mode(agent_index, mode)
 ```

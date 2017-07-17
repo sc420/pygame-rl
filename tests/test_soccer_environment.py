@@ -33,6 +33,13 @@ class SoccerEnvironmentTest:
     player_has_ball = state.get_agent_ball(0)
     computer_has_ball = state.get_agent_ball(1)
     assert player_has_ball != computer_has_ball
+    # The agents should have no last taken action in the beginning
+    assert state.get_agent_action(0) is None
+    assert state.get_agent_action(1) is None
+    # The player agent should have no mode, the computer agent should have a
+    # random mode
+    assert state.get_agent_mode(0) is None
+    assert state.get_agent_mode(1) in state.modes
     # The time step should be 0
     assert state.time_step == 0
 
@@ -40,13 +47,19 @@ class SoccerEnvironmentTest:
     # Take each action
     expected_time_step = 0
     for action in self.env.actions:
+      # Take the action
       observation = self.env.take_action(action)
+      # Get the next state
+      next_state = observation.next_state
+      # Increment the expected time step
       expected_time_step += 1
       # Check the observation
       assert observation.state is None
       assert observation.action == action
       assert observation.reward >= -1.0 and observation.reward <= 1.0
       assert observation.next_state.time_step == expected_time_step
+      # The computer agent should have the last taken action
+      assert next_state.get_agent_action(1) in self.env.actions
 
   def test_renderer(self):
     self.env.render()
