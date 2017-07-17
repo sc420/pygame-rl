@@ -48,8 +48,9 @@ soccer_env.render()
 ```
 screenshot = soccer_env.renderer.get_screenshot()
 ```
-5. Take an action and get the observation. The action list is defined in `pygame_soccer/soccer/soccer_environment.py:SoccerEnvironment`.
+5. Take an action and get the observation. A list of actions can be used in `soccer_env.actions`.
 ```python
+action = soccer_env.actions[0]
 observation = soccer_env.take_action(action)
 ```
 6. Check whether the state is terminal. See the [Controlling the State](#controlling-the-state) section for details.
@@ -86,9 +87,14 @@ state.set_agent_pos(agent_index, pos)
 has_ball = state.get_agent_ball(agent_index)
 state.set_agent_ball(agent_index, has_ball)
 ```
-* Set the computer agent mode. The `mode` is either `DEFENSIVE` (Defensive) or `OFFENSIVE` (Offensive).
+* Get the computer agent mode. `agent_index` should be the computer agent index, otherwise, `None` is returned.
 ```python
-state.set_computer_agent_mode(mode)
+state.get_agent_mode(agent_index)
+```
+* Set the computer agent mode. A list of modes can be used in `state.modes`. `agent_index` should be the computer agent index, otherwise, it has no effect.
+```python
+mode = soccer_env.modes[0]
+state.set_agent_mode(agent_index, mode)
 ```
 
 ### Changing the Map
