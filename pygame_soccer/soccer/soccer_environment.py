@@ -21,7 +21,7 @@ class SoccerEnvironment(environment.Environment):
   # State
   state = None
 
-  # Action
+  # Action list
   actions = [
       'MOVE_RIGHT',
       'MOVE_UP',
@@ -240,7 +240,7 @@ class SoccerState(object):
   """The internal soccer state.
   """
   # Computer mode list
-  mode_list = [
+  modes = [
       'DEFENSIVE',
       'OFFENSIVE',
   ]
@@ -297,7 +297,7 @@ class SoccerState(object):
     self.set_agent_ball(0, has_ball)
     self.set_agent_ball(1, not has_ball)
     # Randomize the computer agent mode
-    computer_mode = random.choice(self.mode_list)
+    computer_mode = random.choice(self.modes)
     computer_ind = 1
     self.set_agent_mode(computer_ind, computer_mode)
 
