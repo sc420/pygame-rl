@@ -125,10 +125,10 @@ The two agents move in random order, i.e., every time the player plans to moves,
 
 ### Software
 
-- [Visual Studio Code](https://code.visualstudio.com/) for editing the text files.
-- [Python extension for VSCode](https://marketplace.visualstudio.com/items?itemName=donjayamanne.python) for linting Python files.
-- [Tiled Map Editor](http://www.mapeditor.org/) for editing `.tmx` and `.tsx` files.
-- [GIMP](https://www.gimp.org/) for editing the image files.
+* [Visual Studio Code](https://code.visualstudio.com/) for editing the text files.
+* [Python extension for VSCode](https://marketplace.visualstudio.com/items?itemName=donjayamanne.python) for linting Python files.
+* [Tiled Map Editor](http://www.mapeditor.org/) for editing `.tmx` and `.tsx` files.
+* [GIMP](https://www.gimp.org/) for editing the image files.
 
 ### Running the Tests
 
@@ -140,5 +140,12 @@ pip install .[test]
 ```shell
 pytest
 ```
+
+### Resources
+
+The materials in `pygame_soccer/data/tileset/minecraft_block_32x32.png` comes from the following links:
+
+* [Minecraft Sprite](http://minecraft.gamepedia.com/index.php?title=File:BlockCSS.png)
+* [Minecraft Pig Face Sprite](https://kandipatterns.com/patterns/characters/minecraft-pig-face-16x16-21979)
 
 [paper]: https://www.umiacs.umd.edu/~hal/docs/daume16opponent.pdf
