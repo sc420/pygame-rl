@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 """Sample: Use only the renderer with a custom map in "sample/data".
+
+Press the arrow keys to control the agent 1.
+
 """
 
 # User-defined modules

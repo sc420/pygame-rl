@@ -29,7 +29,7 @@ Run and see the sample files to get started.
 
 * `sample/environment_simple.py`: For minimal setup.
 * `sample/environment_advanced.py`: For advanced interaction with the environment.
-* `sample/renderer.py`: For rendering with the default map. Press the arrow keys to control the agent 1.
+* `sample/renderer.py`: For rendering with the default map.
 * `sample/renderer_custom_map.py`: For rendering with the custom map.
 * `sample/state_advanced.py`: For advanced state controlling.
 
