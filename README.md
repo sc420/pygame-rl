@@ -145,7 +145,7 @@ pip install .[test]
 ```
 2. Run the tests with Pytest.
 ```shell
-pytest
+python tests/main.py
 ```
 
 ### Resources
