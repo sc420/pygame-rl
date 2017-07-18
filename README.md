@@ -150,7 +150,7 @@ pytest
 
 ### Resources
 
-The materials in `pygame_soccer/data/tileset/minecraft_block_32x32.png` comes from the following links:
+The materials of the tileset comes from the following links:
 
 * [Minecraft Sprite](http://minecraft.gamepedia.com/index.php?title=File:BlockCSS.png)
 * [Minecraft Pig Face Sprite](https://kandipatterns.com/patterns/characters/minecraft-pig-face-16x16-21979)
