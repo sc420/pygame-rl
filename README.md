@@ -10,12 +10,15 @@ When the player carries the ball to the rightmost goal field, a reward of 1.0 is
 
 ## Installation
 
-### Requirements
+## Requirements
 
 - [Python 3.6](https://www.continuum.io/)
 
-Run the following to install all the dependencies locally.
+## Getting Started
 
+1. Clone the repository.
+2. Open a command line and change the working directory to the cloned directory.
+3. Install the package in [editable](https://pip.pypa.io/en/stable/reference/pip_install/#editable-installs) mode because this package is not intended to be published.
 ```shell
 pip install -e .
 ```
