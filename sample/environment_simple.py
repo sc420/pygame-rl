@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Sample: Interacting with the environment with minimal setup.
+"""
 
 # Native modules
 import os
@@ -12,7 +14,7 @@ import pygame_soccer.soccer.soccer_environment as soccer_environment
 
 
 def main():
-  # Initialize the random number generator
+  # Initialize the random number generator to have consistent results
   random.seed(0)
 
   # Create a soccer environment

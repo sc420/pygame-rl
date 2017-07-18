@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Sample: Use only the renderer with the default map.
+"""
 
 # User-defined modules
 import pygame_soccer.soccer.soccer_environment as soccer_environment
