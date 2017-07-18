@@ -41,8 +41,8 @@ class SoccerEnvironment(environment.Environment):
   # State
   state = None
 
-  # Positions used as the geographical info.
-  soccer_pos = None
+  # Map data
+  map_data = None
 
   # Renderer
   renderer = None
@@ -51,10 +51,10 @@ class SoccerEnvironment(environment.Environment):
   def __init__(self, env_options=None, renderer_options=None):
     # Save or create the environment options
     self.options = env_options or SoccerEnvironmentOptions()
-    # Load the tile positions
-    self.soccer_pos = SoccerPosition(self.options.map_path)
+    # Load the map data
+    self.map_data = SoccerMapData(self.options.map_path)
     # Initialize the state
-    self.state = SoccerState(self, self.options, self.soccer_pos)
+    self.state = SoccerState(self, self.options, self.map_data)
     # Initialize the renderer
     self.renderer = soccer_renderer.SoccerRenderer(
         self.options.map_path, self, renderer_options)
@@ -114,7 +114,7 @@ class SoccerEnvironment(environment.Environment):
     self.renderer.render()
 
   def update_agent_pos(self, agent_index, pos):
-    if pos in self.soccer_pos.walkable:
+    if pos in self.map_data.walkable:
       update = True
       # Check whether one agent loses his ball
       for other_agent_index in range(self.options.get_agent_size()):
@@ -157,7 +157,7 @@ class SoccerEnvironment(environment.Environment):
         strategic_mode = 'AVOID'
       else:
         # Calculate the distance from the player
-        goals = self.soccer_pos.goals['player']
+        goals = self.map_data.goals['PLAYER']
         distances = [self.get_pos_distance(goal_pos, has_ball_agent_pos)
                      for goal_pos in goals]
         # Select the minimum distance
@@ -167,7 +167,7 @@ class SoccerEnvironment(environment.Environment):
     elif computer_mode == 'OFFENSIVE':
       if computer_ball:
         # Calculate the distance from the player
-        goals = self.soccer_pos.goals['computer']
+        goals = self.map_data.goals['COMPUTER']
         distances = [self.get_pos_distance(goal_pos, nearest_player_pos)
                      for goal_pos in goals]
         # Select the maximum distance
@@ -225,7 +225,7 @@ class SoccerEnvironment(environment.Environment):
       # Get the moved position after doing the action
       moved_pos = self.get_moved_pos(source_pos, action)
       # Check whether the moved position is walkable
-      if not moved_pos in self.soccer_pos.walkable:
+      if not moved_pos in self.map_data.walkable:
         continue
       # Check whether the moved position is occupied and not the target position
       if self.state.get_pos_status(moved_pos) and moved_pos != target_pos:
@@ -281,15 +281,7 @@ class SoccerEnvironmentOptions(object):
   # Team size
   team_size = 1
 
-  # Default spawn bounds for randomization (x, y, w, h)
-  spawn_bounds = {
-      # Left half for the player team
-      'PLAYER': [1, 0, 3, 6],
-      # Right half for the computer team
-      'COMPUTER': [5, 0, 3, 6],
-  }
-
-  def __init__(self, map_path=None, team_size=1, spawn_bounds=None):
+  def __init__(self, map_path=None, team_size=1):
     # Save the map path or use the internal resource
     if map_path:
       self.map_path = map_path
@@ -300,36 +292,32 @@ class SoccerEnvironmentOptions(object):
       raise ValueError('"team_size" should be either 1 or 2')
     # Save the team size
     self.team_size = team_size
-    # Save the spawn bounds if specified
-    if spawn_bounds:
-      self.spawn_bounds = spawn_bounds
 
   def get_agent_size(self):
     return 2 * self.team_size
-
-  def get_spawn_bounds(self, team_name):
-    return self.spawn_bounds[team_name]
 
   def __repr__(self):
     return 'Team size: {}'.format(self.team_size)
 
 
-class SoccerPosition(object):
-  """The soccer position as the geographical info.
+class SoccerMapData(object):
+  """The soccer map data as the geographical info.
   """
   # Tile positions
-  walkable = []
+  spawn = []
   goals = []
+  walkable = []
 
   def __init__(self, map_path):
     # Create a tile data and load
     tiled_data = pygame_renderer.TiledData(map_path)
     tiled_data.load()
     # Get the background tile positions
-    tile_pos = tiled_data.get_background_tile_positions()
+    tile_pos = tiled_data.get_tile_positions()
     # Build the tile positions
-    self.walkable = tile_pos['ground']['walkable']
+    self.spawn = tile_pos['spawn_field']
     self.goals = tile_pos['goal']
+    self.walkable = tile_pos['ground']['WALKABLE']
 
 
 class SoccerObservation(object):
@@ -370,13 +358,13 @@ class SoccerState(object):
   # Soccer environment options
   env_options = None
 
-  # Soccer position used as the bounds info
-  soccer_pos = None
+  # Map data
+  map_data = None
 
-  def __init__(self, env, env_options, soccer_pos):
+  def __init__(self, env, env_options, map_data):
     self.env = env
     self.env_options = env_options
-    self.soccer_pos = soccer_pos
+    self.map_data = map_data
     self.reset()
 
   def reset(self):
@@ -404,13 +392,7 @@ class SoccerState(object):
         # Randomize the agent positions
         found_pos = False
         while not found_pos:
-          spawn_bounds = self.env_options.get_spawn_bounds(team_name)
-          x_range = [spawn_bounds[0], spawn_bounds[0] + spawn_bounds[2]]
-          y_range = [spawn_bounds[1], spawn_bounds[1] + spawn_bounds[3]]
-          agent_pos = [
-              random.randrange(*x_range),
-              random.randrange(*y_range),
-          ]
+          agent_pos = random.choice(self.map_data.spawn[team_name])
           if not self.get_pos_status(agent_pos):
             self.set_agent_pos(agent_index, agent_pos)
             found_pos = True
@@ -457,10 +439,8 @@ class SoccerState(object):
       return False
     # Get the team name
     team_name = self.get_team_name(agent_index)
-    # Get the goal name
-    goal_name = team_name.lower()
     # Check whether the position is in the goal field
-    return agent_pos in self.soccer_pos.goals[goal_name]
+    return agent_pos in self.map_data.goals[team_name]
 
   def get_agent_pos(self, agent_index):
     return self.agent_list[agent_index]['pos']

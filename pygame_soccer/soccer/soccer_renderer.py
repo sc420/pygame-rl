@@ -92,8 +92,8 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
     # Update the overlays by the environment state
     self.agents.empty()
     for agent_index in range(self.env.options.get_agent_size()):
-      name_no_ball = 'agent{}'.format(agent_index + 1)
-      name_has_ball = 'agent{}_ball'.format(agent_index + 1)
+      name_no_ball = 'AGENT{}'.format(agent_index + 1)
+      name_has_ball = 'AGENT{}_BALL'.format(agent_index + 1)
       agent_no_ball = self.overlays[name_no_ball]
       agent_has_ball = self.overlays[name_has_ball]
       # Get the agent state

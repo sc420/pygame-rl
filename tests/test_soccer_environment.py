@@ -15,8 +15,8 @@ class SoccerEnvironmentTest:
 
   def test_init(self):
     # The soccer positions should be non-empty
-    assert len(self.env.soccer_pos.walkable) > 0
-    assert len(self.env.soccer_pos.goals) > 0
+    assert len(self.env.map_data.walkable) > 0
+    assert len(self.env.map_data.goals) > 0
 
   def test_reset(self):
     # Reset the environment

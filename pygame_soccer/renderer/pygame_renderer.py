@@ -28,15 +28,18 @@ class TiledLoader(metaclass=abc.ABCMeta):
 
     Layers will be categorized based on the layer property. Layers are
     categorized into either "background" or "overlay" if the boolean property
-    exists and is enabled.
+    exists and is enabled. All layers will be added to the "all" category.
 
     """
     self.layers = {
+        'all': [],
         'background': [],
         'overlay': [],
     }
-    # Categorize based on the property
-    for layer in self.tiled_map.visible_layers:
+    for layer in self.tiled_map.layers:
+      # Add the layer to all category
+      self.layers['all'].append(layer)
+      # Categorize based on the property
       prop = layer.properties
       if 'background' in prop and prop['background'] == 'true':
         self.layers['background'].append(layer)
@@ -55,24 +58,23 @@ class TiledData(TiledLoader):
     # Load the layers
     self.load_layers()
 
-  def get_background_tile_positions(self):
-    """Get the background tile positions.
+  def get_tile_positions(self):
+    """Get the tile positions.
 
-    A tile mapping file can be associated with each background layer containing
-    the tile types. If the property "tile" exists, with the value of the
-    file path relative to the map path, the contents of the mapping from tile
-    name to tid (tile ID) will be read; Otherwise, the 2nd mapping will be an
-    empty dict.
+    A tile mapping file can be associated with each layer containing the tile
+    types. If the property "tile" exists, with the value of the file path
+    relative to the map path, the contents of the mapping from tile name to tid
+    (tile ID) will be read; Otherwise, the 2nd mapping will be an empty dict.
 
     Returns:
       dict: 1st mapping is from the layer name to the 2nd dict. 2nd mapping is
       from the name to the tile positions.
     """
     # Get the background layer
-    background_layers = self.layers['background']
+    layers = self.layers['all']
     # Build the mapping
     tile_pos = {}
-    for layer in background_layers:
+    for layer in layers:
       # Check whether the tile mapping property exists
       if 'tile' in layer.properties:
         # Get the tile file path relative to the map file
@@ -94,8 +96,10 @@ class TiledData(TiledLoader):
             continue
           pos = [x, y]
           tid = self.tiled_map.tiledgidmap[gid]
-          tile_name = tid_to_tile_name[tid]
-          tile_name_to_pos[tile_name].append(pos)
+          # Append when the mapping exists
+          if tid in tid_to_tile_name:
+            tile_name = tid_to_tile_name[tid]
+            tile_name_to_pos[tile_name].append(pos)
         tile_pos[layer.name] = tile_name_to_pos
       else:
         tile_pos[layer.name] = {}
