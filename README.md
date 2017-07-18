@@ -62,7 +62,7 @@ The two agents move in random order, i.e., every time the player plans to moves,
 ### Software
 
 * [Visual Studio Code](https://code.visualstudio.com/) for editing the text files.
-* [Python extension for VSCode](https://marketplace.visualstudio.com/items?itemName=donjayamanne.python) for linting Python files.
+* [Python extension for VSCode](https://marketplace.visualstudio.com/items?itemName=donjayamanne.python) for debugging and linting Python files.
 * [Tiled Map Editor](http://www.mapeditor.org/) for editing `.tmx` and `.tsx` files.
 * [GIMP](https://www.gimp.org/) for editing the image files.
 
