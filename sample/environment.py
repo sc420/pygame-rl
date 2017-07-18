@@ -15,11 +15,8 @@ def main():
   # Initialize the random number generator
   random.seed(0)
 
-  # Create a soccer environment options
-  env_options = soccer_environment.SoccerEnvironmentOptions(team_size=1)
-
   # Create a soccer environment
-  soccer_env = soccer_environment.SoccerEnvironment(env_options)
+  soccer_env = soccer_environment.SoccerEnvironment()
 
   # Run many episodes
   for episode_index in range(20):

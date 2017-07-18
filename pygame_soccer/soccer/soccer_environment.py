@@ -14,9 +14,6 @@ import pygame_soccer.util.file_util as file_util
 class SoccerEnvironment(environment.Environment):
   """The soccer environment.
   """
-  # Resource names
-  map_resource_name = 'pygame_soccer/data/map/soccer.tmx'
-
   # Team name list
   team_names = [
       'PLAYER',
@@ -51,18 +48,16 @@ class SoccerEnvironment(environment.Environment):
   renderer = None
   renderer_loaded = False
 
-  def __init__(self, env_options, renderer_options=None):
-    # Save the environment options
-    self.options = env_options
-    # Resolve the map path
-    map_path = file_util.get_resource_path(self.map_resource_name)
+  def __init__(self, env_options=None, renderer_options=None):
+    # Save or create the environment options
+    self.options = env_options or SoccerEnvironmentOptions()
     # Load the tile positions
-    self.soccer_pos = SoccerPosition(map_path)
+    self.soccer_pos = SoccerPosition(self.options.map_path)
     # Initialize the state
     self.state = SoccerState(self, self.options, self.soccer_pos)
     # Initialize the renderer
     self.renderer = soccer_renderer.SoccerRenderer(
-        map_path, self, renderer_options)
+        self.options.map_path, self, renderer_options)
 
   def reset(self):
     self.state.reset()
@@ -277,6 +272,12 @@ class SoccerEnvironment(environment.Environment):
 class SoccerEnvironmentOptions(object):
   """The options for the soccer environment.
   """
+  # Resource names
+  map_resource_name = 'pygame_soccer/data/map/soccer.tmx'
+
+  # Map path
+  map_path = None
+
   # Team size
   team_size = 1
 
@@ -288,11 +289,18 @@ class SoccerEnvironmentOptions(object):
       'COMPUTER': [5, 0, 3, 6],
   }
 
-  def __init__(self, team_size=1, spawn_bounds=None):
+  def __init__(self, map_path=None, team_size=1, spawn_bounds=None):
+    # Save the map path or use the internal resource
+    if map_path:
+      self.map_path = map_path
+    else:
+      self.map_path = file_util.get_resource_path(self.map_resource_name)
     # Check the team size
     if not (team_size >= 1 and team_size <= 2):
       raise ValueError('"team_size" should be either 1 or 2')
+    # Save the team size
     self.team_size = team_size
+    # Save the spawn bounds if specified
     if spawn_bounds:
       self.spawn_bounds = spawn_bounds
 

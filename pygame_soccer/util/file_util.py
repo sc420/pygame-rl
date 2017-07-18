@@ -5,7 +5,6 @@ import os
 import pkg_resources
 import yaml
 
-
 # Package name
 PACKAGE_NAME = 'pygame_soccer'
 
