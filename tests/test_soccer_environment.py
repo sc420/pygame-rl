@@ -8,9 +8,10 @@ import pygame_soccer.soccer.soccer_environment as soccer_environment
 class SoccerEnvironmentTest:
   env = None
 
-  def __init__(self):
+  @classmethod
+  def setup_class(cls):
     env_options = soccer_environment.SoccerEnvironmentOptions()
-    self.env = soccer_environment.SoccerEnvironment(env_options)
+    cls.env = soccer_environment.SoccerEnvironment(env_options)
 
   def test_init(self):
     # The soccer positions should be non-empty
