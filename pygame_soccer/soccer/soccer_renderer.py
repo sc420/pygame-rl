@@ -77,14 +77,13 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
     self.clock = pygame.time.Clock()
 
   def render(self):
-    # Uninitialize the display if the renderer options is set to disable the
-    # display
+    # Close the display if the renderer options is set to disable the display
     if not self.display_quitted and not self.renderer_options.show_display:
       # Replace the screen surface with in-memory surface
       self.screen = self.screen.copy()
-      # Uninitialize the display
+      # Close the display
       pygame.display.quit()
-      # Prevent from further unitialization
+      # Prevent from further closing
       self.display_quitted = True
 
     # Clear the overlays

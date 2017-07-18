@@ -3,7 +3,7 @@ import abc
 
 
 class Environment(metaclass=abc.ABCMeta):
-  """The abstract class for the enviornment.
+  """The abstract class for the environment.
   """
   @abc.abstractmethod
   def reset(self):
