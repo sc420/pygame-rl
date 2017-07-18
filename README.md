@@ -10,11 +10,11 @@ When the player carries the ball to the rightmost goal field, a reward of 1.0 is
 
 ## Installation
 
-## Requirements
+### Requirements
 
 - [Python 3.6](https://www.continuum.io/)
 
-## Getting Started
+### Getting Started
 
 1. Clone the repository.
 2. Open a command line and change the working directory to the cloned directory.
@@ -23,7 +23,7 @@ When the player carries the ball to the rightmost goal field, a reward of 1.0 is
 pip install -e .
 ```
 
-## Running the Samples
+### Running the Samples
 
 Run and see the sample files to get started.
 
