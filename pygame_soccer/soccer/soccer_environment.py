@@ -51,9 +51,9 @@ class SoccerEnvironment(environment.Environment):
   renderer = None
   renderer_loaded = False
 
-  def __init__(self, options=None, renderer_options=None):
-    # Use or create the environment options
-    self.options = options or SoccerEnvironmentOptions()
+  def __init__(self, env_options, renderer_options=None):
+    # Save the environment options
+    self.options = env_options
     # Resolve the map path
     map_path = file_util.get_resource_path(self.map_resource_name)
     # Load the tile positions
@@ -131,14 +131,14 @@ class SoccerEnvironment(environment.Environment):
         # Determine whether the position overlaps
         pos_overlapped = (pos == self.state.get_agent_pos(other_agent_index))
         # Determine whether to switch the ball
-        swtich_ball = (has_ball
+        switch_ball = (has_ball
                        and pos == self.state.get_agent_pos(other_agent_index))
-        if swtich_ball:
+        if switch_ball:
           self.state.switch_ball(agent_index, other_agent_index)
         if pos_overlapped:
           update = False
           break
-      # Update the position if it doesn't overlap with other's
+      # Update the position if it doesn't overlap with others
       if update:
         self.state.set_agent_pos(agent_index, pos)
 

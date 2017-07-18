@@ -19,7 +19,7 @@ def main():
   env_options = soccer_environment.SoccerEnvironmentOptions(team_size=1)
 
   # Create a soccer environment
-  soccer_env = soccer_environment.SoccerEnvironment(options=env_options)
+  soccer_env = soccer_environment.SoccerEnvironment(env_options)
 
   # Run many episodes
   for episode_index in range(20):

@@ -15,7 +15,7 @@ def main():
 
   # Create a soccer environment
   soccer_env = soccer_environment.SoccerEnvironment(
-      options=env_options, renderer_options=renderer_options)
+      env_options, renderer_options=renderer_options)
 
   # Get the renderer wrapped in the environment
   renderer = soccer_env.renderer
