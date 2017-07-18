@@ -410,7 +410,7 @@ class SoccerState(object):
         else:
           self.set_agent_mode(agent_index, None)
         # Reset the action
-        self.set_agent_action(agent_index, None)
+        self.set_agent_action(agent_index, self.env.actions[-1])
 
   def is_terminal(self):
     # When the time step exceeds 100
