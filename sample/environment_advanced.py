@@ -54,10 +54,11 @@ def main():
       # Render the environment. The renderer will lazy load on the first call.
       # Skip the call if you don't need the rendering.
       soccer_env.render()
-      # Get the screenshot. The returned `screenshot` is a `numpy.ndarray`, the
-      # format is the same as the returned value of `scipy.misc.imread`. The
-      # previous call is required for this call to work.
-      screenshot = soccer_env.renderer.get_screenshot()
+      # Get the partially observable screenshot of the first agent with a radius
+      # of 1. The returned `screenshot` is a `numpy.ndarray`, the format is the
+      # same as the returned value of `scipy.misc.imread`. The previous call is
+      # required for this call to work.
+      po_screenshot = soccer_env.renderer.get_po_screenshot(0, 1)
       # Build a list of random actions. The size of the list should be exactly
       # the team size.
       action = [random.choice(soccer_env.actions)
@@ -71,13 +72,14 @@ def main():
             episode_index + 1, soccer_env.state.time_step + 1))
         is_running = False
 
-  # Save the last screenshot
+  # Save the last partially observable screenshot
   soccer_env.render()
-  screenshot = soccer_env.renderer.get_screenshot()
+  po_screenshot = soccer_env.renderer.get_po_screenshot(0, 1)
   screenshot_relative_path = 'screenshot.png'
   screenshot_abs_path = os.path.abspath(screenshot_relative_path)
-  scipy.misc.imsave(screenshot_abs_path, screenshot)
-  print('The last screenshot is saved to {}'.format(screenshot_abs_path))
+  scipy.misc.imsave(screenshot_abs_path, po_screenshot)
+  print('The last partially observable screenshot is saved to {}'.format(
+      screenshot_abs_path))
 
 
 if __name__ == '__main__':

@@ -143,9 +143,76 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
     return True
 
   def get_screenshot(self):
+    """Get the full screenshot.
+
+    "screen" surface must be rendered first, otherwise the image will be all
+    black.
+
+    Returns:
+      numpy.ndarray: The full screenshot.
+    """
+    # Get the entire image
     image = pygame.surfarray.array3d(self.screen)
     # Swap the axes as the X and Y axes in Pygame and Scipy are opposite
     return np.swapaxes(image, 0, 1)
+
+  def get_po_screenshot(self, agent_index, radius):
+    """Get the partially observable (po) screenshot.
+
+    The returned screenshot is always a square with the length of "tile size" *
+    (2 * radius + 1). The image of the agent is always centered. The default
+    background is black is the cropped image is near the boundaries.
+
+    Args:
+      agent_index (int): Agent index.
+      radius (int): The radius of the partially observable area.
+
+    Returns:
+      numpy.ndarray: The partially observable screenshot.
+    """
+    # Get the entire image
+    image = pygame.surfarray.array3d(self.screen)
+    # Get the agent position as a Numpy array
+    agent_pos = np.array(self.env.state.get_agent_pos(agent_index))
+    # Get the size of a single tile as a Numpy array
+    tile_size = np.array(super().get_tile_size())
+    # Get the size of the display
+    display_size = super().get_display_size()
+    # Calculate the length of the tiles needed
+    tile_len = 2 * radius + 1
+    # Calculate the size of the partially observable screenshot
+    po_size = tile_size * tile_len
+    # Calculate the offset of the crop area
+    crop_offset = tile_size * (agent_pos - radius)
+    # Calculate the crop slice ((x, x+w), (y, y+h))
+    crop_slice = (
+        slice(np.max([0, crop_offset[0]]),
+              np.min([display_size[0], crop_offset[0] + po_size[0]])),
+        slice(np.max([0, crop_offset[1]]),
+              np.min([display_size[1], crop_offset[1] + po_size[1]])),
+    )
+    # Create a black filled partially observable screenshot
+    po_screenshot = np.zeros(
+        (po_size[0], po_size[1], 3), dtype=image.dtype)
+    # Calculate the crop size
+    crop_size = [
+        crop_slice[0].stop - crop_slice[0].start,
+        crop_slice[1].stop - crop_slice[1].start,
+    ]
+    # Calculate the offset of the paste area
+    paste_offset = [
+        np.max([0, (-crop_offset[0])]),
+        np.max([0, (-crop_offset[1])]),
+    ]
+    # Calculate the paste slice ((x, x+w), (y, y+h))
+    paste_slice = (
+        slice(paste_offset[0], paste_offset[0] + crop_size[0]),
+        slice(paste_offset[1], paste_offset[1] + crop_size[1]),
+    )
+    # Copy and paste the partial screenshot
+    po_screenshot[paste_slice] = image[crop_slice]
+    # Swap the axes as the X and Y axes in Pygame and Scipy are opposite
+    return np.swapaxes(po_screenshot, 0, 1)
 
   def _get_action(self, first_player_action):
     action = ['STAND'] * self.env.options.team_size

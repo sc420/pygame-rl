@@ -126,6 +126,9 @@ class TiledRenderer(TiledLoader):
     height = self.tiled_map.height * self.tiled_map.tileheight
     return [width, height]
 
+  def get_tile_size(self):
+    return [self.tiled_map.tilewidth, self.tiled_map.tileheight]
+
   def get_background(self):
     """Get the background surface.
 
