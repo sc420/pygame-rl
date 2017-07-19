@@ -10,8 +10,7 @@ class SoccerEnvironmentTest:
 
   @classmethod
   def setup_class(cls):
-    env_options = soccer_environment.SoccerEnvironmentOptions()
-    cls.env = soccer_environment.SoccerEnvironment(env_options)
+    cls.env = soccer_environment.SoccerEnvironment()
 
   def test_init(self):
     # The soccer positions should be non-empty

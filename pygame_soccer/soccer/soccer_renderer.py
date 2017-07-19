@@ -25,7 +25,7 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
   # TMX objects
   overlays = None
 
-  # Clock object (pygame.time.Clock)
+  # Clock object (pygame.time.Clock())
   clock = None
 
   # Surfaces (pygame.Surface)
