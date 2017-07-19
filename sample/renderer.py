@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Sample: Use only the renderer with the default map.
 
-Press the arrow keys to control the agent 1.
+Press the arrow keys to move the agent 1. Press the "s" key to take the "STAND"
+action of the agent 1.
 
 """
 

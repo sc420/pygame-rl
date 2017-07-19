@@ -138,6 +138,8 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
               self.env.take_action(self._get_action('MOVE_LEFT'))
             elif event.key == pygame.locals.K_DOWN:
               self.env.take_action(self._get_action('MOVE_DOWN'))
+            elif event.key == pygame.locals.K_s:
+              self.env.take_action(self._get_action('STAND'))
 
     # Indicate the rendering should continue
     return True
