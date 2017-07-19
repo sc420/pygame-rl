@@ -48,14 +48,12 @@ To modify the map, for example.
 
 ### Computer Agent Algorithm
 
-The computer agent has 4 strategies according to the scenarios described in the [paper][paper]. The internal algorithm of either approaching or avoiding is by randomly moving the direction in either axis so that the Euclidean distance from the target is shorter or further.
+The computer agent has 4 strategies according to the scenarios described in the [paper][paper]. The internal algorithm of either approaching or avoiding is by randomly moving the direction in either axis so that the Euclidean distance from the target is shorter or further. Intercepting is basically approaching with an exception that the Euclidean distance is always greater than or equal to 1.
 
 * "Avoid opponent": See where the nearest player is, avoid him.
 * "Advance to goal": See where the leftmost goal field is, select a grid which has the maximum distance from the nearest player, approach it.
 * "Defend goal": See where the rightmost goal field is, select a grid which has the minimum distance from the player who possesses the ball, approach it.
-* "Intercept goal": See where the player who possesses the ball is, approach him.
-
-The two agents move in random order, i.e., every time the player plans to moves, the computer agent either moves first or follows the move by the player.
+* "Intercept goal": See where the player who possesses the ball is, intercept him.
 
 ## Development
 

@@ -64,42 +64,16 @@ class SoccerEnvironment(environment.Environment):
     return SoccerObservation(self.state, None, 0.0, None)
 
   def take_action(self, action):
-    # Wrap the action in a list if it's in the single-agent environment
-    if self.options.team_size <= 1 and not isinstance(action, list):
-      action = [action]
-    # Check the action
-    if len(action) != self.options.team_size:
-      raise ValueError('"action" should have the same size as the team size')
-    # Initialize a list of positions to update
-    moved_pos_list = []
-    # Calculate the moved positions
-    for team_name in self.team_names:
-      for team_agent_index in range(self.options.team_size):
-        agent_index = self.get_agent_index(team_name, team_agent_index)
-        pos = self.state.get_agent_pos(agent_index)
-        if team_name == 'PLAYER':
-          agent_action = action[team_agent_index]
-        elif team_name == 'COMPUTER':
-          agent_action = self.get_computer_action(team_agent_index)
-          # Save the action taken by the computer agent
-          self.state.set_agent_action(agent_index, agent_action)
-        else:
-          raise KeyError('Unknown team name {}'.format(team_name))
-        moved_pos = self.get_moved_pos(pos, agent_action)
-        moved_pos_list.append([agent_index, moved_pos])
-    # Randomly update the moved positions
-    random.shuffle(moved_pos_list)
-    for [agent_index, moved_pos] in moved_pos_list:
-      self.update_agent_pos(agent_index, moved_pos)
+    # Get the action wrapped in a list
+    action = self._get_wrapped_action(action)
+    # Get the moved positions
+    moved_pos_list = self._get_moved_pos_list(action)
+    # Update the agent positions
+    self._update_agent_pos(moved_pos_list)
     # Increase the time step
     self.state.increase_time_step()
-    # Determine the reward
-    if self.state.is_team_win('PLAYER'):
-      reward = 1.0
-    elif self.state.is_team_win('COMPUTER'):
-      reward = -1.0
-    else:
-      reward = 0.0
+    # Get the reward
+    reward = self._get_reward()
     # Return the observation, the original state is not returned to increase
     # the speed, otherwise deep copying must be used before changing the
     # position.
@@ -113,37 +87,56 @@ class SoccerEnvironment(environment.Environment):
     # Render
     self.renderer.render()
 
-  def update_agent_pos(self, agent_index, pos):
-    if pos in self.map_data.walkable:
-      update = True
-      # Check whether one agent loses his ball
-      for other_agent_index in range(self.options.get_agent_size()):
-        if other_agent_index == agent_index:
-          continue
-        # Check if either agent has the ball
-        has_ball = (self.state.get_agent_ball(agent_index)
-                    or self.state.get_agent_ball(other_agent_index))
-        # Determine whether the position overlaps
-        pos_overlapped = (pos == self.state.get_agent_pos(other_agent_index))
-        # Determine whether to switch the ball
-        switch_ball = (has_ball
-                       and pos == self.state.get_agent_pos(other_agent_index))
-        if switch_ball:
-          self.state.switch_ball(agent_index, other_agent_index)
-        if pos_overlapped:
-          update = False
-          break
-      # Update the position if it doesn't overlap with others
-      if update:
+  def get_agent_index(self, team_name, team_agent_index):
+    # Map the team name to the group index
+    if team_name == 'PLAYER':
+      group_index = 0
+    elif team_name == 'COMPUTER':
+      group_index = 1
+    else:
+      raise KeyError('Unknown team name {}'.format(team_name))
+    # Calculate the agent index
+    return self.options.team_size * group_index + team_agent_index
+
+  def _update_agent_pos(self, moved_pos_list):
+    # Build a mapping from the overlapping positions to the list of agent
+    # indexes
+    pos_to_agent_index = {}
+    for [agent_index, pos] in moved_pos_list:
+      # Use the old position if the new position is not walkable
+      if not pos in self.map_data.walkable:
+        pos = self.state.get_agent_pos(agent_index)
+      # Use the tuple as the key
+      pos_tuple = tuple(pos)
+      if pos_tuple in pos_to_agent_index:
+        pos_to_agent_index[pos_tuple].append(agent_index)
+      else:
+        pos_to_agent_index[pos_tuple] = [agent_index]
+    # Update the positions
+    for (pos_tuple, agent_index_list) in pos_to_agent_index.items():
+      if len(agent_index_list) > 1:
+        # Get the agent who possesses the ball
+        ball_possession = self.state.get_ball_possession()
+        has_ball_agent_index = ball_possession['agent_index']
+        # Get a list of the agents who don't have the ball
+        no_ball_list = [agent_index for agent_index in agent_index_list
+                        if agent_index != has_ball_agent_index]
+        # Randomly switch the ball
+        switch_ball_agent_index = random.choice(no_ball_list)
+        self.state.switch_ball(has_ball_agent_index, switch_ball_agent_index)
+      else:
+        # Update the agent position
+        agent_index = agent_index_list[0]
+        pos = list(pos_tuple)
         self.state.set_agent_pos(agent_index, pos)
 
-  def get_computer_action(self, computer_agent_index):
+  def _get_computer_action(self, computer_agent_index):
     # Get the computer agent info
     agent_index = self.get_agent_index('COMPUTER', computer_agent_index)
     computer_ball = self.state.get_agent_ball(agent_index)
     computer_mode = self.state.get_agent_mode(agent_index)
     # Get the position of the nearest player
-    nearest_player_index = self.get_nearest_player_index(computer_agent_index)
+    nearest_player_index = self._get_nearest_player_index(computer_agent_index)
     nearest_player_pos = self.state.get_agent_pos(nearest_player_index)
     # Get the position of the player who possesses the ball
     ball_possession = self.state.get_ball_possession()
@@ -176,15 +169,15 @@ class SoccerEnvironment(environment.Environment):
         strategic_mode = 'APPROACH'
       else:
         target_pos = has_ball_agent_pos
-        strategic_mode = 'APPROACH'
+        strategic_mode = 'INTERCEPT'
     else:
       raise KeyError('Unknown computer agent mode {}'.format(computer_mode))
     # Get the strategic action
-    action = self.get_strategic_action(
+    action = self._get_strategic_action(
         computer_pos, target_pos, strategic_mode)
     return action
 
-  def get_nearest_player_index(self, computer_agent_index):
+  def _get_nearest_player_index(self, computer_agent_index):
     # Get the computer agent position
     agent_index = self.get_agent_index('COMPUTER', computer_agent_index)
     computer_pos = self.state.get_agent_pos(agent_index)
@@ -201,18 +194,7 @@ class SoccerEnvironment(environment.Environment):
         nearest_dist = dist
     return nearest_agent_index
 
-  def get_agent_index(self, team_name, team_agent_index):
-    # Map the team name to the group index
-    if team_name == 'PLAYER':
-      group_index = 0
-    elif team_name == 'COMPUTER':
-      group_index = 1
-    else:
-      raise KeyError('Unknown team name {}'.format(team_name))
-    # Calculate the agent index
-    return self.options.team_size * group_index + team_agent_index
-
-  def get_strategic_action(self, source_pos, target_pos, mode):
+  def _get_strategic_action(self, source_pos, target_pos, mode):
     # Calculate the original Euclidean distance
     orig_dist = self.get_pos_distance(source_pos, target_pos)
     # Find the best action
@@ -240,9 +222,50 @@ class SoccerEnvironment(environment.Environment):
         if (best_dist is None) or (moved_dist > best_dist):
           best_action = action
           best_dist = moved_dist
+      elif mode == 'INTERCEPT':
+        if (best_dist is None) or ((moved_dist <= best_dist) and
+                                   moved_dist >= 1):
+          best_action = action
+          best_dist = moved_dist
       else:
         raise KeyError('Unknown mode {}'.format(mode))
     return best_action
+
+  def _get_wrapped_action(self, action):
+    # Wrap the action in a list if it's in the single-agent environment
+    if self.options.team_size <= 1 and not isinstance(action, list):
+      action = [action]
+    # Check the size of the action should be the same as the team size
+    if len(action) != self.options.team_size:
+      raise ValueError('"action" should have the same size as the team size')
+    return action
+
+  def _get_moved_pos_list(self, action):
+    # Build a list of moved positions along with the agent indexes
+    moved_pos_list = []
+    for team_name in self.team_names:
+      for team_agent_index in range(self.options.team_size):
+        agent_index = self.get_agent_index(team_name, team_agent_index)
+        pos = self.state.get_agent_pos(agent_index)
+        if team_name == 'PLAYER':
+          agent_action = action[team_agent_index]
+        elif team_name == 'COMPUTER':
+          agent_action = self._get_computer_action(team_agent_index)
+          # Save the action taken by the computer agent
+          self.state.set_agent_action(agent_index, agent_action)
+        else:
+          raise KeyError('Unknown team name {}'.format(team_name))
+        moved_pos = self.get_moved_pos(pos, agent_action)
+        moved_pos_list.append([agent_index, moved_pos])
+    return moved_pos_list
+
+  def _get_reward(self):
+    if self.state.is_team_win('PLAYER'):
+      return 1.0
+    elif self.state.is_team_win('COMPUTER'):
+      return -1.0
+    else:
+      return 0.0
 
   @staticmethod
   def get_moved_pos(pos, action):
