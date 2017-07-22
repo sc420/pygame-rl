@@ -64,15 +64,45 @@ The computer agent has 4 strategies according to the scenarios described in the 
 * [Tiled Map Editor](http://www.mapeditor.org/) for editing `.tmx` and `.tsx` files.
 * [GIMP](https://www.gimp.org/) for editing the image files.
 
-### Running the Tests
+### Getting Started
 
 1. Install the test dependencies.
 ```shell
 pip install .[test]
 ```
-2. Run the tests with Pytest.
+
+### Running the Tests
+
+1. Run the tests with Pytest.
+```shell
+pytest
+```
+2. Debug the tests with Python.
 ```shell
 python tests/main.py
+```
+
+### Measuring Code Coverage
+
+1. Run the tests with Coverage.py.
+```shell
+coverage run tests/main.py
+```
+2. Generate the web page report.
+```shell
+coverage html
+```
+3. See the report in `htmlcov\index.html`.
+
+### Measuring Performance
+
+1. Run the sample with cProfile.
+```shell
+python -m cProfile -o environment_advanced.prof sample/environment_advanced.py
+```
+2. See the report with SnakeViz.
+```shell
+snakeviz environment_advanced.prof
 ```
 
 ### Resources
