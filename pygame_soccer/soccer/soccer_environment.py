@@ -66,10 +66,10 @@ class SoccerEnvironment(environment.Environment):
   def take_action(self, action):
     # Get the action wrapped in a list
     action = self._get_wrapped_action(action)
-    # Get the moved positions
-    moved_pos_list = self._get_moved_pos_list(action)
+    # Get the intended positions
+    intended_pos = self._get_intended_pos(action)
     # Update the agent positions
-    self._update_agent_pos(moved_pos_list)
+    self._update_agent_pos(intended_pos)
     # Increase the time step
     self.state.increase_time_step()
     # Get the reward
@@ -98,37 +98,83 @@ class SoccerEnvironment(environment.Environment):
     # Calculate the agent index
     return self.options.team_size * group_index + team_agent_index
 
-  def _update_agent_pos(self, moved_pos_list):
-    # Build a mapping from the overlapping positions to the list of agent
-    # indexes
-    pos_to_agent_index = {}
-    for [agent_index, pos] in moved_pos_list:
-      # Use the old position if the new position is not walkable
-      if not pos in self.map_data.walkable:
+  def _get_wrapped_action(self, action):
+    # Wrap the action in a list if it's in the single-agent environment
+    if self.options.team_size <= 1 and not isinstance(action, list):
+      action = [action]
+    # Check the size of the action should be the same as the team size
+    if len(action) != self.options.team_size:
+      raise ValueError('"action" should have the same size as the team size')
+    return action
+
+  def _get_intended_pos(self, action):
+    # Build a dict of the agent index to the intended moved position
+    intended_pos = {}
+    for team_name in self.team_names:
+      for team_agent_index in range(self.options.team_size):
+        agent_index = self.get_agent_index(team_name, team_agent_index)
         pos = self.state.get_agent_pos(agent_index)
-      # Use the tuple as the key
-      pos_tuple = tuple(pos)
-      if pos_tuple in pos_to_agent_index:
-        pos_to_agent_index[pos_tuple].append(agent_index)
+        if team_name == 'PLAYER':
+          agent_action = action[team_agent_index]
+        elif team_name == 'COMPUTER':
+          agent_action = self._get_computer_action(team_agent_index)
+        else:
+          raise KeyError('Unknown team name {}'.format(team_name))
+        # Save the action taken by the agent
+        self.state.set_agent_action(agent_index, agent_action)
+        # Get the moved position
+        moved_pos = self.get_moved_pos(pos, agent_action)
+        # Use the moved position if it's in the walkable area
+        if moved_pos in self.map_data.walkable:
+          intended_pos[agent_index] = moved_pos
+        else:
+          intended_pos[agent_index] = pos
+    return intended_pos
+
+  def _update_agent_pos(self, intended_pos):
+    # Detect the overlapping positions and switch the ball
+    detecting_overlap = True
+    has_switched = False
+    while detecting_overlap:
+      # Get the overlapping position to agent index mapping
+      overlapping_pos_to_agent = self._get_overlapping_pos_to_agent(
+          intended_pos)
+      # Update the positions
+      detecting_overlap = False
+      for (_, agent_index_list) in overlapping_pos_to_agent.items():
+        if len(agent_index_list) > 1:
+          # Update the ball possession only once
+          if not has_switched:
+            switch = self._update_ball_possession(agent_index_list)
+            has_switched = has_switched or switch
+          # Use the old positions
+          for agent_index in agent_index_list:
+            intended_pos[agent_index] = self.state.get_agent_pos(agent_index)
+          # Indicate the process should continue
+          detecting_overlap = True
+    # Update the non-overlapping positions
+    for (agent_index, pos) in intended_pos.items():
+      self.state.set_agent_pos(agent_index, pos)
+
+  def _update_ball_possession(self, agent_index_list):
+    # Get the ball possessions of the agents
+    has_ball_agent_index = None
+    no_ball_agent_list = []
+    for agent_index in agent_index_list:
+      has_ball = self.state.get_agent_ball(agent_index)
+      if has_ball:
+        has_ball_agent_index = agent_index
       else:
-        pos_to_agent_index[pos_tuple] = [agent_index]
-    # Update the positions
-    for (pos_tuple, agent_index_list) in pos_to_agent_index.items():
-      if len(agent_index_list) > 1:
-        # Get the agent who possesses the ball
-        ball_possession = self.state.get_ball_possession()
-        has_ball_agent_index = ball_possession['agent_index']
-        # Get a list of the agents who don't have the ball
-        no_ball_list = [agent_index for agent_index in agent_index_list
-                        if agent_index != has_ball_agent_index]
-        # Randomly switch the ball
-        switch_ball_agent_index = random.choice(no_ball_list)
-        self.state.switch_ball(has_ball_agent_index, switch_ball_agent_index)
-      else:
-        # Update the agent position
-        agent_index = agent_index_list[0]
-        pos = list(pos_tuple)
-        self.state.set_agent_pos(agent_index, pos)
+        no_ball_agent_list.append(agent_index)
+    # Only switch the ball possession when one agent has the ball in the list
+    if not has_ball_agent_index is None:
+      # Randomly switch the ball
+      switch_agent_index = random.choice(no_ball_agent_list)
+      self.state.switch_ball(has_ball_agent_index, switch_agent_index)
+      # Indicate the switching has occurred
+      return True
+    # Indicate no switch
+    return False
 
   def _get_computer_action(self, computer_agent_index):
     # Get the computer agent info
@@ -209,55 +255,37 @@ class SoccerEnvironment(environment.Environment):
       # Check whether the moved position is walkable
       if not moved_pos in self.map_data.walkable:
         continue
-      # Check whether the moved position is occupied and not the target position
-      if self.state.get_pos_status(moved_pos) and moved_pos != target_pos:
-        continue
       # Calculate the new Euclidean distance
       moved_dist = self.get_pos_distance(moved_pos, target_pos)
       if mode == 'APPROACH':
-        if (best_dist is None) or (moved_dist < best_dist):
+        if moved_dist < best_dist:
           best_action = action
           best_dist = moved_dist
       elif mode == 'AVOID':
-        if (best_dist is None) or (moved_dist > best_dist):
+        if moved_dist > best_dist:
           best_action = action
           best_dist = moved_dist
       elif mode == 'INTERCEPT':
-        if (best_dist is None) or ((moved_dist <= best_dist) and
-                                   moved_dist >= 1):
+        if moved_dist < best_dist and moved_dist >= 1.0:
           best_action = action
           best_dist = moved_dist
       else:
         raise KeyError('Unknown mode {}'.format(mode))
     return best_action
 
-  def _get_wrapped_action(self, action):
-    # Wrap the action in a list if it's in the single-agent environment
-    if self.options.team_size <= 1 and not isinstance(action, list):
-      action = [action]
-    # Check the size of the action should be the same as the team size
-    if len(action) != self.options.team_size:
-      raise ValueError('"action" should have the same size as the team size')
-    return action
-
-  def _get_moved_pos_list(self, action):
-    # Build a list of moved positions along with the agent indexes
-    moved_pos_list = []
-    for team_name in self.team_names:
-      for team_agent_index in range(self.options.team_size):
-        agent_index = self.get_agent_index(team_name, team_agent_index)
+  def _get_overlapping_pos_to_agent(self, intended_pos):
+    overlapping_pos_to_agent = {}
+    for (agent_index, pos) in intended_pos.items():
+      # Use the old position if the new position is not walkable
+      if not pos in self.map_data.walkable:
         pos = self.state.get_agent_pos(agent_index)
-        if team_name == 'PLAYER':
-          agent_action = action[team_agent_index]
-        elif team_name == 'COMPUTER':
-          agent_action = self._get_computer_action(team_agent_index)
-          # Save the action taken by the computer agent
-          self.state.set_agent_action(agent_index, agent_action)
-        else:
-          raise KeyError('Unknown team name {}'.format(team_name))
-        moved_pos = self.get_moved_pos(pos, agent_action)
-        moved_pos_list.append([agent_index, moved_pos])
-    return moved_pos_list
+      # Use the tuple as the key
+      pos_tuple = tuple(pos)
+      if pos_tuple in overlapping_pos_to_agent:
+        overlapping_pos_to_agent[pos_tuple].append(agent_index)
+      else:
+        overlapping_pos_to_agent[pos_tuple] = [agent_index]
+    return overlapping_pos_to_agent
 
   def _get_reward(self):
     if self.state.is_team_win('PLAYER'):
