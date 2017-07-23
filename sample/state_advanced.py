@@ -43,7 +43,7 @@ def main():
         .format(player_last_action))
   print('The player should have the initial last action to be standing')
 
-  # Move the player agent position to be one step from the rightmost goal field
+  # Move the player agent position to be one step from the rightmost goal area
   player_pos = [7, 2]
   state.set_agent_pos(player_agent_index, player_pos)
 

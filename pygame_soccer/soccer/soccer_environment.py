@@ -366,7 +366,7 @@ class SoccerMapData(object):
     # Get the background tile positions
     tile_pos = tiled_data.get_tile_positions()
     # Build the tile positions
-    self.spawn = tile_pos['spawn_field']
+    self.spawn = tile_pos['spawn_area']
     self.goals = tile_pos['goal']
     self.walkable = tile_pos['ground']['WALKABLE']
 
@@ -490,7 +490,7 @@ class SoccerState(object):
       return False
     # Get the team name
     team_name = self.get_team_name(agent_index)
-    # Check whether the position is in the goal field
+    # Check whether the position is in the goal area
     return agent_pos in self.map_data.goals[team_name]
 
   def get_agent_pos(self, agent_index):

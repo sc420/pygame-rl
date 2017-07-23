@@ -43,7 +43,7 @@
 0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer name="spawn_field" width="9" height="6">
+ <layer name="spawn_area" width="9" height="6">
   <properties>
    <property name="tile" type="file" value="spawn_tile.yaml"/>
   </properties>

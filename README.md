@@ -6,7 +6,7 @@ A variant of the game described in the paper [He, He, et al. "Opponent modeling 
 
 Reinforcement learning agent controls the agent 1 (shown as the player Steve head), the computer agent controls the agent 2 (shown as the pig head). The agent who has the ball is bordered by a blue square (in this case, the player has the ball shown in the image).
 
-When the player carries the ball to the rightmost goal field, a reward of 1.0 is given; When the computer carries the ball to the leftmost goal field, a reward of -1.0 is given. The episode ends when either one of the agent carries the ball to its goal field or the time step reaches 100. See the [paper][paper] for the game rules.
+When the player carries the ball to the rightmost goal area, a reward of 1.0 is given; When the computer carries the ball to the leftmost goal area, a reward of -1.0 is given. The episode ends when either one of the agent carries the ball to its goal area or the time step reaches 100. See the [paper][paper] for the game rules.
 
 ## Installation
 
@@ -39,10 +39,10 @@ The map data is embedded in the map file. For example, see `pygame_soccer/data/m
 
 To modify the map, for example.
 
-* Change the spawn field: Modify the layer `spawn_field` in `soccer.tmx`.
+* Change the spawn area: Modify the layer `spawn_area` in `soccer.tmx`.
 * Change the moving agents: Modify the layer `agent` in `soccer.tmx` and the mapping file `agent_sprite.yaml`.
-* Change the goal field: Modify the layer `goal` in `soccer.tmx` and the mapping file `goal_tile.yaml`.
-* Change the walkable field: Modify the layer `ground` in `soccer.tmx` and the mapping file `ground_tile.yaml`.
+* Change the goal area: Modify the layer `goal` in `soccer.tmx` and the mapping file `goal_tile.yaml`.
+* Change the walkable area: Modify the layer `ground` in `soccer.tmx` and the mapping file `ground_tile.yaml`.
 
 ## Knowledge
 
@@ -51,8 +51,8 @@ To modify the map, for example.
 The computer agent has 4 strategies according to the scenarios described in the [paper][paper]. The internal algorithm of either approaching or avoiding is by randomly moving the direction in either axis so that the Euclidean distance from the target is shorter or further. Intercepting is basically approaching with an exception that the Euclidean distance is always greater than or equal to 1.
 
 * "Avoid opponent": See where the nearest player is, avoid him.
-* "Advance to goal": See where the leftmost goal field is, select a grid which has the maximum distance from the nearest player, approach it.
-* "Defend goal": See where the rightmost goal field is, select a grid which has the minimum distance from the player who possesses the ball, approach it.
+* "Advance to goal": See where the leftmost goal area is, select a grid which has the maximum distance from the nearest player, approach it.
+* "Defend goal": See where the rightmost goal area is, select a grid which has the minimum distance from the player who possesses the ball, approach it.
 * "Intercept goal": See where the player who possesses the ball is, intercept him.
 
 ## Development
