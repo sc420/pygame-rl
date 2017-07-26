@@ -184,10 +184,11 @@ class SoccerEnvironment(environment.Environment):
     # Get the position of the nearest player
     nearest_player_index = self._get_nearest_player_index(computer_agent_index)
     nearest_player_pos = self.state.get_agent_pos(nearest_player_index)
-    # Get the position of the player who possesses the ball
-    ball_possession = self.state.get_ball_possession()
-    has_ball_agent_index = ball_possession['agent_index']
-    has_ball_agent_pos = self.state.get_agent_pos(has_ball_agent_index)
+    # Get the position of the defensive target
+    defensive_target_agent_index = self._get_defensive_target_agent_index(
+        computer_agent_index)
+    defensive_target_agent_pos = self.state.get_agent_pos(
+        defensive_target_agent_index)
     # Calculate the target position and the strategic mode
     computer_pos = self.state.get_agent_pos(agent_index)
     if computer_mode == 'DEFENSIVE':
@@ -195,9 +196,9 @@ class SoccerEnvironment(environment.Environment):
         target_pos = nearest_player_pos
         strategic_mode = 'AVOID'
       else:
-        # Calculate the distance from the player
+        # Calculate the distance from the agent
         goals = self.map_data.goals['PLAYER']
-        distances = [self.get_pos_distance(goal_pos, has_ball_agent_pos)
+        distances = [self.get_pos_distance(goal_pos, defensive_target_agent_pos)
                      for goal_pos in goals]
         # Select the minimum distance
         min_distance_index = np.argmin(distances)
@@ -214,7 +215,7 @@ class SoccerEnvironment(environment.Environment):
         target_pos = goals[min_distance_index]
         strategic_mode = 'APPROACH'
       else:
-        target_pos = has_ball_agent_pos
+        target_pos = defensive_target_agent_pos
         strategic_mode = 'INTERCEPT'
     else:
       raise KeyError('Unknown computer agent mode {}'.format(computer_mode))
@@ -239,6 +240,18 @@ class SoccerEnvironment(environment.Environment):
         nearest_agent_index = agent_index
         nearest_dist = dist
     return nearest_agent_index
+
+  def _get_defensive_target_agent_index(self, computer_agent_index):
+    # Get the ball possession status
+    ball_possession = self.state.get_ball_possession()
+    has_ball_agent_index = ball_possession['agent_index']
+    has_ball_team_name = ball_possession['team_name']
+    if has_ball_team_name == 'PLAYER':
+      # Defend the player who possesses the ball
+      return has_ball_agent_index
+    else:
+      # Defend the nearest player
+      return self._get_nearest_player_index(computer_agent_index)
 
   def _get_strategic_action(self, source_pos, target_pos, mode):
     # Calculate the original Euclidean distance
