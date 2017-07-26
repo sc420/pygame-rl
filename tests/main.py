@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Third-party modules
 import pytest
 

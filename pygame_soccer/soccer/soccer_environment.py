@@ -185,7 +185,7 @@ class SoccerEnvironment(environment.Environment):
     nearest_player_index = self._get_nearest_player_index(computer_agent_index)
     nearest_player_pos = self.state.get_agent_pos(nearest_player_index)
     # Get the position of the defensive target
-    defensive_target_agent_index = self._get_defensive_target_agent_index(
+    defensive_target_agent_index = self._get_defensive_agent_index(
         computer_agent_index)
     defensive_target_agent_pos = self.state.get_agent_pos(
         defensive_target_agent_index)
@@ -241,7 +241,7 @@ class SoccerEnvironment(environment.Environment):
         nearest_dist = dist
     return nearest_agent_index
 
-  def _get_defensive_target_agent_index(self, computer_agent_index):
+  def _get_defensive_agent_index(self, computer_agent_index):
     # Get the ball possession status
     ball_possession = self.state.get_ball_possession()
     has_ball_agent_index = ball_possession['agent_index']

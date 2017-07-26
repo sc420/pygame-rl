@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Sample: Use only the renderer with a custom map in "sample/data".
 
-Press the arrow keys to move the agent 1. Press the "s" key to take the "STAND"
+Press the arrow keys to move the agent 1. Press the "S" key to take the "STAND"
 action of the agent 1.
 
 """
