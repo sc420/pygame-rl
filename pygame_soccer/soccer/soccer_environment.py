@@ -6,7 +6,7 @@ import numpy as np
 
 # User-defined modules
 import pygame_soccer.renderer.pygame_renderer as pygame_renderer
-import pygame_soccer.soccer.environment as environment
+import pygame_soccer.rl.environment as environment
 import pygame_soccer.soccer.soccer_renderer as soccer_renderer
 import pygame_soccer.util.file_util as file_util
 
@@ -331,6 +331,12 @@ class SoccerEnvironment(environment.Environment):
   def get_pos_distance(pos1, pos2):
     vec = [pos2[0] - pos1[0], pos2[1] - pos1[1]]
     return np.linalg.norm(vec)
+
+
+class SoccerEnvironmentLegacy(SoccerEnvironment):
+  """The soccer environment using legacy methods.
+  """
+  pass
 
 
 class SoccerEnvironmentOptions(object):
