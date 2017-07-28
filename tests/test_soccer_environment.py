@@ -5,7 +5,7 @@ import pytest
 import pygame_soccer.soccer.soccer_environment as soccer_environment
 
 
-class SoccerEnvironmentTest:
+class SoccerEnvironmentTest(object):
   env = None
 
   @classmethod
@@ -86,3 +86,9 @@ class SoccerEnvironmentTest:
     pos2 = [3, 4]
     # Check the Euclidean distance
     assert self.env.get_pos_distance(pos1, pos2) == pytest.approx(5.0)
+
+
+class SoccerLegacyEnvironmentTest(SoccerEnvironmentTest):
+  @classmethod
+  def setup_class(cls):
+    cls.env = soccer_environment.SoccerLegacyEnvironment()
