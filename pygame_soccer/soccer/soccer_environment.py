@@ -334,7 +334,7 @@ class SoccerEnvironment(environment.Environment):
     return np.linalg.norm(vec)
 
 
-class SoccerEnvironmentLegacy(SoccerEnvironment):
+class SoccerLegacyEnvironment(SoccerEnvironment):
   """The soccer environment using legacy methods.
   """
   # The probability of choosing to be defensive
