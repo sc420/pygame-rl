@@ -150,3 +150,26 @@ class SoccerEnvironmentTest(object):
     assert self.state.get_agent_pos(self.computer_index[0]) == [6, 2]
     # The computer 2 should intercept against player 1
     assert self.state.get_agent_pos(self.computer_index[1]) == [6, 3]
+
+  @pytest.mark.parametrize('seed', range(100))
+  def test_negative_reward(self, seed):
+    # Set the random seed
+    random.seed(seed)
+    # Set the initial positions
+    self.state.set_agent_pos(self.player_index[0], [1, 2])
+    self.state.set_agent_pos(self.player_index[1], [1, 3])
+    self.state.set_agent_pos(self.computer_index[0], [7, 2])
+    self.state.set_agent_pos(self.computer_index[1], [7, 3])
+    # Set the computer agent modes
+    self.state.set_agent_mode(self.computer_index[0], 'OFFENSIVE')
+    self.state.set_agent_mode(self.computer_index[1], 'DEFENSIVE')
+    # Give the ball to player 1
+    ball_possession = self.state.get_ball_possession()
+    ball_agent_index = ball_possession['agent_index']
+    self.state.switch_ball(ball_agent_index, self.player_index[0])
+    # The computer agent should score in 50 steps
+    for _ in range(50):
+      observation = self.env.take_action(['MOVE_UP', 'STAND'])
+      if observation.next_state.is_team_win('COMPUTER'):
+        break
+    assert observation.reward == pytest.approx(-1.0)
