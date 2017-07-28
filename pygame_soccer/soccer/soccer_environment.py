@@ -1,4 +1,5 @@
 # Native modules
+import math
 import random
 
 # Third-party modules
@@ -336,7 +337,169 @@ class SoccerEnvironment(environment.Environment):
 class SoccerEnvironmentLegacy(SoccerEnvironment):
   """The soccer environment using legacy methods.
   """
-  pass
+  # The probability of choosing to be defensive
+  defensive_probability = 0.5
+  # Defensive weight compared to offensive weight
+  defensiveness = 0.9
+  # Defensive weights for each algorithm
+  weights = {}
+  # Goal bounds for each team
+  goal_bounds = {}
+  # The previous chosen actions for each computer agents
+  prev_action = {}
+
+  def __init__(self, env_options=None, renderer_options=None):
+    super().__init__(env_options=env_options, renderer_options=renderer_options)
+    self.reset()
+    self._set_goal_bounds()
+
+  def reset(self):
+    self.state.reset()
+    self._set_weights()
+    self._set_previous_actions()
+    return SoccerObservation(self.state, None, 0.0, None)
+
+  def _set_goal_bounds(self):
+    for team_name in self.team_names:
+      goal_area = self.map_data.goals[team_name]
+      self.goal_bounds[team_name] = SoccerMapData.get_bounds(goal_area)
+
+  def _set_weights(self):
+    for team_agent_index in range(self.options.team_size):
+      # Calculate the computer agent index
+      agent_index = self.get_agent_index('COMPUTER', team_agent_index)
+      # Choose the defensiveness
+      random_value = random.random()
+      if random_value < self.defensive_probability:
+        self.state.set_agent_mode(agent_index, 'DEFENSIVE')
+      else:
+        self.state.set_agent_mode(agent_index, 'OFFENSIVE')
+      # Set the weights for each computer mode
+      self.weights['ADVANCE'] = 1.0 - self.defensiveness
+      self.weights['INTERCEPT'] = 1.0 - self.defensiveness
+      self.weights['AVOID'] = self.defensiveness
+      self.weights['DEFEND'] = self.defensiveness
+
+  def _set_previous_actions(self):
+    for team_agent_index in range(self.options.team_size):
+      self.prev_action[team_agent_index] = None
+
+  def _get_computer_action(self, computer_agent_index):
+    # Get the computer agent info
+    agent_index = self.get_agent_index('COMPUTER', computer_agent_index)
+    computer_pos = self.state.get_agent_pos(agent_index)
+    computer_ball = self.state.get_agent_ball(agent_index)
+    computer_mode = self.state.get_agent_mode(agent_index)
+    # Get the position of the nearest player
+    nearest_player_index = self._get_nearest_player_index(computer_agent_index)
+    nearest_player_pos = self.state.get_agent_pos(nearest_player_index)
+    # Calculate the target position and the strategic mode
+    computer_pos = self.state.get_agent_pos(agent_index)
+    # Calculate the weighted action scores
+    action_score = {}
+    for action in self.actions:
+      action_score[action] = 0.0
+    if computer_ball:
+      self._act_advance(action_score, computer_pos,
+                        computer_mode, self.goal_bounds['COMPUTER'])
+      self._act_avoid(action_score, computer_pos,
+                      computer_mode, nearest_player_pos)
+    else:
+      self._act_defend(action_score, computer_pos,
+                       computer_mode, self.goal_bounds['PLAYER'])
+      self._act_intercept(action_score, computer_pos,
+                          computer_mode, nearest_player_pos)
+    # Sort the weighted action scores
+    sorted_action = sorted(
+        action_score.items(), key=lambda item: item[1], reverse=True)
+    # Find the size of the same highest action scores
+    highest_score_size = 1
+    for index in range(1, len(sorted_action)):
+      if sorted_action[index][1] == sorted_action[index - 1][1]:
+        highest_score_size += 1
+      else:
+        break
+    # Maintain the previous action when there is any
+    for index in range(highest_score_size):
+      if sorted_action[0] == self.prev_action[computer_agent_index]:
+        action = self.prev_action[computer_agent_index][0]
+        break
+    # Choose a random action among the highest action scores
+    action = random.choice(sorted_action[:highest_score_size])[0]
+    # Save the action
+    self.prev_action[computer_agent_index] = action
+    return action
+
+  def _act_advance(self, action_score, pos, mode, bounds):
+    weight = self._get_weight(mode, 'ADVANCE')
+    if pos[0] < bounds[0]:
+      action_score['MOVE_RIGHT'] += weight
+    elif pos[0] > bounds[2]:
+      action_score['MOVE_LEFT'] += weight
+    if pos[1] < bounds[1]:
+      action_score['MOVE_DOWN'] += weight
+    elif pos[1] > bounds[3]:
+      action_score['MOVE_UP'] += weight
+
+  def _act_defend(self, action_score, pos, mode, bounds):
+    weight = self._get_weight(mode, 'DEFEND')
+    if pos[0] == bounds[0] - 1 or pos[0] == bounds[2] + 1:
+      if pos[1] <= bounds[1]:
+        action_score['MOVE_DOWN'] += weight
+      elif pos[1] >= bounds[3]:
+        action_score['MOVE_UP'] += weight
+      else:
+        action_score['MOVE_DOWN'] += weight
+        action_score['MOVE_UP'] += weight
+    else:
+      if pos[0] < bounds[0]:
+        action_score['MOVE_RIGHT'] += weight
+      elif pos[0] > bounds[2]:
+        action_score['MOVE_LEFT'] += weight
+      if pos[1] <= bounds[1]:
+        action_score['MOVE_DOWN'] += weight
+      elif pos[1] >= bounds[3]:
+        action_score['MOVE_UP'] += weight
+
+  def _act_intercept(self, action_score, pos, mode, opponent_pos):
+    weight = self._get_weight(mode, 'INTERCEPT')
+    if self._is_pos_adjacent(pos, opponent_pos):
+      action_score['STAND'] += weight
+    else:
+      if pos[0] < opponent_pos[0]:
+        action_score['MOVE_RIGHT'] += weight
+      elif pos[0] > opponent_pos[0]:
+        action_score['MOVE_LEFT'] += weight
+      if pos[1] < opponent_pos[1]:
+        action_score['MOVE_DOWN'] += weight
+      elif pos[1] > opponent_pos[1]:
+        action_score['MOVE_UP'] += weight
+
+  def _act_avoid(self, action_score, pos, mode, opponent_pos):
+    weight = self._get_weight(mode, 'AVOID')
+    if pos[0] <= opponent_pos[0]:
+      action_score['MOVE_LEFT'] += weight
+    if pos[0] >= opponent_pos[0]:
+      action_score['MOVE_RIGHT'] += weight
+    if pos[1] <= opponent_pos[1]:
+      action_score['MOVE_UP'] += weight
+    if pos[1] >= opponent_pos[1]:
+      action_score['MOVE_DOWN'] += weight
+
+  def _get_weight(self, mode, algorithm):
+    if mode == 'DEFENSIVE':
+      return self.weights[algorithm]
+    elif mode == 'OFFENSIVE':
+      return 1.0 - self.weights[algorithm]
+    else:
+      raise KeyError('Unknown mode {}'.format(mode))
+
+  @classmethod
+  def _is_pos_adjacent(cls, pos1, pos2):
+    return ((abs(pos1[0] - pos2[0]) == 1 and
+             abs(pos1[1] - pos2[1]) == 0) or
+            (abs(pos1[0] - pos2[0]) == 0 and
+             abs(pos1[1] - pos2[1]) == 1))
 
 
 class SoccerEnvironmentOptions(object):
@@ -388,6 +551,32 @@ class SoccerMapData(object):
     self.spawn = tile_pos['spawn_area']
     self.goals = tile_pos['goal']
     self.walkable = tile_pos['ground']['WALKABLE']
+
+  @classmethod
+  def get_bounds(cls, area):
+    """Return the rectangular bounds of the area.
+
+    Args:
+      area (list): A list of positions.
+
+    Returns:
+      list: [x1, y1, x2, y2] where (x1, y1) is the top-left point and (x2, y2)
+      is the bottom-right point.
+    """
+    x1 = math.inf
+    y1 = math.inf
+    x2 = (-math.inf)
+    y2 = (-math.inf)
+    for pos in area:
+      if pos[0] < x1:
+        x1 = pos[0]
+      if pos[1] < y1:
+        y1 = pos[1]
+      if pos[0] > x2:
+        x2 = pos[0]
+      if pos[1] > y2:
+        y2 = pos[1]
+    return [x1, y1, x2, y2]
 
 
 class SoccerObservation(object):
