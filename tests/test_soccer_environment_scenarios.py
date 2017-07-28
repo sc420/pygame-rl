@@ -162,7 +162,7 @@ class SoccerEnvironmentTest(object):
     self.state.set_agent_pos(self.computer_index[1], [7, 3])
     # Set the computer agent modes
     self.state.set_agent_mode(self.computer_index[0], 'OFFENSIVE')
-    self.state.set_agent_mode(self.computer_index[1], 'DEFENSIVE')
+    self.state.set_agent_mode(self.computer_index[1], 'OFFENSIVE')
     # Give the ball to player 1
     ball_possession = self.state.get_ball_possession()
     ball_agent_index = ball_possession['agent_index']
@@ -173,3 +173,25 @@ class SoccerEnvironmentTest(object):
       if observation.next_state.is_team_win('COMPUTER'):
         break
     assert observation.reward == pytest.approx(-1.0)
+
+  @pytest.mark.parametrize('seed', range(100))
+  def test_positive_reward(self, seed):
+    # Set the random seed
+    random.seed(seed)
+    # Set the initial positions
+    self.state.set_agent_pos(self.player_index[0], [5, 2])
+    self.state.set_agent_pos(self.player_index[1], [5, 3])
+    self.state.set_agent_pos(self.computer_index[0], [3, 2])
+    self.state.set_agent_pos(self.computer_index[1], [3, 3])
+    # Set the computer agent modes
+    self.state.set_agent_mode(self.computer_index[0], 'OFFENSIVE')
+    self.state.set_agent_mode(self.computer_index[1], 'OFFENSIVE')
+    # Give the ball to player 1
+    ball_possession = self.state.get_ball_possession()
+    ball_agent_index = ball_possession['agent_index']
+    self.state.switch_ball(ball_agent_index, self.player_index[0])
+    # The player agent should score in exactly 3 steps
+    for _ in range(3):
+      observation = self.env.take_action(['MOVE_RIGHT', 'MOVE_RIGHT'])
+    assert observation.next_state.is_team_win('PLAYER')
+    assert observation.reward == pytest.approx(1.0)
