@@ -457,7 +457,8 @@ class SoccerLegacyEnvironment(SoccerEnvironment):
     else:
       if pos[0] < bounds[0]:
         action_score['MOVE_RIGHT'] += weight
-      elif pos[0] > bounds[2]:
+      else:
+        # Assume that the goal area is on the right side
         action_score['MOVE_LEFT'] += weight
       if pos[1] <= bounds[1]:
         action_score['MOVE_DOWN'] += weight
