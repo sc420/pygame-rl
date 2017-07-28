@@ -5,7 +5,7 @@ import pygame
 import pygame_soccer.soccer.soccer_environment as soccer_environment
 
 
-class SoccerRendererTest:
+class SoccerRendererTest(object):
   renderer = None
 
   @classmethod

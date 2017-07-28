@@ -5,7 +5,7 @@ import os
 import pygame_soccer.util.file_util as file_util
 
 
-class FileUtilTest:
+class FileUtilTest(object):
   def test_get_resource_path(self):
     resource_name = 'pygame_soccer/data/map/soccer.tmx'
     resource_path = file_util.get_resource_path(resource_name)

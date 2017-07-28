@@ -8,7 +8,7 @@ import pytest
 import pygame_soccer.soccer.soccer_environment as soccer_environment
 
 
-class SoccerEnvironmentTest:
+class SoccerEnvironmentTest(object):
   env = None
   state = None
   player_index = None
