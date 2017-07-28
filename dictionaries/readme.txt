@@ -1,2 +1,4 @@
+htmlcov
 minecraft
+snakeviz
 tileset
