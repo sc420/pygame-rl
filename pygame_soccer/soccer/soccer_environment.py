@@ -336,6 +336,9 @@ class SoccerEnvironment(environment.Environment):
 
 class SoccerLegacyEnvironment(SoccerEnvironment):
   """The soccer environment using legacy methods.
+
+  Reference: https://github.com/hhexiy/opponent/blob/master/soccer_framework.lua
+
   """
   # The probability of choosing to be defensive
   defensive_probability = 0.5
