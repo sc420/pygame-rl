@@ -25,7 +25,7 @@ def main():
   # "map_data" is specified to use the custom map.
   # "team_size" is given to specify the agents in one team.
   env_options = soccer_environment.SoccerEnvironmentOptions(
-      map_path=map_path, team_size=2)
+      map_path=map_path, team_size=2, ai_frame_skip=2)
 
   # Create a soccer environment
   # If you want to render the environment, an optional argument

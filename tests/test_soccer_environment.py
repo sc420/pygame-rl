@@ -37,13 +37,16 @@ class SoccerEnvironmentTest(object):
     player_has_ball = state.get_agent_ball(0)
     computer_has_ball = state.get_agent_ball(1)
     assert player_has_ball != computer_has_ball
-    # The agents should have the standing action in the beginning
-    assert state.get_agent_action(0) == self.env.actions[-1]
-    assert state.get_agent_action(1) == self.env.actions[-1]
     # The player agent should have no mode, the computer agent should have a
     # random mode
     assert state.get_agent_mode(0) is None
     assert state.get_agent_mode(1) in self.env.modes
+    # The agents should have the standing action in the beginning
+    assert state.get_agent_action(0) == self.env.actions[-1]
+    assert state.get_agent_action(1) == self.env.actions[-1]
+    # The agents should set the frame skip index to 0
+    assert state.get_agent_frame_skip_index(0) == 0
+    assert state.get_agent_frame_skip_index(1) == 0
     # The time step should be 0
     assert state.time_step == 0
 

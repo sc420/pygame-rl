@@ -123,6 +123,9 @@ class SoccerEnvironment(environment.Environment):
           raise KeyError('Unknown team name {}'.format(team_name))
         # Save the action taken by the agent
         self.state.set_agent_action(agent_index, agent_action)
+        # Increase the frame skip index
+        self.state.increase_frame_skip_index(
+            agent_index, self.options.ai_frame_skip)
         # Get the moved position
         moved_pos = self.get_moved_pos(pos, agent_action)
         # Use the moved position if it's in the walkable area
@@ -182,6 +185,11 @@ class SoccerEnvironment(environment.Environment):
     agent_index = self.get_agent_index('COMPUTER', computer_agent_index)
     computer_ball = self.state.get_agent_ball(agent_index)
     computer_mode = self.state.get_agent_mode(agent_index)
+    computer_frame_skip_index = self.state.get_agent_frame_skip_index(
+        agent_index)
+    # Select the previous action if it's frame skipping
+    if computer_frame_skip_index > 0:
+      return self.state.get_agent_action(agent_index)
     # Get the position of the nearest player
     nearest_player_index = self._get_nearest_player_index(computer_agent_index)
     nearest_player_pos = self.state.get_agent_pos(nearest_player_index)
@@ -518,7 +526,10 @@ class SoccerEnvironmentOptions(object):
   # Team size
   team_size = 1
 
-  def __init__(self, map_path=None, team_size=1):
+  # Frame skip for AI
+  ai_frame_skip = 1
+
+  def __init__(self, map_path=None, team_size=1, ai_frame_skip=1):
     # Save the map path or use the internal resource
     if map_path:
       self.map_path = map_path
@@ -529,12 +540,11 @@ class SoccerEnvironmentOptions(object):
       raise ValueError('"team_size" should be either 1 or 2')
     # Save the team size
     self.team_size = team_size
+    # Save the frame skip
+    self.ai_frame_skip = ai_frame_skip
 
   def get_agent_size(self):
     return 2 * self.team_size
-
-  def __repr__(self):
-    return 'Team size: {}'.format(self.team_size)
 
 
 class SoccerMapData(object):
@@ -610,6 +620,8 @@ class SoccerState(object):
   # * ball: Possession of the ball
   # * mode: Mode for the computer agent
   # * action: Last taken action for the computer agent
+  # * frame_skip_index: Current frame skipping index, starting from 0, resetting
+  # after it reaches the frame skip
   agent_list = []
 
   # Time step
@@ -638,6 +650,7 @@ class SoccerState(object):
       self.set_agent_ball(agent_index, False)
       self.set_agent_mode(agent_index, None)
       self.set_agent_action(agent_index, None)
+      self.set_agent_frame_skip_index(agent_index, 0)
     # Randomize the agent statuses
     self.randomize()
     # Initialize the time step
@@ -729,16 +742,17 @@ class SoccerState(object):
   def set_agent_action(self, agent_index, action):
     self.agent_list[agent_index]['action'] = action
 
+  def get_agent_frame_skip_index(self, agent_index):
+    return self.agent_list[agent_index]['frame_skip_index']
+
+  def set_agent_frame_skip_index(self, agent_index, frame_skip_index):
+    self.agent_list[agent_index]['frame_skip_index'] = frame_skip_index
+
   def get_team_name(self, agent_index):
     if agent_index < self.env_options.team_size:
       return 'PLAYER'
     else:
       return 'COMPUTER'
-
-  def switch_ball(self, agent_index, other_agent_index):
-    agent_ball = self.get_agent_ball(agent_index)
-    self.set_agent_ball(agent_index, not agent_ball)
-    self.set_agent_ball(other_agent_index, agent_ball)
 
   def get_pos_status(self, pos):
     for team_name in self.env.team_names:
@@ -763,6 +777,16 @@ class SoccerState(object):
               'agent_index': agent_index,
           }
     return None
+
+  def switch_ball(self, agent_index, other_agent_index):
+    agent_ball = self.get_agent_ball(agent_index)
+    self.set_agent_ball(agent_index, not agent_ball)
+    self.set_agent_ball(other_agent_index, agent_ball)
+
+  def increase_frame_skip_index(self, agent_index, frame_skip):
+    old_frame_skip_index = self.agent_list[agent_index]['frame_skip_index']
+    new_frame_skip_index = (old_frame_skip_index + 1) % frame_skip
+    self.agent_list[agent_index]['frame_skip_index'] = new_frame_skip_index
 
   def increase_time_step(self):
     self.time_step += 1
