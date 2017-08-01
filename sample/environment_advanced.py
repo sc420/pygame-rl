@@ -24,6 +24,7 @@ def main():
   # Create a soccer environment options
   # "map_data" is specified to use the custom map.
   # "team_size" is given to specify the agents in one team.
+  # "ai_frame_skip" is to control the frame skip for AI only
   env_options = soccer_environment.SoccerEnvironmentOptions(
       map_path=map_path, team_size=2, ai_frame_skip=2)
 
