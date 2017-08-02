@@ -131,15 +131,15 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
         if self.renderer_options.enable_key_events:
           if event.type == pygame.locals.KEYDOWN:
             if event.key == pygame.locals.K_RIGHT:
-              self.env.take_action(self._get_action('MOVE_RIGHT'))
+              self.env.take_action('MOVE_RIGHT')
             elif event.key == pygame.locals.K_UP:
-              self.env.take_action(self._get_action('MOVE_UP'))
+              self.env.take_action('MOVE_UP')
             elif event.key == pygame.locals.K_LEFT:
-              self.env.take_action(self._get_action('MOVE_LEFT'))
+              self.env.take_action('MOVE_LEFT')
             elif event.key == pygame.locals.K_DOWN:
-              self.env.take_action(self._get_action('MOVE_DOWN'))
+              self.env.take_action('MOVE_DOWN')
             elif event.key == pygame.locals.K_s:
-              self.env.take_action(self._get_action('STAND'))
+              self.env.take_action('STAND')
 
     # Indicate the rendering should continue
     return True
@@ -215,11 +215,6 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
     po_screenshot[paste_slice] = image[crop_slice]
     # Swap the axes as the X and Y axes in Pygame and Scipy are opposite
     return np.swapaxes(po_screenshot, 0, 1)
-
-  def _get_action(self, first_player_action):
-    action = ['STAND'] * self.env.options.team_size
-    action[0] = first_player_action
-    return action
 
 
 class RendererOptions(object):

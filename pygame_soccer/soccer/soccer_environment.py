@@ -65,8 +65,6 @@ class SoccerEnvironment(environment.Environment):
     return SoccerObservation(self.state, None, 0.0, None)
 
   def take_action(self, action):
-    # Get the action wrapped in a list
-    action = self._get_wrapped_action(action)
     # Get the intended positions
     intended_pos = self._get_intended_pos(action)
     # Update the agent positions
@@ -99,14 +97,19 @@ class SoccerEnvironment(environment.Environment):
     # Calculate the agent index
     return self.options.team_size * group_index + team_agent_index
 
-  def _get_wrapped_action(self, action):
-    # Wrap the action in a list if it's in the single-agent environment
-    if self.options.team_size <= 1 and not isinstance(action, list):
-      action = [action]
-    # Check the size of the action should be the same as the team size
-    if len(action) != self.options.team_size:
-      raise ValueError('"action" should have the same size as the team size')
-    return action
+  def get_team_name(self, agent_index):
+    if agent_index < self.options.team_size:
+      return 'PLAYER'
+    else:
+      return 'COMPUTER'
+
+  def get_opponent_team_name(self, team_name):
+    if team_name == 'PLAYER':
+      return 'COMPUTER'
+    elif team_name == 'COMPUTER':
+      return 'PLAYER'
+    else:
+      raise KeyError('Unknown team name {}'.format(team_name))
 
   def _get_intended_pos(self, action):
     # Build a dict of the agent index to the intended moved position
@@ -116,9 +119,14 @@ class SoccerEnvironment(environment.Environment):
         agent_index = self.get_agent_index(team_name, team_agent_index)
         pos = self.state.get_agent_pos(agent_index)
         if team_name == 'PLAYER':
-          agent_action = action[team_agent_index]
+          if team_agent_index <= 0:
+            # The action only takes effect on the first agent in the team
+            agent_action = action
+          else:
+            # The collaborators have the same AI as the opponents
+            agent_action = self._get_ai_action(team_name, team_agent_index)
         elif team_name == 'COMPUTER':
-          agent_action = self._get_computer_action(team_agent_index)
+          agent_action = self._get_ai_action(team_name, team_agent_index)
         else:
           raise KeyError('Unknown team name {}'.format(team_name))
         # Save the action taken by the agent
@@ -180,87 +188,92 @@ class SoccerEnvironment(environment.Environment):
     # Indicate no switch
     return False
 
-  def _get_computer_action(self, computer_agent_index):
-    # Get the computer agent info
-    agent_index = self.get_agent_index('COMPUTER', computer_agent_index)
-    computer_ball = self.state.get_agent_ball(agent_index)
-    computer_mode = self.state.get_agent_mode(agent_index)
-    computer_frame_skip_index = self.state.get_agent_frame_skip_index(
+  def _get_ai_action(self, team_name, team_agent_index):
+    # Get the opponent team name
+    opponent_team_name = self.get_opponent_team_name(team_name)
+    # Get the agent info
+    agent_index = self.get_agent_index(team_name, team_agent_index)
+    agent_pos = self.state.get_agent_pos(agent_index)
+    agent_ball = self.state.get_agent_ball(agent_index)
+    agent_mode = self.state.get_agent_mode(agent_index)
+    agent_frame_skip_index = self.state.get_agent_frame_skip_index(
         agent_index)
     # Select the previous action if it's frame skipping
-    if computer_frame_skip_index > 0:
+    if agent_frame_skip_index > 0:
       return self.state.get_agent_action(agent_index)
-    # Get the position of the nearest player
-    nearest_player_index = self._get_nearest_player_index(computer_agent_index)
-    nearest_player_pos = self.state.get_agent_pos(nearest_player_index)
+    # Get the position of the nearest opponent
+    nearest_opponent_index = self._get_nearest_opponent_index(
+        team_name, team_agent_index)
+    nearest_opponent_pos = self.state.get_agent_pos(nearest_opponent_index)
     # Get the position of the defensive target
     defensive_target_agent_index = self._get_defensive_agent_index(
-        computer_agent_index)
+        team_name, team_agent_index)
     defensive_target_agent_pos = self.state.get_agent_pos(
         defensive_target_agent_index)
     # Calculate the target position and the strategic mode
-    computer_pos = self.state.get_agent_pos(agent_index)
-    if computer_mode == 'DEFENSIVE':
-      if computer_ball:
-        target_pos = nearest_player_pos
+    if agent_mode == 'DEFENSIVE':
+      if agent_ball:
+        target_pos = nearest_opponent_pos
         strategic_mode = 'AVOID'
       else:
         # Calculate the distance from the agent
-        goals = self.map_data.goals['PLAYER']
+        goals = self.map_data.goals[opponent_team_name]
         distances = [self.get_pos_distance(goal_pos, defensive_target_agent_pos)
                      for goal_pos in goals]
         # Select the minimum distance
         min_distance_index = np.argmin(distances)
         target_pos = goals[min_distance_index]
         strategic_mode = 'APPROACH'
-    elif computer_mode == 'OFFENSIVE':
-      if computer_ball:
-        # Calculate the distance from the player
-        goals = self.map_data.goals['COMPUTER']
-        distances = [self.get_pos_distance(goal_pos, nearest_player_pos)
+    elif agent_mode == 'OFFENSIVE':
+      if agent_ball:
+        # Calculate the distance from the opponent
+        goals = self.map_data.goals[team_name]
+        distances = [self.get_pos_distance(goal_pos, nearest_opponent_pos)
                      for goal_pos in goals]
         # Select the maximum distance
-        min_distance_index = np.argmax(distances)
-        target_pos = goals[min_distance_index]
+        max_distance_index = np.argmax(distances)
+        target_pos = goals[max_distance_index]
         strategic_mode = 'APPROACH'
       else:
         target_pos = defensive_target_agent_pos
         strategic_mode = 'INTERCEPT'
     else:
-      raise KeyError('Unknown computer agent mode {}'.format(computer_mode))
+      raise KeyError('Unknown agent mode {}'.format(agent_mode))
     # Get the strategic action
-    action = self._get_strategic_action(
-        computer_pos, target_pos, strategic_mode)
+    action = self._get_strategic_action(agent_pos, target_pos, strategic_mode)
     return action
 
-  def _get_nearest_player_index(self, computer_agent_index):
-    # Get the computer agent position
-    agent_index = self.get_agent_index('COMPUTER', computer_agent_index)
-    computer_pos = self.state.get_agent_pos(agent_index)
-    # Find the nearest player position
-    nearest_agent_index = None
-    nearest_dist = None
-    for player_agent_index in range(self.options.team_size):
-      agent_index = self.get_agent_index('PLAYER', player_agent_index)
-      player_pos = self.state.get_agent_pos(agent_index)
+  def _get_nearest_opponent_index(self, team_name, team_agent_index):
+    # Get the opponent team name
+    opponent_team_name = self.get_opponent_team_name(team_name)
+    # Get the agent position
+    agent_index = self.get_agent_index(team_name, team_agent_index)
+    agent_pos = self.state.get_agent_pos(agent_index)
+    # Find the nearest opponent position
+    nearest_opponent_index = None
+    nearest_dist = math.inf
+    for opponent_team_agent_index in range(self.options.team_size):
+      opponent_index = self.get_agent_index(
+          opponent_team_name, opponent_team_agent_index)
+      opponent_pos = self.state.get_agent_pos(opponent_index)
       # Calculate the distance
-      dist = self.get_pos_distance(computer_pos, player_pos)
-      if nearest_dist is None or dist < nearest_dist:
-        nearest_agent_index = agent_index
+      dist = self.get_pos_distance(agent_pos, opponent_pos)
+      if dist < nearest_dist:
+        nearest_opponent_index = opponent_index
         nearest_dist = dist
-    return nearest_agent_index
+    return nearest_opponent_index
 
-  def _get_defensive_agent_index(self, computer_agent_index):
+  def _get_defensive_agent_index(self, team_name, team_agent_index):
     # Get the ball possession status
     ball_possession = self.state.get_ball_possession()
     has_ball_agent_index = ball_possession['agent_index']
     has_ball_team_name = ball_possession['team_name']
-    if has_ball_team_name == 'PLAYER':
-      # Defend the player who possesses the ball
+    if has_ball_team_name != team_name:
+      # Defend the opponent who possesses the ball
       return has_ball_agent_index
     else:
-      # Defend the nearest player
-      return self._get_nearest_player_index(computer_agent_index)
+      # Defend the nearest opponent
+      return self._get_nearest_opponent_index(team_name, team_agent_index)
 
   def _get_strategic_action(self, source_pos, target_pos, mode):
     # Calculate the original Euclidean distance
@@ -356,7 +369,7 @@ class SoccerLegacyEnvironment(SoccerEnvironment):
   weights = {}
   # Goal bounds for each team
   goal_bounds = {}
-  # The previous chosen actions for each computer agents
+  # The previous chosen actions for each agent
   prev_action = {}
 
   def __init__(self, env_options=None, renderer_options=None):
@@ -376,50 +389,56 @@ class SoccerLegacyEnvironment(SoccerEnvironment):
       self.goal_bounds[team_name] = SoccerMapData.get_bounds(goal_area)
 
   def _set_weights(self):
-    for team_agent_index in range(self.options.team_size):
-      # Calculate the computer agent index
-      agent_index = self.get_agent_index('COMPUTER', team_agent_index)
-      # Choose the defensiveness
-      random_value = random.random()
-      if random_value < self.defensive_probability:
-        self.state.set_agent_mode(agent_index, 'DEFENSIVE')
-      else:
-        self.state.set_agent_mode(agent_index, 'OFFENSIVE')
-      # Set the weights for each computer mode
-      self.weights['ADVANCE'] = 1.0 - self.defensiveness
-      self.weights['INTERCEPT'] = 1.0 - self.defensiveness
-      self.weights['AVOID'] = self.defensiveness
-      self.weights['DEFEND'] = self.defensiveness
+    for team_name in self.team_names:
+      for team_agent_index in range(self.options.team_size):
+        # Calculate the agent index
+        agent_index = self.get_agent_index(team_name, team_agent_index)
+        # Choose the defensiveness
+        random_value = random.random()
+        if random_value < self.defensive_probability:
+          self.state.set_agent_mode(agent_index, 'DEFENSIVE')
+        else:
+          self.state.set_agent_mode(agent_index, 'OFFENSIVE')
+        # Set the weights for each mode
+        self.weights['ADVANCE'] = 1.0 - self.defensiveness
+        self.weights['INTERCEPT'] = 1.0 - self.defensiveness
+        self.weights['AVOID'] = self.defensiveness
+        self.weights['DEFEND'] = self.defensiveness
 
   def _set_previous_actions(self):
     for team_agent_index in range(self.options.team_size):
       self.prev_action[team_agent_index] = None
 
-  def _get_computer_action(self, computer_agent_index):
-    # Get the computer agent info
-    agent_index = self.get_agent_index('COMPUTER', computer_agent_index)
-    computer_pos = self.state.get_agent_pos(agent_index)
-    computer_ball = self.state.get_agent_ball(agent_index)
-    computer_mode = self.state.get_agent_mode(agent_index)
-    # Get the position of the nearest player
-    nearest_player_index = self._get_nearest_player_index(computer_agent_index)
-    nearest_player_pos = self.state.get_agent_pos(nearest_player_index)
-    # Calculate the target position and the strategic mode
-    computer_pos = self.state.get_agent_pos(agent_index)
+  def _get_ai_action(self, team_name, team_agent_index):
+    # Get the opponent team name
+    opponent_team_name = self.get_opponent_team_name(team_name)
+    # Get the agent info
+    agent_index = self.get_agent_index(team_name, team_agent_index)
+    agent_pos = self.state.get_agent_pos(agent_index)
+    agent_ball = self.state.get_agent_ball(agent_index)
+    agent_mode = self.state.get_agent_mode(agent_index)
+    # Get the position of the nearest opponent
+    nearest_opponent_index = self._get_nearest_opponent_index(
+        team_name, team_agent_index)
+    nearest_opponent_pos = self.state.get_agent_pos(nearest_opponent_index)
     # Calculate the weighted action scores
     action_score = {}
     for action in self.actions:
       action_score[action] = 0.0
-    if computer_ball:
-      self._act_advance(action_score, computer_pos,
-                        computer_mode, self.goal_bounds['COMPUTER'])
-      self._act_avoid(action_score, computer_pos,
-                      computer_mode, nearest_player_pos)
+    if agent_ball:
+      # Advance to the agent goal area
+      self._act_advance(action_score, agent_pos,
+                        agent_mode, self.goal_bounds[team_name])
+      # Avoid the nearest opponent
+      self._act_avoid(action_score, agent_pos,
+                      agent_mode, nearest_opponent_pos)
     else:
-      self._act_defend(action_score, computer_pos,
-                       computer_mode, self.goal_bounds['PLAYER'])
-      self._act_intercept(action_score, computer_pos,
-                          computer_mode, nearest_player_pos)
+      # Defend the opponent goal area
+      self._act_defend(action_score, agent_pos,
+                       agent_mode, self.goal_bounds[opponent_team_name])
+      # Intercept the nearest opponent
+      self._act_intercept(action_score, agent_pos,
+                          agent_mode, nearest_opponent_pos)
     # Sort the weighted action scores
     sorted_action = sorted(
         action_score.items(), key=lambda item: item[1], reverse=True)
@@ -432,13 +451,13 @@ class SoccerLegacyEnvironment(SoccerEnvironment):
         break
     # Maintain the previous action when there is any
     for index in range(highest_score_size):
-      if sorted_action[0] == self.prev_action[computer_agent_index]:
-        action = self.prev_action[computer_agent_index][0]
+      if sorted_action[0] == self.prev_action[team_agent_index]:
+        action = self.prev_action[team_agent_index][0]
         break
     # Choose a random action among the highest action scores
     action = random.choice(sorted_action[:highest_score_size])[0]
     # Save the action
-    self.prev_action[computer_agent_index] = action
+    self.prev_action[team_agent_index] = action
     return action
 
   def _act_advance(self, action_score, pos, mode, bounds):
@@ -618,8 +637,8 @@ class SoccerState(object):
   # Agent statuses as a list
   # * pos: Positions
   # * ball: Possession of the ball
-  # * mode: Mode for the computer agent
-  # * action: Last taken action for the computer agent
+  # * mode: Mode for the agent
+  # * action: Last taken action for the agent
   # * frame_skip_index: Current frame skipping index, starting from 0, resetting
   # after it reaches the frame skip
   agent_list = []
@@ -680,11 +699,8 @@ class SoccerState(object):
         else:
           self.set_agent_ball(agent_index, False)
         # Randomize the agent mode
-        if team_name == 'COMPUTER':
-          computer_mode = random.choice(self.env.modes)
-          self.set_agent_mode(agent_index, computer_mode)
-        else:
-          self.set_agent_mode(agent_index, None)
+        agent_mode = random.choice(self.env.modes)
+        self.set_agent_mode(agent_index, agent_mode)
         # Reset the action
         self.set_agent_action(agent_index, self.env.actions[-1])
 
@@ -714,7 +730,7 @@ class SoccerState(object):
     if not has_ball:
       return False
     # Get the team name
-    team_name = self.get_team_name(agent_index)
+    team_name = self.env.get_team_name(agent_index)
     # Check whether the position is in the goal area
     return agent_pos in self.map_data.goals[team_name]
 
@@ -747,12 +763,6 @@ class SoccerState(object):
 
   def set_agent_frame_skip_index(self, agent_index, frame_skip_index):
     self.agent_list[agent_index]['frame_skip_index'] = frame_skip_index
-
-  def get_team_name(self, agent_index):
-    if agent_index < self.env_options.team_size:
-      return 'PLAYER'
-    else:
-      return 'COMPUTER'
 
   def get_pos_status(self, pos):
     for team_name in self.env.team_names:
