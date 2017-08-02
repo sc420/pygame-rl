@@ -37,9 +37,8 @@ class SoccerEnvironmentTest(object):
     player_has_ball = state.get_agent_ball(0)
     computer_has_ball = state.get_agent_ball(1)
     assert player_has_ball != computer_has_ball
-    # The player agent should have no mode, the computer agent should have a
-    # random mode
-    assert state.get_agent_mode(0) is None
+    # The agents should have random mode
+    assert state.get_agent_mode(0) in self.env.modes
     assert state.get_agent_mode(1) in self.env.modes
     # The agents should have the standing action in the beginning
     assert state.get_agent_action(0) == self.env.actions[-1]
@@ -62,7 +61,7 @@ class SoccerEnvironmentTest(object):
       expected_time_step += 1
       # Check the observation
       assert observation.state is None
-      assert observation.action == [action]
+      assert observation.action == action
       assert observation.reward >= -1.0 and observation.reward <= 1.0
       assert observation.next_state.time_step == expected_time_step
       # The computer agent should have the last taken action
