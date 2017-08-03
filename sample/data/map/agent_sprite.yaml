@@ -1,24 +1,24 @@
 AGENT1:
   x: 1
-  y: 4
+  y: 6
 AGENT1_BALL:
   x: 2
-  y: 4
+  y: 6
 AGENT2:
   x: 1
-  y: 5
+  y: 7
 AGENT2_BALL:
   x: 2
-  y: 5
+  y: 7
 AGENT3:
-  x: 10
-  y: 4
+  x: 18
+  y: 6
 AGENT3_BALL:
-  x: 11
-  y: 4
+  x: 19
+  y: 6
 AGENT4:
-  x: 10
-  y: 5
+  x: 18
+  y: 7
 AGENT4_BALL:
-  x: 11
-  y: 5
+  x: 19
+  y: 7
