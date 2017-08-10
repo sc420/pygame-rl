@@ -60,10 +60,14 @@ def main():
       # same as the returned value of `scipy.misc.imread`. The previous call is
       # required for this call to work.
       po_screenshot = soccer_env.renderer.get_po_screenshot(0, 1)
-      # Get a random action from the action list
-      action = random.choice(soccer_env.actions)
-      # Take the action and get the observation.
-      observation = soccer_env.take_action(action)
+      # Build a list of randomly chosen actions
+      actions = {}
+      for team_name in soccer_env.team_names:
+        for team_agent_index in range(soccer_env.options.team_size):
+          agent_index = soccer_env.get_agent_index(team_name, team_agent_index)
+          actions[agent_index] = random.choice(soccer_env.actions)
+      # Take the actions and get the observation
+      observation = soccer_env.take_all_actions(actions)
       # Check the terminal state
       if soccer_env.state.is_terminal():
         print('Terminal state:\n{}'.format(observation))

@@ -36,8 +36,9 @@ def main():
       soccer_env.render()
       # Get the screenshot
       screenshot = soccer_env.renderer.get_screenshot()
-      # Take a random action
+      # Get a random action from the action list
       action = random.choice(soccer_env.actions)
+      # Take the action and get the observation
       observation = soccer_env.take_action(action)
       # Check the terminal state
       if soccer_env.state.is_terminal():
