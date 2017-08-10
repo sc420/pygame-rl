@@ -64,19 +64,24 @@ class SoccerEnvironment(environment.Environment):
     self.state.reset()
     return SoccerObservation(self.state, None, 0.0, None)
 
-  def take_action(self, action):
-    # Get the intended positions
-    intended_pos = self._get_intended_pos(action)
-    # Update the agent positions
-    self._update_agent_pos(intended_pos)
-    # Increase the time step
-    self.state.increase_time_step()
+  def take_action(self, player_action):
+    # Get the agent actions
+    actions = self._get_agent_actions(player_action)
+    # Take all the actions and return the observation
+    return self.take_all_actions(actions)
+
+  def take_all_actions(self, actions):
+    # Control all the agents
+    self._control_all_agents(actions)
     # Get the reward
     reward = self._get_reward()
+    # Get the player action
+    player_agent_index = self.get_agent_index('PLAYER', 0)
+    player_action = actions[player_agent_index]
     # Return the observation, the original state is not returned to increase
     # the speed, otherwise deep copying must be used before changing the
     # position.
-    return SoccerObservation(None, action, reward, self.state)
+    return SoccerObservation(None, player_action, reward, self.state)
 
   def render(self):
     # Lazy load the renderer
@@ -111,17 +116,17 @@ class SoccerEnvironment(environment.Environment):
     else:
       raise KeyError('Unknown team name {}'.format(team_name))
 
-  def _get_intended_pos(self, action):
-    # Build a dict of the agent index to the intended moved position
-    intended_pos = {}
+  def _get_agent_actions(self, player_action):
+    # Build a dict of the agent index to the actions
+    actions = {}
     for team_name in self.team_names:
       for team_agent_index in range(self.options.team_size):
         agent_index = self.get_agent_index(team_name, team_agent_index)
-        pos = self.state.get_agent_pos(agent_index)
+        # Choose the action by the team and agent index
         if team_name == 'PLAYER':
           if team_agent_index <= 0:
             # The action only takes effect on the first agent in the team
-            agent_action = action
+            agent_action = player_action
           else:
             # The collaborators have the same AI as the opponents
             agent_action = self._get_ai_action(team_name, team_agent_index)
@@ -129,19 +134,43 @@ class SoccerEnvironment(environment.Environment):
           agent_action = self._get_ai_action(team_name, team_agent_index)
         else:
           raise KeyError('Unknown team name {}'.format(team_name))
+        actions[agent_index] = agent_action
+    return actions
+
+  def _control_all_agents(self, actions):
+    # Get the intended positions
+    intended_pos = self._get_intended_pos(actions)
+    # Update the agent positions
+    self._update_agent_pos(intended_pos)
+    # Increase the time step
+    self.state.increase_time_step()
+
+  def _get_intended_pos(self, actions):
+    # Build a dict of the agent index to the intended moved position
+    intended_pos = {}
+    for team_name in self.team_names:
+      for team_agent_index in range(self.options.team_size):
+        agent_index = self.get_agent_index(team_name, team_agent_index)
+        # Get the action
+        action = actions[agent_index]
+        # Get the original position
+        pos = self.state.get_agent_pos(agent_index)
         # Save the action taken by the agent
-        self.state.set_agent_action(agent_index, agent_action)
+        self.state.set_agent_action(agent_index, action)
         # Increase the frame skip index
         self.state.increase_frame_skip_index(
             agent_index, self.options.ai_frame_skip)
-        # Get the moved position
-        moved_pos = self.get_moved_pos(pos, agent_action)
-        # Use the moved position if it's in the walkable area
-        if moved_pos in self.map_data.walkable:
-          intended_pos[agent_index] = moved_pos
-        else:
-          intended_pos[agent_index] = pos
+        intended_pos[agent_index] = self._get_walkable_moved_pos(pos, action)
     return intended_pos
+
+  def _get_walkable_moved_pos(self, pos, action):
+    # Get the moved position
+    moved_pos = self.get_moved_pos(pos, action)
+    # Use the moved position if it's in the walkable area
+    if moved_pos in self.map_data.walkable:
+      return moved_pos
+    else:
+      return pos
 
   def _update_agent_pos(self, intended_pos):
     # Detect the overlapping positions and switch the ball
