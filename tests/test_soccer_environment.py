@@ -2,7 +2,7 @@
 import pytest
 
 # Testing targets
-import pygame_soccer.soccer.soccer_environment as soccer_environment
+import pygame_rl.soccer.soccer_environment as soccer_environment
 
 
 class SoccerEnvironmentTest(object):

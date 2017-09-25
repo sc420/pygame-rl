@@ -6,10 +6,10 @@ import random
 import numpy as np
 
 # User-defined modules
-import pygame_soccer.renderer.pygame_renderer as pygame_renderer
-import pygame_soccer.rl.environment as environment
-import pygame_soccer.soccer.soccer_renderer as soccer_renderer
-import pygame_soccer.util.file_util as file_util
+import pygame_rl.renderer.pygame_renderer as pygame_renderer
+import pygame_rl.rl.environment as environment
+import pygame_rl.soccer.soccer_renderer as soccer_renderer
+import pygame_rl.util.file_util as file_util
 
 
 class SoccerEnvironment(environment.Environment):
@@ -566,7 +566,7 @@ class SoccerEnvironmentOptions(object):
   """The options for the soccer environment.
   """
   # Resource names
-  map_resource_name = 'pygame_soccer/data/map/soccer.tmx'
+  map_resource_name = 'pygame_rl/data/map/soccer.tmx'
 
   # Map path
   map_path = None

@@ -6,7 +6,7 @@
 import random
 
 # User-defined modules
-import pygame_soccer.soccer.soccer_environment as soccer_environment
+import pygame_rl.soccer.soccer_environment as soccer_environment
 
 
 def main():

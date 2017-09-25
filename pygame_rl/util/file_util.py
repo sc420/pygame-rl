@@ -6,7 +6,7 @@ import pkg_resources
 import yaml
 
 # Package name
-PACKAGE_NAME = 'pygame_soccer'
+PACKAGE_NAME = 'pygame_rl'
 
 
 def get_resource_path(resource_name):

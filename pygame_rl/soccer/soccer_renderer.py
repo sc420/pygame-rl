@@ -4,7 +4,7 @@ import pygame
 import pygame.locals
 
 # User-defined modules
-import pygame_soccer.renderer.pygame_renderer as pygame_renderer
+import pygame_rl.renderer.pygame_renderer as pygame_renderer
 
 
 class SoccerRenderer(pygame_renderer.TiledRenderer):

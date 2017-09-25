@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sample: Interacting with the environment with minimal setup.
+"""Sample: Interacting with the legacy environment.
 """
 
 # Native modules
@@ -10,7 +10,7 @@ import random
 import scipy.misc
 
 # User-defined modules
-import pygame_soccer.soccer.soccer_environment as soccer_environment
+import pygame_rl.soccer.soccer_environment as soccer_environment
 
 
 def main():
@@ -18,7 +18,7 @@ def main():
   random.seed(0)
 
   # Create a soccer environment
-  soccer_env = soccer_environment.SoccerEnvironment()
+  soccer_env = soccer_environment.SoccerLegacyEnvironment()
 
   # Run many episodes
   for episode_index in range(20):

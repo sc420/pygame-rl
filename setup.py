@@ -7,17 +7,17 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='pygame_soccer',
+    name='pygame_rl',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
     version='1.0.0',
 
-    description='A Pygame soccer environment',
+    description='Game environment for reinforcement learning using Pygame',
 
     # The project's main homepage.
-    url='https://github.com/ebola777/pygame-soccer',
+    url='https://github.com/ebola777/pygame-rl',
 
     # Author details
     author='Shawn Chang',
@@ -50,7 +50,7 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='pygame soccer reinforcement-learning',
+    keywords='pygame reinforcement-learning',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
@@ -91,7 +91,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'pygame_soccer': ['data/**/*'],
+        'pygame_rl': ['data/**/*'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may
