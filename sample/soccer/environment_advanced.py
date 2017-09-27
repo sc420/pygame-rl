@@ -7,6 +7,7 @@ import os
 import random
 
 # Third-party modules
+import numpy as np
 import scipy.misc
 
 # User-defined modules
@@ -77,7 +78,8 @@ def main():
 
   # Save the last partially observable screenshot
   soccer_env.render()
-  po_screenshot = soccer_env.renderer.get_po_screenshot(0, 1)
+  agent_pos = np.array(soccer_env.state.get_agent_pos(0))
+  po_screenshot = soccer_env.renderer.get_po_screenshot(agent_pos, radius=1)
   screenshot_relative_path = 'screenshot.png'
   screenshot_abs_path = os.path.abspath(screenshot_relative_path)
   scipy.misc.imsave(screenshot_abs_path, po_screenshot)
