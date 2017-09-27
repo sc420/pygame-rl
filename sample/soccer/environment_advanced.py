@@ -10,7 +10,7 @@ import random
 import scipy.misc
 
 # User-defined modules
-import pygame_rl.soccer.soccer_environment as soccer_environment
+import pygame_rl.env.soccer_environment as soccer_environment
 import pygame_rl.util.file_util as file_util
 
 
