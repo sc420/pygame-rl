@@ -5,7 +5,7 @@ import random
 import pytest
 
 # Testing targets
-import pygame_rl.env.soccer_environment as soccer_environment
+import pygame_rl.scenario.soccer_environment as soccer_environment
 
 
 class SoccerEnvironmentTest(object):

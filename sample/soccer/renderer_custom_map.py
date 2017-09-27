@@ -7,8 +7,8 @@ action of the agent 1.
 """
 
 # User-defined modules
-import pygame_rl.env.soccer_environment as soccer_environment
-import pygame_rl.env.soccer_renderer as soccer_renderer
+import pygame_rl.scenario.soccer_environment as soccer_environment
+import pygame_rl.scenario.soccer_renderer as soccer_renderer
 import pygame_rl.util.file_util as file_util
 
 
