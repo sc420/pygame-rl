@@ -20,7 +20,8 @@ def main():
   random.seed(0)
 
   # Resolve the map path relative to this file
-  map_path = file_util.resolve_path(__file__, 'data/map/soccer_large.tmx')
+  map_path = file_util.resolve_path(
+      __file__, 'data/map/soccer/soccer_large.tmx')
 
   # Create a soccer environment options
   # "map_data" is specified to use the custom map.

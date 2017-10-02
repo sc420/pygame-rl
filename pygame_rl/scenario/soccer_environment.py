@@ -566,7 +566,7 @@ class SoccerEnvironmentOptions(object):
   """The options for the soccer environment.
   """
   # Resource names
-  map_resource_name = 'pygame_rl/data/map/soccer.tmx'
+  map_resource_name = 'pygame_rl/data/map/soccer/soccer.tmx'
 
   # Map path
   map_path = None

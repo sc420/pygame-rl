@@ -14,7 +14,8 @@ import pygame_rl.util.file_util as file_util
 
 def main():
   # Resolve the map path relative to this file
-  map_path = file_util.resolve_path(__file__, 'data/map/soccer_large.tmx')
+  map_path = file_util.resolve_path(
+      __file__, 'data/map/soccer/soccer_large.tmx')
 
   # Create a soccer environment options
   env_options = soccer_environment.SoccerEnvironmentOptions(

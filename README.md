@@ -18,7 +18,7 @@ When the player carries the ball to the rightmost goal area, a reward of 1.0 is 
 
 ### Changing the Map
 
-The map data is embedded in the map file. For example, see `pygame_rl/data/map/soccer.tmx`. Config file in the same directory is associated with layers regarding the name to positions mapping. See `pygame_rl/renderer/pygame_renderer.py` for more information.
+The map data is embedded in the map file. For example, see `pygame_rl/data/map/soccer/soccer.tmx`. Config file in the same directory is associated with layers regarding the name to positions mapping. See `pygame_rl/renderer/pygame_renderer.py` for more information.
 
 To modify the map, for example:
 
