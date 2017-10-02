@@ -1,0 +1,9 @@
+AGENT:
+  x: 0
+  y: 0
+OBSTACLE:
+  x: 1
+  y: 0
+GOAL:
+  x: 2
+  y: 0
