@@ -112,12 +112,17 @@ class PredatorPreyEnvironment(environment.Environment):
     self._update_taken_actions()
     # Update frame skipping index
     self._update_frame_skip_index()
+    # Update time step
+    self._update_time_step()
     # Get the reward
     reward = self._get_reward()
+    # Create the observation
+    observation = PredatorPreyObservation(
+        None, self.cached_action, reward, self.state)
     # Reset cached action map
     self._init_cached_action()
     # Return the observation
-    return PredatorPreyObservation(None, self.cached_action, reward, self.state)
+    return observation
 
   def render(self):
     # Lazy load the renderer
@@ -211,6 +216,9 @@ class PredatorPreyEnvironment(environment.Environment):
     for object_index in range(self.options.get_total_object_size()):
       self.state.increase_frame_skip_index(
           object_index, self.options.ai_frame_skip)
+
+  def _update_time_step(self):
+    self.state.increase_time_step()
 
   def _is_overlapping_allowed(self, object_index_list):
     if len(object_index_list) == 1:
@@ -485,3 +493,34 @@ class PredatorPreyState(object):
       if pos == self.get_object_pos(object_index):
         return object_index
     return None
+
+  def __repr__(self):
+    message = ''
+    # Get the object index ranges
+    predator_index_range = self.env.get_group_index_range('PREDATOR')
+    prey_index_range = self.env.get_group_index_range('PREY')
+    # The agent positions, availabilities and actions
+    first_line = True
+    message += 'Predators (Position,Action):\n'
+    for predator_index in range(*predator_index_range):
+      if first_line:
+        first_line = False
+      else:
+        message += '\n'
+      pos = self.get_object_pos(predator_index)
+      action = self.get_object_action(predator_index)
+      message += '{},{}'.format(pos, action)
+    first_line = True
+    message += '\nPreys (Position,Availability,Action):\n'
+    for prey_index in range(*prey_index_range):
+      if first_line:
+        first_line = False
+      else:
+        message += '\n'
+      pos = self.get_object_pos(prey_index)
+      availability = self.get_object_availability(prey_index)
+      action = self.get_object_action(prey_index)
+      message += '{},{},{}'.format(pos, availability, action)
+    # The time step
+    message += '\nTime step: {}'.format(self.time_step)
+    return message
