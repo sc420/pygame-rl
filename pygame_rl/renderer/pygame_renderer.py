@@ -200,6 +200,10 @@ class TiledRenderer(TiledLoader):
                        .format(layer.name))
     return overlays
 
+  def get_screenshot_dim(self):
+    dim_2d = self.screen.get_size()
+    return [dim_2d[1], dim_2d[0], 3]
+
   def get_screenshot(self):
     """Get the full screenshot.
 
