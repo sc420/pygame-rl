@@ -1,0 +1,9 @@
+PREDATOR:
+  x: 0
+  y: 0
+OBSTACLE:
+  x: 1
+  y: 0
+PREY:
+  x: 2
+  y: 0
