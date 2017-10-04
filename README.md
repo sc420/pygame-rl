@@ -4,15 +4,15 @@ Some game environments used for reinforcement learning.
 
 ## Predator-Prey
 
-(Constructing)
+There are fixed amount of predators, preys and obstacles on the field. Each agent can take five actions: moving to 4-direction grid points or standing still at each time step. Overlapping is only allowed when one predator and one prey intends to move to the same grid point. Player controls predators while computer controls rule-based preys. Preys evade predators based on the directions and distances to the predators. When a predator catches a prey, a reward of 1.0 is given, a reward of 0.0 is given at all other time steps. The episode ends when there are no more preys or the time step reaches 100.
 
 ## Soccer
 
 A variant of the game described in the paper [He, He, et al. "Opponent modeling in deep reinforcement learning." International Conference on Machine Learning. 2016](https://www.umiacs.umd.edu/~hal/docs/daume16opponent.pdf). Pygame is used as the rendering framework. PyTMX is used to read the map file. Customized Minecraft texture is used for displaying the tiles.
 
-![screenshot](docs/screenshot.png "Screenshot")
+![screenshot](docs/screenshot_soccer.png "Soccer Screenshot")
 
-Reinforcement learning agent controls the agent 1 (shown as the player Steve head), the computer agent controls the agent 2 (shown as the pig head). The agent who has the ball is bordered by a blue square (in this case, the player has the ball shown in the image).
+Reinforcement learning controls agent 1 (shown as the player Steve head), the computer controls agent 2 (shown as the pig head). The agent who has the ball is bordered by a blue square (in this case, the player has the ball shown in the image).
 
 When the player carries the ball to the rightmost goal area, a reward of 1.0 is given; When the computer carries the ball to the leftmost goal area, a reward of -1.0 is given. The episode ends when either one of the agent carries the ball to its goal area or the time step reaches 100.
 
