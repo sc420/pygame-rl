@@ -2,10 +2,6 @@
 
 Some game environments used for reinforcement learning.
 
-## Predator-Prey
-
-There are fixed amount of predators, preys and obstacles on the field. Each agent can take five actions: moving to 4-direction grid points or standing still at each time step. Overlapping is only allowed when one predator and one prey intends to move to the same grid point. Player controls predators while computer controls rule-based preys. Preys evade predators based on the directions and distances to the predators. When a predator catches a prey, a reward of 1.0 is given, a reward of 0.0 is given at all other time steps. The episode ends when there are no more preys or the time step reaches 100.
-
 ## Soccer
 
 A variant of the game described in the paper [He, He, et al. "Opponent modeling in deep reinforcement learning." International Conference on Machine Learning. 2016](https://www.umiacs.umd.edu/~hal/docs/daume16opponent.pdf). Pygame is used as the rendering framework. PyTMX is used to read the map file. Customized Minecraft texture is used for displaying the tiles.
@@ -35,6 +31,12 @@ The computer agent has 4 strategies. The internal algorithm of either approachin
 * "Advance to goal": See where the leftmost goal area is, select a grid which has the maximum distance from the nearest player, approach it.
 * "Defend goal": See where the rightmost goal area is, select a grid which has the minimum distance from the defensive target, approach it.
 * "Intercept goal": See where the defensive target is, intercept him. It's basically approaching with an exception that the Euclidean distance is always greater than or equal to 1.
+
+## Predator-Prey
+
+![screenshot](docs/screenshot_predator_prey.png "Predator-prey Screenshot")
+
+There are fixed amount of predators (Steve head), preys (Cake) and obstacles (Cobblestone) on the field (Snow). Each agent can take five actions: moving to 4-direction grid points or standing still at each time step. Overlapping is only allowed when one predator and one prey intends to move to the same grid point. Player controls predators while computer controls rule-based preys. Preys evade predators based on the directions and distances to the predators. When a predator catches a prey, a reward of 1.0 is given, a reward of 0.0 is given at all other time steps. The episode ends when there are no more preys or the time step reaches 100.
 
 ## Installation
 
