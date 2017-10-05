@@ -100,7 +100,7 @@ coverage html
 
 1. Run the sample with cProfile.
 ```shell
-python -m cProfile -o environment_advanced.prof sample/environment_advanced.py
+python -m cProfile -o environment_advanced.prof sample/soccer/environment_advanced.py
 ```
 2. See the report with SnakeViz.
 ```shell

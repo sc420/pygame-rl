@@ -37,8 +37,8 @@ def main():
       env_options=env_options)
 
   # Get index range of preys
-  prey_index_range = env.get_group_index_range('PREY')
-  first_predator_index = range(*prey_index_range)[0]
+  predator_index_range = env.get_group_index_range('PREDATOR')
+  first_predator_index = range(*predator_index_range)[0]
 
   # Run many episodes
   for episode_index in range(10):
@@ -64,7 +64,7 @@ def main():
       pos = np.array(env.state.get_object_pos(first_predator_index))
       po_screenshot = env.renderer.get_po_screenshot(pos, 2)
       # Take cached actions
-      for object_index in range(*prey_index_range):
+      for object_index in range(*predator_index_range):
         # Get a random action from the action list
         action = random.choice(env.actions)
         # Take the cached action

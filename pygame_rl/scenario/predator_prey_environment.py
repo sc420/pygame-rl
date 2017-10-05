@@ -382,13 +382,16 @@ class PredatorPreyState(object):
   """The internal state.
   """
   # Object statuses as a list, each item is an object with the properties:
-  # * type: Type
+  # * group: Group
   # * pos: Position
   # * available: Availability
   # * action: Last taken action for the agent
   # * frame_skip_index: Current frame skipping index, starting from 0, resetting
   # after it reaches the frame skip
-  object_list = []
+  object_list = None
+
+  # Position to object index map
+  pos_map = None
 
   # Time step
   time_step = 0
@@ -415,11 +418,13 @@ class PredatorPreyState(object):
     for group_name in self.env.group_names:
       index_range = self.env.get_group_index_range(group_name)
       for object_index in range(*index_range):
-        self.set_object_type(object_index, group_name)
+        self.set_object_group(object_index, group_name)
         self.set_object_pos(object_index, None)
         self.set_object_availability(object_index, True)
         self.set_object_action(object_index, 'STAND')
         self.set_object_frame_skip_index(object_index, 0)
+    # Reset position map
+    self._reset_pos_map()
     # Randomize the agent statuses
     self.randomize()
     # Initialize the time step
@@ -450,16 +455,26 @@ class PredatorPreyState(object):
     # Otherwise, the state isn't terminal
     return False
 
-  def get_object_type(self, object_index):
-    return self.object_list[object_index]['ball']
+  def get_object_group(self, object_index):
+    return self.object_list[object_index]['group']
 
-  def set_object_type(self, object_index, type):
-    self.object_list[object_index]['type'] = type
+  def set_object_group(self, object_index, group):
+    self.object_list[object_index]['group'] = group
 
   def get_object_pos(self, object_index):
     return self.object_list[object_index]['pos']
 
   def set_object_pos(self, object_index, pos):
+    # Remove old position from map
+    old_pos = self.object_list[object_index].get('pos', None)
+    if old_pos:
+      old_pos_tuple = tuple(old_pos)
+      self.pos_map.pop(old_pos_tuple, None)
+    # Set position in map
+    if pos:
+      pos_tuple = tuple(pos)
+      self.pos_map[pos_tuple] = object_index
+    # Set object list
     self.object_list[object_index]['pos'] = pos
 
   def get_object_availability(self, object_index):
@@ -489,10 +504,11 @@ class PredatorPreyState(object):
     self.time_step += 1
 
   def get_pos_status(self, pos):
-    for object_index in range(self.env_options.get_total_object_size()):
-      if pos == self.get_object_pos(object_index):
-        return object_index
-    return None
+    pos_tuple = tuple(pos)
+    return self.pos_map.get(pos_tuple, None)
+
+  def _reset_pos_map(self):
+    self.pos_map = {}
 
   def __repr__(self):
     message = ''
