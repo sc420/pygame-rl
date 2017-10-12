@@ -59,9 +59,13 @@ def main():
     while is_running:
       # Render the environment
       env.render()
-      # Get the partially observable screenshot of the first agent with a radius
-      # of 1
+      # Get position of the first predator
       pos = np.array(env.state.get_object_pos(first_predator_index))
+      # Get partially observable symbolic view of the first agent with a radius
+      # of 2
+      po_view = env.state.get_po_symbolic_view(pos, 2)
+      # Get partially observable screenshot of the first agent with a radius of
+      # 2
       po_screenshot = env.renderer.get_po_screenshot(pos, 2)
       # Take cached actions
       for object_index in range(*predator_index_range):
@@ -78,9 +82,15 @@ def main():
             episode_index + 1, env.state.time_step + 1))
         is_running = False
 
+  # Get position of the first predator
+  pos = np.array(env.state.get_object_pos(first_predator_index))
+
+  # Print the last partially observable symbolic view
+  po_view = env.state.get_po_symbolic_view(pos, 2)
+  print(po_view)
+
   # Save the last partially observable screenshot
   env.render()
-  pos = np.array(env.state.get_object_pos(first_predator_index))
   po_screenshot = env.renderer.get_po_screenshot(pos, 2)
   screenshot_relative_path = 'screenshot.png'
   screenshot_abs_path = os.path.abspath(screenshot_relative_path)

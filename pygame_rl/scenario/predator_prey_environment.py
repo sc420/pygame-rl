@@ -507,6 +507,57 @@ class PredatorPreyState(object):
     pos_tuple = tuple(pos)
     return self.pos_map.get(pos_tuple, None)
 
+  def get_po_symbolic_view(self, pos, radius):
+    """Get partially observable (po) symbolic view.
+
+    The returned view is always a square with the length of (2 * radius + 1).
+    The position is always centered. The default background is black if the
+    cropped image is near the boundaries.
+
+    Args:
+      pos (Array-like): The position of partially observable area.
+      radius (int): The radius of partially observable area.
+
+    Returns:
+      numpy.ndarray: Partially observable symbolic view. Each value is the
+      object index beginning from 0. If there is no object, the value will be
+      -1.
+    """
+    # Get the size of a single tile as a Numpy array
+    tile_size = np.array(self.env.renderer.get_tile_size())
+    # Make sure position is numpy array
+    pos = np.array(pos)
+    # Calculate length of the crop area
+    crop_len = 2 * radius + 1
+    # Calculate offset of the crop area
+    crop_offset = pos - radius
+    # Calculate crop range ((x, x+w), (y, y+h))
+    crop_range = (
+        (np.max([0, crop_offset[0]]),
+         np.min([tile_size[0], crop_offset[0] + crop_len])),
+        (np.max([0, crop_offset[1]]),
+         np.min([tile_size[1], crop_offset[1] + crop_len])),
+    )
+    # Create a black filled partially observable view
+    po_view = np.zeros((crop_len, crop_len), dtype=int)
+    # Calculate offset of the paste area
+    paste_offset = [
+        np.max([0, (-crop_offset[0])]),
+        np.max([0, (-crop_offset[1])]),
+    ]
+    # Fill in position statuses
+    for x_crop in range(*crop_range[0]):
+      for y_crop in range(*crop_range[1]):
+        x_paste = x_crop - crop_range[0][0] + paste_offset[0]
+        y_paste = y_crop - crop_range[1][0] + paste_offset[1]
+        pos_crop = [x_crop, y_crop]
+        pos_status = self.get_pos_status(pos_crop)
+        if pos_status is None:
+          po_view[x_paste, y_paste] = -1
+        else:
+          po_view[x_paste, y_paste] = pos_status
+    return po_view
+
   def _reset_pos_map(self):
     self.pos_map = {}
 
