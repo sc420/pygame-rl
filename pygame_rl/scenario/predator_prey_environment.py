@@ -555,7 +555,8 @@ class PredatorPreyState(object):
         if pos_status is None:
           po_view[x_paste, y_paste] = -1
         else:
-          po_view[x_paste, y_paste] = pos_status
+          group = self.get_object_group(pos_status)
+          po_view[x_paste, y_paste] = self.env.group_names.index(group)
     return po_view
 
   def _reset_pos_map(self):
