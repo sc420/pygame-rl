@@ -575,7 +575,8 @@ class PredatorPreyState(object):
     """Get symbolic positions.
 
     Returns:
-      numpy.ndarray: Symbolic positions for each object in order.
+      numpy.ndarray: Symbolic positions for each object in order: [x1, y1, x2,
+      y2, ..., xn, yn] where n is the total object size.
     """
     total_object_size = self.env_options.get_total_object_size()
     positions = np.zeros(2 * total_object_size)
