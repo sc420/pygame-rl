@@ -30,7 +30,7 @@ def main():
       'OBSTACLE': 8,
   }
   env_options = predator_prey_environment.PredatorPreyEnvironmentOptions(
-      map_path=map_path, object_size=object_size, ai_frame_skip=2)
+      map_path=map_path, object_size=object_size, po_radius=3, ai_frame_skip=2)
 
   # Create an environment
   env = predator_prey_environment.PredatorPreyEnvironment(

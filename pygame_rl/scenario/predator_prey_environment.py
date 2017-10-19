@@ -159,11 +159,12 @@ class PredatorPreyEnvironment(environment.Environment):
         continue
       prey_pos = self.state.get_object_pos(prey_object_index)
       for predator_pos in predator_pos_list:
-        distances = self._get_moved_away_distances(prey_pos, predator_pos)
-        action_index = np.argmax(distances)
-        distance = distances[action_index]
-        weight = self.action_weight[action_index]
-        weighted_actions[action_index] += weight / distance
+        if self._is_distance_in_po(prey_pos, predator_pos):
+          distances = self._get_moved_away_distances(prey_pos, predator_pos)
+          action_index = np.argmax(distances)
+          distance = distances[action_index]
+          weight = self.action_weight[action_index]
+          weighted_actions[action_index] += weight / distance
       # Add noises to the weighted actions
       weighted_actions = self._get_noised_values(weighted_actions)
       # Update the cached action only if it's empty
@@ -230,6 +231,11 @@ class PredatorPreyEnvironment(environment.Environment):
       if sorted_group_name_list == ['PREDATOR', 'PREY']:
         return True
     return False
+
+  def _is_distance_in_po(self, pos1, pos2):
+    distance = self._get_pos_distance(pos1, pos2)
+    po_distance = self.options.po_radius
+    return distance <= po_distance
 
   def _get_intended_pos(self):
     intended_pos = [None for _ in range(self.options.get_total_object_size())]
@@ -314,10 +320,14 @@ class PredatorPreyEnvironmentOptions(object):
   # Number of the objects in each group
   object_size = None
 
+  # Partially observable radius
+  po_radius = None
+
   # Frame skip for AI
   ai_frame_skip = None
 
-  def __init__(self, map_path=None, object_size=None, ai_frame_skip=1):
+  def __init__(self, map_path=None, object_size=None, po_radius=np.inf,
+               ai_frame_skip=1):
     # Save the map path or use the internal resource
     if map_path:
       self.map_path = map_path
@@ -332,6 +342,8 @@ class PredatorPreyEnvironmentOptions(object):
           'PREY': 2,
           'OBSTACLE': 10,
       }
+    # Save the partially observable radius
+    self.po_radius = po_radius
     # Save the frame skip
     self.ai_frame_skip = ai_frame_skip
     # Calculate index ranges for each group
