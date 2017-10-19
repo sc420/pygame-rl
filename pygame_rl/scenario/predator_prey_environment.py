@@ -571,6 +571,20 @@ class PredatorPreyState(object):
           po_view[x_paste, y_paste] = self.env.group_names.index(group)
     return po_view
 
+  def get_symbolic_positions(self):
+    """Get symbolic positions.
+
+    Returns:
+      numpy.ndarray: Symbolic positions for each object in order.
+    """
+    total_object_size = self.env_options.get_total_object_size()
+    positions = np.zeros(2 * total_object_size)
+    for object_index in range(total_object_size):
+      pos = self.get_object_pos(object_index)
+      positions[2 * object_index + 0] = pos[0]
+      positions[2 * object_index + 1] = pos[1]
+    return positions
+
   def _reset_pos_map(self):
     self.pos_map = {}
 
