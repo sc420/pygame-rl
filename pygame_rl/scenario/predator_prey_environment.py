@@ -402,6 +402,10 @@ class PredatorPreyState(object):
   # after it reaches the frame skip
   object_list = None
 
+  # Object statuses at the previous time step with only the properties:
+  # * pos: Position
+  prev_object_list = None
+
   # Position to object index map
   pos_map = None
 
@@ -424,17 +428,8 @@ class PredatorPreyState(object):
     self.reset()
 
   def reset(self):
-    # Initialize the object list
-    total_object_size = self.env_options.get_total_object_size()
-    self.object_list = [{} for _ in range(total_object_size)]
-    for group_name in self.env.group_names:
-      index_range = self.env.get_group_index_range(group_name)
-      for object_index in range(*index_range):
-        self.set_object_group(object_index, group_name)
-        self.set_object_pos(object_index, None)
-        self.set_object_availability(object_index, True)
-        self.set_object_action(object_index, 'STAND')
-        self.set_object_frame_skip_index(object_index, 0)
+    # Initialize object list
+    self._reset_object_list()
     # Reset position map
     self._reset_pos_map()
     # Randomize the agent statuses
@@ -477,8 +472,14 @@ class PredatorPreyState(object):
     return self.object_list[object_index]['pos']
 
   def set_object_pos(self, object_index, pos):
-    # Remove old position from map
+    # Get old position
     old_pos = self.object_list[object_index].get('pos', None)
+    # Set previous position
+    prev_pos = old_pos
+    if not old_pos:
+      prev_pos = pos
+    self.set_prev_object_pos(object_index, prev_pos)
+    # Remove old position from map
     if old_pos:
       old_pos_tuple = tuple(old_pos)
       self.pos_map.pop(old_pos_tuple, None)
@@ -488,6 +489,21 @@ class PredatorPreyState(object):
       self.pos_map[pos_tuple] = object_index
     # Set object list
     self.object_list[object_index]['pos'] = pos
+
+  def set_prev_object_pos(self, object_index, pos):
+    self.prev_object_list[object_index]['pos'] = pos
+
+  def get_prev_object_pos(self, object_index):
+    return self.prev_object_list[object_index]['pos']
+
+  def get_object_vel(self, object_index):
+    prev_pos = self.get_prev_object_pos(object_index)
+    pos = self.get_object_pos(object_index)
+    vel = [
+        pos[0] - prev_pos[0],
+        pos[1] - prev_pos[1],
+    ]
+    return vel
 
   def get_object_availability(self, object_index):
     return self.object_list[object_index]['available']
@@ -571,20 +587,48 @@ class PredatorPreyState(object):
           po_view[x_paste, y_paste] = self.env.group_names.index(group)
     return po_view
 
-  def get_symbolic_positions(self):
-    """Get symbolic positions.
+  def get_symbolic_features(self):
+    """Get symbolic features. The features consist of the positions, velocities,
+    and availabilities.
 
     Returns:
-      numpy.ndarray: Symbolic positions for each object in order: [x1, y1, x2,
-      y2, ..., xn, yn] where n is the total object size.
+      numpy.ndarray: A sequence of pairs for each object in order: [x1, y1, vx1,
+      vy1, a1, ..., xn, yn, vxn, vyn, an], where (x1, y1) is the position,
+      (vx1, vy1) is the velocity, and a1 is the availability of object 1. n is
+      the number of objects.
     """
     total_object_size = self.env_options.get_total_object_size()
-    positions = np.zeros(2 * total_object_size)
+    # xi, yi, vxi, vyi, ai for object index i
+    pair_size = 5
+    features = np.zeros(pair_size * total_object_size)
     for object_index in range(total_object_size):
       pos = self.get_object_pos(object_index)
-      positions[2 * object_index + 0] = pos[0]
-      positions[2 * object_index + 1] = pos[1]
-    return positions
+      vel = self.get_object_vel(object_index)
+      availability = self.get_object_availability(object_index)
+      features[pair_size * object_index + 0] = pos[0]
+      features[pair_size * object_index + 1] = pos[1]
+      features[pair_size * object_index + 2] = vel[0]
+      features[pair_size * object_index + 3] = vel[1]
+      features[pair_size * object_index + 4] = availability
+    return features
+
+  def _reset_object_list(self):
+    total_object_size = self.env_options.get_total_object_size()
+    # Initialize object lists
+    self.object_list = [{} for _ in range(total_object_size)]
+    self.prev_object_list = [{} for _ in range(total_object_size)]
+    # Fill in object details
+    for group_name in self.env.group_names:
+      index_range = self.env.get_group_index_range(group_name)
+      for object_index in range(*index_range):
+        # For current time step
+        self.set_object_group(object_index, group_name)
+        self.set_object_pos(object_index, None)
+        self.set_object_availability(object_index, True)
+        self.set_object_action(object_index, 'STAND')
+        self.set_object_frame_skip_index(object_index, 0)
+        # For previous time step
+        self.set_prev_object_pos(object_index, None)
 
   def _reset_pos_map(self):
     self.pos_map = {}
