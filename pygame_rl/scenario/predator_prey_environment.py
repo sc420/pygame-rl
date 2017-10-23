@@ -147,30 +147,22 @@ class PredatorPreyEnvironment(environment.Environment):
 
   def _update_prey_actions(self):
     # Get index ranges
-    predator_index_range = self.get_group_index_range('PREDATOR')
     prey_index_range = self.get_group_index_range('PREY')
-    # Get predator positions
-    predator_pos_list = [self.state.get_object_pos(object_index)
-                         for object_index in range(*predator_index_range)]
     # Calculate weighted actions
-    weighted_actions = [0.0 for _ in self.actions]
     for prey_object_index in range(*prey_index_range):
+      # Skip if the prey is not available
       if not self.state.get_object_availability(prey_object_index):
         continue
-      prey_pos = self.state.get_object_pos(prey_object_index)
-      for predator_pos in predator_pos_list:
-        if self._is_distance_in_po(prey_pos, predator_pos):
-          distances = self._get_moved_away_distances(prey_pos, predator_pos)
-          action_index = np.argmax(distances)
-          distance = distances[action_index]
-          weight = self.action_weight[action_index]
-          weighted_actions[action_index] += weight / distance
-      # Add noises to the weighted actions
-      weighted_actions = self._get_noised_values(weighted_actions)
-      # Update the cached action only if it's empty
-      if not self.cached_action[prey_object_index]:
-        action_index = np.argmax(weighted_actions)
-        self.cached_action[prey_object_index] = self.actions[action_index]
+      # Skip if the cached action has been specified
+      if self.cached_action[prey_object_index]:
+        continue
+      # Select the previous action if it's frame skipping
+      if self.state.get_object_frame_skip_index(prey_object_index) > 0:
+        action = self.state.get_object_action(prey_object_index)
+      else:
+        action = self._get_ai_action(prey_object_index)
+      # Update the cached action
+      self.cached_action[prey_object_index] = action
 
   def _update_agent_pos(self):
     intended_pos = self._get_intended_pos()
@@ -221,6 +213,14 @@ class PredatorPreyEnvironment(environment.Environment):
   def _update_time_step(self):
     self.state.increase_time_step()
 
+  def _add_weighted_actions(self, prey_pos, predator_pos, weighted_actions):
+    if self._is_distance_in_po(prey_pos, predator_pos):
+      distances = self._get_moved_away_distances(prey_pos, predator_pos)
+      action_index = np.argmax(distances)
+      distance = distances[action_index]
+      weight = self.action_weight[action_index]
+      weighted_actions[action_index] += weight / distance
+
   def _is_overlapping_allowed(self, object_index_list):
     if len(object_index_list) == 1:
       return True
@@ -236,6 +236,23 @@ class PredatorPreyEnvironment(environment.Environment):
     distance = self._get_pos_distance(pos1, pos2)
     po_distance = self.options.po_radius
     return distance <= po_distance
+
+  def _get_ai_action(self, prey_object_index):
+    # Get index ranges
+    predator_index_range = self.get_group_index_range('PREDATOR')
+    # Get predator positions
+    predator_pos_list = [self.state.get_object_pos(object_index)
+                         for object_index in range(*predator_index_range)]
+    prey_pos = self.state.get_object_pos(prey_object_index)
+    # Calculate weighted actions
+    weighted_actions = [0.0 for _ in self.actions]
+    for predator_pos in predator_pos_list:
+      self._add_weighted_actions(prey_pos, predator_pos, weighted_actions)
+    # Add noises to the weighted actions
+    weighted_actions = self._get_noised_values(weighted_actions)
+    # Pick the max weighted action
+    agent_index = np.argmax(weighted_actions)
+    return self.actions[agent_index]
 
   def _get_intended_pos(self):
     intended_pos = [None for _ in range(self.options.get_total_object_size())]
