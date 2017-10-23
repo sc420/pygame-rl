@@ -49,19 +49,24 @@ class SoccerEnvironmentTest(object):
     # The time step should be 0
     assert state.time_step == 0
 
-  def test_take_action(self):
+  def test_take_cached_action(self):
     # Take each action
+    team_agent_index = 0
+    agent_index = self.env.get_agent_index(
+        self.env.team_names[0], team_agent_index)
     expected_time_step = 0
     for action in self.env.actions:
       # Take the action
-      observation = self.env.take_action(action)
+      self.env.take_cached_action(agent_index, action)
+      # Update the state
+      observation = self.env.update_state()
       # Get the next state
       next_state = observation.next_state
       # Increment the expected time step
       expected_time_step += 1
       # Check the observation
       assert observation.state is None
-      assert observation.action == action
+      assert observation.action[agent_index] == action
       assert observation.reward >= -1.0 and observation.reward <= 1.0
       assert observation.next_state.time_step == expected_time_step
       # The computer agent should have the last taken action

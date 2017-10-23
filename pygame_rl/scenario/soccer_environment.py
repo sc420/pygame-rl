@@ -49,6 +49,12 @@ class SoccerEnvironment(environment.Environment):
   renderer = None
   renderer_loaded = False
 
+  # Cached action map
+  cached_action = None
+
+  # Cached reward
+  cached_reward = None
+
   def __init__(self, env_options=None, renderer_options=None):
     # Save or create the environment options
     self.options = env_options or SoccerEnvironmentOptions()
@@ -59,29 +65,57 @@ class SoccerEnvironment(environment.Environment):
     # Initialize the renderer
     self.renderer = soccer_renderer.SoccerRenderer(
         self.options.map_path, self, renderer_options)
+    # Initialize cached action map
+    self._init_cached_action()
 
   def reset(self):
     self.state.reset()
     return SoccerObservation(self.state, None, 0.0, None)
 
-  def take_action(self, player_action):
-    # Get the agent actions
-    actions = self._get_agent_actions(player_action)
-    # Take all the actions and return the observation
-    return self.take_all_actions(actions)
+  def take_action(self, action):
+    self.cached_action = action
+    return self.update_state()
 
-  def take_all_actions(self, actions):
-    # Control all the agents
-    self._control_all_agents(actions)
+  def take_cached_action(self, object_index, action):
+    self.cached_action[object_index] = action
+
+  def update_state(self):
+    # Update agent actions
+    self._update_agent_actions()
+    # Get the intended positions
+    intended_pos = self._get_intended_pos(self.cached_action)
+    # Update the agent positions
+    self._update_agent_pos(intended_pos)
+    # Update taken actions
+    self._update_taken_actions()
+    # Update frame skipping index
+    self._update_frame_skip_index()
+    # Update time step
+    self._update_time_step()
     # Get the reward
     reward = self._get_reward()
-    # Get the player action
-    player_agent_index = self.get_agent_index('PLAYER', 0)
-    player_action = actions[player_agent_index]
-    # Return the observation, the original state is not returned to increase
-    # the speed, otherwise deep copying must be used before changing the
-    # position.
-    return SoccerObservation(None, player_action, reward, self.state)
+    # Create the observation
+    observation = SoccerObservation(
+        None, self.cached_action, reward, self.state)
+    # Reset cached action map
+    self._init_cached_action()
+    # Return the observation
+    return observation
+
+  def _update_agent_actions(self):
+    for team_name in self.team_names:
+      for team_agent_index in range(self.options.team_size):
+        agent_index = self.get_agent_index(team_name, team_agent_index)
+        # Skip if the cached action has been specified
+        if self.cached_action[agent_index]:
+          continue
+        # Select the previous action if it's frame skipping
+        if self.state.get_agent_frame_skip_index(agent_index) > 0:
+          action = self.state.get_agent_action(agent_index)
+        else:
+          action = self._get_ai_action(team_name, team_agent_index)
+        # Update the cached action
+        self.cached_action[agent_index] = action
 
   def render(self):
     # Lazy load the renderer
@@ -116,6 +150,13 @@ class SoccerEnvironment(environment.Environment):
     else:
       raise KeyError('Unknown team name {}'.format(team_name))
 
+  def _init_cached_action(self):
+    self.cached_action = {}
+    for team_name in self.team_names:
+      for team_agent_index in range(self.options.team_size):
+        agent_index = self.get_agent_index(team_name, team_agent_index)
+        self.cached_action[agent_index] = None
+
   def _get_agent_actions(self, player_action):
     # Build a dict of the agent index to the actions
     actions = {}
@@ -136,32 +177,6 @@ class SoccerEnvironment(environment.Environment):
           raise KeyError('Unknown team name {}'.format(team_name))
         actions[agent_index] = agent_action
     return actions
-
-  def _control_all_agents(self, actions):
-    # Get the intended positions
-    intended_pos = self._get_intended_pos(actions)
-    # Update the agent positions
-    self._update_agent_pos(intended_pos)
-    # Increase the time step
-    self.state.increase_time_step()
-
-  def _get_intended_pos(self, actions):
-    # Build a dict of the agent index to the intended moved position
-    intended_pos = {}
-    for team_name in self.team_names:
-      for team_agent_index in range(self.options.team_size):
-        agent_index = self.get_agent_index(team_name, team_agent_index)
-        # Get the action
-        action = actions[agent_index]
-        # Get the original position
-        pos = self.state.get_agent_pos(agent_index)
-        # Save the action taken by the agent
-        self.state.set_agent_action(agent_index, action)
-        # Increase the frame skip index
-        self.state.increase_frame_skip_index(
-            agent_index, self.options.ai_frame_skip)
-        intended_pos[agent_index] = self._get_walkable_moved_pos(pos, action)
-    return intended_pos
 
   def _get_walkable_moved_pos(self, pos, action):
     # Get the moved position
@@ -197,6 +212,24 @@ class SoccerEnvironment(environment.Environment):
     for (agent_index, pos) in intended_pos.items():
       self.state.set_agent_pos(agent_index, pos)
 
+  def _update_taken_actions(self):
+    for team_name in self.team_names:
+      for team_agent_index in range(self.options.team_size):
+        agent_index = self.get_agent_index(team_name, team_agent_index)
+        action = self.cached_action[agent_index]
+        action = action or 'STAND'
+        self.state.set_agent_action(agent_index, action)
+
+  def _update_frame_skip_index(self):
+    for team_name in self.team_names:
+      for team_agent_index in range(self.options.team_size):
+        agent_index = self.get_agent_index(team_name, team_agent_index)
+        self.state.increase_frame_skip_index(
+            agent_index, self.options.ai_frame_skip)
+
+  def _update_time_step(self):
+    self.state.increase_time_step()
+
   def _update_ball_possession(self, agent_index_list):
     # Get the ball possessions of the agents
     has_ball_agent_index = None
@@ -216,6 +249,20 @@ class SoccerEnvironment(environment.Environment):
       return True
     # Indicate no switch
     return False
+
+  def _get_intended_pos(self, actions):
+    # Build a dict of the agent index to the intended moved position
+    intended_pos = {}
+    for team_name in self.team_names:
+      for team_agent_index in range(self.options.team_size):
+        agent_index = self.get_agent_index(team_name, team_agent_index)
+        # Get the action
+        action = actions[agent_index]
+        # Get the original position
+        pos = self.state.get_agent_pos(agent_index)
+        # Save the walkable position
+        intended_pos[agent_index] = self._get_walkable_moved_pos(pos, action)
+    return intended_pos
 
   def _get_ai_action(self, team_name, team_agent_index):
     # Get the opponent team name

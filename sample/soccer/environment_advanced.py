@@ -34,7 +34,7 @@ def main():
   # If you want to render the environment, an optional argument
   # "renderer_options" can be used. For the sample usage, see
   # "sample/renderer.py".
-  soccer_env = soccer_environment.SoccerEnvironment(env_options=env_options)
+  env = soccer_environment.SoccerEnvironment(env_options=env_options)
 
   # Run many episodes
   for episode_index in range(20):
@@ -43,7 +43,7 @@ def main():
     print('Episode {}:'.format(episode_index + 1))
     # Reset the environment and get the initial observation. The observation is
     # a class defined as "soccer_environment.SoccerObservation".
-    observation = soccer_env.reset()
+    observation = env.reset()
     state = observation.state
     action = observation.action
     reward = observation.reward
@@ -56,31 +56,31 @@ def main():
     while is_running:
       # Render the environment. The renderer will lazy load on the first call.
       # Skip the call if you don't need the rendering.
-      soccer_env.render()
+      env.render()
       # Get the partially observable screenshot of the first agent with a radius
       # of 1. The returned `screenshot` is a `numpy.ndarray`, the format is the
       # same as the returned value of `scipy.misc.imread`. The previous call is
       # required for this call to work.
-      po_screenshot = soccer_env.renderer.get_po_screenshot(0, 1)
-      # Build a list of randomly chosen actions
-      actions = {}
-      for team_name in soccer_env.team_names:
-        for team_agent_index in range(soccer_env.options.team_size):
-          agent_index = soccer_env.get_agent_index(team_name, team_agent_index)
-          actions[agent_index] = random.choice(soccer_env.actions)
-      # Take the actions and get the observation
-      observation = soccer_env.take_all_actions(actions)
+      po_screenshot = env.renderer.get_po_screenshot(0, 1)
+      # Control only the first agent in each team
+      team_agent_index = 0
+      for team_name in env.team_names:
+        agent_index = env.get_agent_index(team_name, team_agent_index)
+        action = random.choice(env.actions)
+        env.take_cached_action(agent_index, action)
+      # Update the state and get the observation
+      observation = env.update_state()
       # Check the terminal state
-      if soccer_env.state.is_terminal():
+      if env.state.is_terminal():
         print('Terminal state:\n{}'.format(observation))
         print('Episode {} ends at time step {}'.format(
-            episode_index + 1, soccer_env.state.time_step + 1))
+            episode_index + 1, env.state.time_step + 1))
         is_running = False
 
   # Save the last partially observable screenshot
-  soccer_env.render()
-  agent_pos = np.array(soccer_env.state.get_agent_pos(0))
-  po_screenshot = soccer_env.renderer.get_po_screenshot(agent_pos, radius=1)
+  env.render()
+  agent_pos = np.array(env.state.get_agent_pos(0))
+  po_screenshot = env.renderer.get_po_screenshot(agent_pos, radius=1)
   screenshot_relative_path = 'screenshot.png'
   screenshot_abs_path = os.path.abspath(screenshot_relative_path)
   scipy.misc.imsave(screenshot_abs_path, po_screenshot)

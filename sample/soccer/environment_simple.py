@@ -38,8 +38,12 @@ def main():
       screenshot = soccer_env.renderer.get_screenshot()
       # Get a random action from the action list
       action = random.choice(soccer_env.actions)
-      # Take the action and get the observation
-      observation = soccer_env.take_action(action)
+      # Take the action
+      team_agent_index = 0
+      agent_index = soccer_env.get_agent_index('PLAYER', team_agent_index)
+      soccer_env.take_cached_action(agent_index, action)
+      # Update the state and get the observation
+      observation = soccer_env.update_state()
       # Check the terminal state
       if soccer_env.state.is_terminal():
         print('Terminal state:\n{}'.format(observation))

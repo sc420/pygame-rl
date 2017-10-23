@@ -45,7 +45,9 @@ class SoccerEnvironmentTest(object):
     ball_agent_index = ball_possession['agent_index']
     self.state.switch_ball(ball_agent_index, self.player_index[0])
     # Take the action
-    self.env.take_action('STAND')
+    self.env.take_cached_action(self.player_index[0], 'STAND')
+    # Update the state
+    self.env.update_state()
     # Player 1 position should have not changed
     assert self.state.get_agent_pos(self.player_index[0]) == [6, 0]
     # Player 2 position should have either not changed or moved, but not up
@@ -82,7 +84,9 @@ class SoccerEnvironmentTest(object):
     ball_agent_index = ball_possession['agent_index']
     self.state.switch_ball(ball_agent_index, self.computer_index[0])
     # Take the action
-    self.env.take_action('MOVE_RIGHT')
+    self.env.take_cached_action(self.player_index[0], 'MOVE_RIGHT')
+    # Update the state
+    self.env.update_state()
     # Player 2 should approach the nearest opponent goal position against
     # computer 1
     possible_pos = [[1, 2], [0, 3]]
@@ -111,7 +115,9 @@ class SoccerEnvironmentTest(object):
     ball_agent_index = ball_possession['agent_index']
     self.state.switch_ball(ball_agent_index, self.computer_index[0])
     # Take the action
-    self.env.take_action('MOVE_RIGHT')
+    self.env.take_cached_action(self.player_index[0], 'MOVE_RIGHT')
+    # Update the state
+    self.env.update_state()
     # Player 2 should intercept against computer 1
     assert self.state.get_agent_pos(self.player_index[1]) == [2, 3]
     # Computer 1 should approach the furthest goal position against player 1
@@ -137,7 +143,9 @@ class SoccerEnvironmentTest(object):
     ball_agent_index = ball_possession['agent_index']
     self.state.switch_ball(ball_agent_index, self.player_index[0])
     # Take the action
-    self.env.take_action('MOVE_RIGHT')
+    self.env.take_cached_action(self.player_index[0], 'MOVE_RIGHT')
+    # Update the state
+    self.env.update_state()
     # Player 2 should intercept against computer 1
     assert self.state.get_agent_pos(self.player_index[1]) == [2, 3]
     # Computer 1 should approach the nearest opponent goal position against
@@ -166,7 +174,9 @@ class SoccerEnvironmentTest(object):
     ball_agent_index = ball_possession['agent_index']
     self.state.switch_ball(ball_agent_index, self.player_index[0])
     # Take the action
-    self.env.take_action('MOVE_RIGHT')
+    self.env.take_cached_action(self.player_index[0], 'MOVE_RIGHT')
+    # Update the state
+    self.env.update_state()
     # Player 2 should approach the nearest opponent goal position against
     # computer 1
     assert self.state.get_agent_pos(self.player_index[1]) == [0, 3]
@@ -194,7 +204,10 @@ class SoccerEnvironmentTest(object):
     self.state.switch_ball(ball_agent_index, self.player_index[0])
     # The computer agent should score in 100 steps
     for _ in range(100):
-      observation = self.env.take_action('STAND')
+      # Take the action
+      self.env.take_cached_action(self.player_index[0], 'STAND')
+      # Update the state and get the observation
+      observation = self.env.update_state()
       # Teleport player 2 to the original position so that he can't never catch
       # the ball
       self.state.set_agent_pos(self.player_index[1], [7, 0])
@@ -220,6 +233,9 @@ class SoccerEnvironmentTest(object):
     self.state.switch_ball(ball_agent_index, self.player_index[0])
     # The player agent should score in exactly 3 steps
     for _ in range(3):
-      observation = self.env.take_action('MOVE_RIGHT')
+      # Take the action
+      self.env.take_cached_action(self.player_index[0], 'MOVE_RIGHT')
+      # Update the state
+      observation = self.env.update_state()
     assert observation.next_state.is_team_win('PLAYER')
     assert observation.reward == pytest.approx(1.0)
