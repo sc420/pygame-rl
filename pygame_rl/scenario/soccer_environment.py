@@ -72,8 +72,8 @@ class SoccerEnvironment(environment.Environment):
     self.state.reset()
     return SoccerObservation(self.state, None, 0.0, None)
 
-  def take_action(self, action):
-    self.cached_action = action
+  def take_action(self, actions):
+    self.cached_action = actions
     return self.update_state()
 
   def take_cached_action(self, object_index, action):

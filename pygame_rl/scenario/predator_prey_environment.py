@@ -94,8 +94,15 @@ class PredatorPreyEnvironment(environment.Environment):
     self.state.reset()
     return PredatorPreyObservation(self.state, None, 0.0, None)
 
-  def take_action(self, action):
-    self.cached_action = action
+  def step(self, actions):
+    if len(actions) != self.options.get_total_object_size():
+      raise ValueError('Action size should be equal to the object size')
+    for object_index, action in enumerate(actions):
+      self.cached_action[object_index] = action
+    return self.update_state()
+
+  def take_action(self, actions):
+    self.cached_action = actions
     return self.update_state()
 
   def take_cached_action(self, object_index, action):

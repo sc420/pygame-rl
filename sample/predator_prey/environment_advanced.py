@@ -67,14 +67,15 @@ def main():
       # Get partially observable screenshot of the first agent with a radius of
       # 2
       po_screenshot = env.renderer.get_po_screenshot(pos, 2)
-      # Take cached actions
+      # Build actions for predators only
+      actions = [None] * env.options.get_total_object_size()
       for object_index in range(*predator_index_range):
         # Get a random action from the action list
         action = random.choice(env.actions)
-        # Take the cached action
-        env.take_cached_action(object_index, action)
+        # Set the action
+        actions[object_index] = action
       # Update the environment and get observation
-      observation = env.update_state()
+      observation = env.step(actions)
       # Check the terminal state
       if env.state.is_terminal():
         print('Terminal state:\n{}'.format(observation))
