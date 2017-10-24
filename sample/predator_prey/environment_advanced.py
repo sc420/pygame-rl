@@ -67,15 +67,16 @@ def main():
       # Get partially observable screenshot of the first agent with a radius of
       # 2
       po_screenshot = env.renderer.get_po_screenshot(pos, 2)
-      # Build actions for predators only
-      actions = [None] * env.options.get_total_object_size()
-      for object_index in range(*predator_index_range):
+      # Build actions without obstacles
+      actions_wo = [None] * (env.options.object_size['PREDATOR'] +
+                             env.options.object_size['PREY'])
+      for predator_index in range(env.options.object_size['PREDATOR']):
         # Get a random action from the action list
         action = random.choice(env.actions)
         # Set the action
-        actions[object_index] = action
+        actions_wo[predator_index] = action
       # Update the environment and get observation
-      observation = env.step(actions)
+      observation = env.step_without_obstacles(actions_wo)
       # Check the terminal state
       if env.state.is_terminal():
         print('Terminal state:\n{}'.format(observation))

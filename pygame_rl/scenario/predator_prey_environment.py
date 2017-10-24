@@ -101,6 +101,16 @@ class PredatorPreyEnvironment(environment.Environment):
       self.cached_action[object_index] = action
     return self.update_state()
 
+  def step_without_obstacles(self, actions_wo):
+    actions = [None] * self.options.get_total_object_size()
+    predator_size = self.options.object_size['PREDATOR']
+    prey_size = self.options.object_size['PREY']
+    predator_index_range = self.get_group_index_range('PREDATOR')
+    prey_index_range = self.get_group_index_range('PREY')
+    actions[:predator_size] = actions_wo[slice(*predator_index_range)]
+    actions[-prey_size:] = actions_wo[slice(*prey_index_range)]
+    return self.step(actions)
+
   def take_action(self, actions):
     self.cached_action = actions
     return self.update_state()
