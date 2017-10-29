@@ -1,5 +1,4 @@
 # Native modules
-import collections
 import copy
 import random
 
@@ -95,27 +94,68 @@ class PredatorPreyEnvironment(environment.Environment):
     return PredatorPreyObservation(self.state, None, 0.0, None)
 
   def step(self, actions):
+    """Step with actions and return an observation.
+
+    Args:
+      actions (list): A list of actions of all objects.
+
+    Returns:
+      PredatorPreyObservation: Observation.
+    """
+    # Check the action size
     if len(actions) != self.options.get_total_object_size():
       raise ValueError('Action size should be equal to the object size')
+    # Set cached actions
     for object_index, action in enumerate(actions):
       self.cached_action[object_index] = action
+    # Update the state and return the observation
     return self.update_state()
 
   def step_without_obstacles(self, actions_wo):
+    """Step with actions and return an observation, but without actions of
+    obstacles.
+
+    Args:
+      actions_wo (list): A list of actions of predators and preys.
+
+    Returns:
+      PredatorPreyObservation: Observation.
+    """
+    # Prepare the actions
     actions = [None] * self.options.get_total_object_size()
+    # Get the object sizes and index ranges
     predator_size = self.options.object_size['PREDATOR']
     prey_size = self.options.object_size['PREY']
     predator_index_range = self.get_group_index_range('PREDATOR')
     prey_index_range = self.get_group_index_range('PREY')
+    # Fill in the actions
     actions[:predator_size] = actions_wo[slice(*predator_index_range)]
     actions[-prey_size:] = actions_wo[slice(*prey_index_range)]
+    # Use the filled actions to call the step function
     return self.step(actions)
 
   def take_action(self, actions):
+    """Take actions at once and return an observation.
+
+    Args:
+      actions (dict): A dict of actions in which keys are object indexes and
+      values are actions.
+
+    Returns:
+      PredatorPreyObservation: Observation.
+    """
     self.cached_action = actions
     return self.update_state()
 
   def take_cached_action(self, object_index, action):
+    """Take a cached action.
+
+    It's useful when giving a single action one by one.
+
+    Args:
+      object_index (int): The object index.
+      action (string): The intended action.
+    """
     self.cached_action[object_index] = action
 
   def update_state(self):
@@ -155,7 +195,10 @@ class PredatorPreyEnvironment(environment.Environment):
       self.cached_action[object_index] = None
 
   def _calc_group_index_ranges(self):
+    # Initialize the range
     self.object_index_range = {}
+    # Calculate start and end indexes for each group and increment the start
+    # index
     start_index = 0
     for group_name in self.group_names:
       end_index = start_index + self.options.object_size[group_name]
@@ -173,7 +216,8 @@ class PredatorPreyEnvironment(environment.Environment):
       # Skip if the cached action has been specified
       if self.cached_action[prey_object_index]:
         continue
-      # Select the previous action if it's frame skipping
+      # Select the previous action if it's frame skipping; otherwise, use
+      # rule-based action
       if self.state.get_object_frame_skip_index(prey_object_index) > 0:
         action = self.state.get_object_action(prey_object_index)
       else:
@@ -231,22 +275,31 @@ class PredatorPreyEnvironment(environment.Environment):
     self.state.increase_time_step()
 
   def _add_weighted_actions(self, prey_pos, predator_pos, weighted_actions):
+    # Only when the distance is within the partially observable range
     if self._is_distance_in_po(prey_pos, predator_pos):
+      # Get distances to move away
       distances = self._get_moved_away_distances(prey_pos, predator_pos)
+      # Choose the farthest distance
       action_index = np.argmax(distances)
+      # Get the farthest distance
       distance = distances[action_index]
+      # Get the action weight
       weight = self.action_weight[action_index]
+      # Add the weighted action
       weighted_actions[action_index] += weight / distance
 
   def _is_overlapping_allowed(self, object_index_list):
+    # Allow when there is only one object
     if len(object_index_list) == 1:
       return True
+    # Allow only when they are heterogeneous
     if len(object_index_list) == 2:
       group_name_list = [self.get_group_name(object_index)
                          for object_index in object_index_list]
       sorted_group_name_list = sorted(group_name_list)
       if sorted_group_name_list == ['PREDATOR', 'PREY']:
         return True
+    # Disallow when there are more than 2 objects
     return False
 
   def _is_distance_in_po(self, pos1, pos2):
@@ -303,15 +356,23 @@ class PredatorPreyEnvironment(environment.Environment):
     return self.cached_reward
 
   def _get_moved_away_distances(self, pos_move, pos_ref):
+    # Prepare the list
     moved_pos_list = [None for _ in self.actions]
+    # Fill in the list with each action
     for action_index, action in enumerate(self.actions):
+      # Get the position after the move
       moved_pos = self._get_moved_pos(pos_move, action)
+      # Check whether the position has been occupied
       no_overlap = self.state.get_pos_status(moved_pos) is None
+      # Check whether the position is in the field
       in_field = moved_pos in self.map_data.field
+      # Choose the moved position when the 2 conditions are both true;
+      # otherwise, use the original position
       if no_overlap and in_field:
         moved_pos_list[action_index] = moved_pos
       else:
         moved_pos_list[action_index] = pos_move
+    # Calculate distances for each moved position
     distances = [self._get_pos_distance(moved_pos, pos_ref)
                  for moved_pos in moved_pos_list]
     return distances
@@ -474,10 +535,13 @@ class PredatorPreyState(object):
   def randomize(self):
     free_pos = copy.deepcopy(self.map_data.field)
     random.shuffle(free_pos)
+    # Randomize the position of each object in each group
     for group_name in self.env.group_names:
       index_range = self.env.get_group_index_range(group_name)
       for object_index in range(*index_range):
+        # Get one of the shuffled position in the field
         pos = free_pos[object_index]
+        # Update the position
         self.set_object_pos(object_index, pos)
 
   def is_terminal(self):
@@ -636,9 +700,11 @@ class PredatorPreyState(object):
     pair_size = 5
     features = np.zeros(pair_size * total_object_size)
     for object_index in range(total_object_size):
+      # Get position, velocity, and availability
       pos = self.get_object_pos(object_index)
       vel = self.get_object_vel(object_index)
       availability = self.get_object_availability(object_index)
+      # Fill in the feature list
       features[pair_size * object_index + 0] = pos[0]
       features[pair_size * object_index + 1] = pos[1]
       features[pair_size * object_index + 2] = vel[0]
