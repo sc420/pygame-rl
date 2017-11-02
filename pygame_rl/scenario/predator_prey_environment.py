@@ -290,17 +290,20 @@ class PredatorPreyEnvironment(environment.Environment):
 
   def _is_overlapping_allowed(self, object_index_list):
     # Allow when there is only one object
-    if len(object_index_list) == 1:
+    if len(object_index_list) <= 1:
       return True
-    # Allow only when they are heterogeneous
-    if len(object_index_list) == 2:
+    else:
+      # Get the group names
       group_name_list = [self.get_group_name(object_index)
                          for object_index in object_index_list]
-      sorted_group_name_list = sorted(group_name_list)
-      if sorted_group_name_list == ['PREDATOR', 'PREY']:
+      # Count the group names
+      predator_count = group_name_list.count('PREDATOR')
+      prey_count = group_name_list.count('PREY')
+      # Allow when there are more than 1 predators and at least 1 prey
+      if predator_count >= 2 and prey_count >= 1:
         return True
-    # Disallow when there are more than 2 objects
-    return False
+      else:
+        return False
 
   def _is_distance_in_po(self, pos1, pos2):
     distance = self._get_pos_distance(pos1, pos2)

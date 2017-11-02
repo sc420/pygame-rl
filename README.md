@@ -36,7 +36,7 @@ The computer agent has 4 strategies. The internal algorithm of either approachin
 
 ![screenshot](docs/screenshot_predator_prey.png "Predator-prey Screenshot")
 
-There are fixed amount of predators (Steve head), preys (Cake) and obstacles (Cobblestone) on the field (Snow). Each agent can take five actions: moving to 4-direction grid points or standing still at each time step. Overlapping is only allowed when one predator and one prey intends to move to the same grid point.
+There are fixed amount of predators (Steve head), preys (Cake) and obstacles (Cobblestone) on the field (Snow). Each agent can take five actions: moving to 4-direction grid points or standing still at each time step. Overlapping is only allowed when more than 1 predators and at least one prey intends to move to the same grid point.
 
 Player controls predators while computer controls rule-based preys. Preys evade predators based on the directions and distances to predators. When a predator catches a prey, the prey disappears from the field, and a reward of 1.0 is given; A reward of 0.0 is given at all other time steps. The episode ends when there are no more preys or the time step reaches 100.
 
