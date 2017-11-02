@@ -113,5 +113,5 @@ snakeviz environment_advanced.prof
 
 The materials of the tileset comes from the following links:
 
-* [Minecraft Sprite](http://minecraft.gamepedia.com/index.php?title=File:BlockCSS.png)
-* [Minecraft Pig Face Sprite](https://kandipatterns.com/patterns/characters/minecraft-pig-face-16x16-21979)
+* [Minecraft Block Sprite](http://minecraft.gamepedia.com/index.php?title=File:BlockCSS.png)
+* [Minecraft Entity Sprite](https://minecraft.gamepedia.com/index.php?title=File:EntityCSS.png)

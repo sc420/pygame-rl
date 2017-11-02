@@ -1,24 +1,60 @@
 AGENT1:
-  x: 1
-  y: 6
-AGENT1_BALL:
-  x: 2
-  y: 6
+  x: 0
+  y: 0
 AGENT2:
   x: 1
-  y: 7
-AGENT2_BALL:
-  x: 2
-  y: 7
+  y: 0
 AGENT3:
-  x: 18
-  y: 6
-AGENT3_BALL:
-  x: 19
-  y: 6
+  x: 2
+  y: 0
 AGENT4:
-  x: 18
-  y: 7
+  x: 3
+  y: 0
+AGENT5:
+  x: 4
+  y: 0
+AGENT6:
+  x: 5
+  y: 0
+AGENT7:
+  x: 6
+  y: 0
+AGENT8:
+  x: 7
+  y: 0
+AGENT9:
+  x: 8
+  y: 0
+AGENT10:
+  x: 9
+  y: 0
+AGENT1_BALL:
+  x: 0
+  y: 1
+AGENT2_BALL:
+  x: 1
+  y: 1
+AGENT3_BALL:
+  x: 2
+  y: 1
 AGENT4_BALL:
-  x: 19
-  y: 7
+  x: 3
+  y: 1
+AGENT5_BALL:
+  x: 4
+  y: 1
+AGENT6_BALL:
+  x: 5
+  y: 1
+AGENT7_BALL:
+  x: 6
+  y: 1
+AGENT8_BALL:
+  x: 7
+  y: 1
+AGENT9_BALL:
+  x: 8
+  y: 1
+AGENT10_BALL:
+  x: 9
+  y: 1

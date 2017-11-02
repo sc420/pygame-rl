@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.0.2" orientation="orthogonal" renderorder="right-down" width="9" height="6" tilewidth="32" tileheight="32" nextobjectid="3">
- <tileset firstgid="1" source="minecraft.tsx"/>
+<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="9" height="6" tilewidth="32" tileheight="32" nextobjectid="3">
+ <tileset firstgid="1" source="minecraft_sprite.tsx"/>
  <layer name="ground" width="9" height="6">
   <properties>
    <property name="background" type="bool" value="true"/>
@@ -35,10 +35,10 @@
    <property name="sprite" type="file" value="agent_sprite.yaml"/>
   </properties>
   <data encoding="csv">
-0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,
-0,237,794,0,0,0,238,796,0,
-0,793,795,0,0,0,234,797,0,
+234,235,236,237,238,853,854,855,856,
+857,0,0,0,0,0,0,0,0,
+829,830,831,832,833,877,878,879,880,
+881,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0
 </data>
