@@ -19,7 +19,7 @@ def main():
 
   # Create a soccer environment options
   env_options = soccer_environment.SoccerEnvironmentOptions(
-      map_path=map_path, team_size=2, ai_frame_skip=2)
+      map_path=map_path, team_size=5, ai_frame_skip=2)
 
   # Create a renderer options
   renderer_options = soccer_renderer.RendererOptions(
