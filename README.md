@@ -72,7 +72,7 @@ Run and see the sample files in `sample/` to get started.
 
 1. Install the test dependencies.
 ```shell
-pip install .[test]
+pip install -e .[test]
 ```
 
 ### Running the Tests
