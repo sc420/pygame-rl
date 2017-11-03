@@ -125,16 +125,26 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
         # Detect the keydown event
         if self.renderer_options.enable_key_events:
           if event.type == pygame.locals.KEYDOWN:
+            # Get the agent index of the first player
+            team_agent_index = 0
+            agent_index = self.env.get_agent_index(
+                'PLAYER', team_agent_index)
+            # Prepare the cached action
+            cached_action = None
             if event.key == pygame.locals.K_RIGHT:
-              self.env.take_action('MOVE_RIGHT')
+              cached_action = 'MOVE_RIGHT'
             elif event.key == pygame.locals.K_UP:
-              self.env.take_action('MOVE_UP')
+              cached_action = 'MOVE_UP'
             elif event.key == pygame.locals.K_LEFT:
-              self.env.take_action('MOVE_LEFT')
+              cached_action = 'MOVE_LEFT'
             elif event.key == pygame.locals.K_DOWN:
-              self.env.take_action('MOVE_DOWN')
+              cached_action = 'MOVE_DOWN'
             elif event.key == pygame.locals.K_s:
-              self.env.take_action('STAND')
+              cached_action = 'STAND'
+            # Take the cached action and update the state
+            if cached_action:
+              self.env.take_cached_action(agent_index, cached_action)
+              self.env.update_state()
 
     # Indicate the rendering should continue
     return True
