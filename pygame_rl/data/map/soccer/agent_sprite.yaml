@@ -14,47 +14,47 @@ AGENT5:
   x: 4
   y: 0
 AGENT6:
-  x: 5
-  y: 0
-AGENT7:
-  x: 6
-  y: 0
-AGENT8:
-  x: 7
-  y: 0
-AGENT9:
-  x: 8
-  y: 0
-AGENT10:
-  x: 0
-  y: 1
-AGENT1_BALL:
   x: 0
   y: 2
-AGENT2_BALL:
+AGENT7:
   x: 1
   y: 2
-AGENT3_BALL:
+AGENT8:
   x: 2
   y: 2
-AGENT4_BALL:
+AGENT9:
   x: 3
   y: 2
-AGENT5_BALL:
+AGENT10:
   x: 4
   y: 2
-AGENT6_BALL:
-  x: 5
-  y: 2
-AGENT7_BALL:
-  x: 6
-  y: 2
-AGENT8_BALL:
-  x: 7
-  y: 2
-AGENT9_BALL:
-  x: 8
-  y: 2
-AGENT10_BALL:
+AGENT1_BALL:
   x: 0
+  y: 1
+AGENT2_BALL:
+  x: 1
+  y: 1
+AGENT3_BALL:
+  x: 2
+  y: 1
+AGENT4_BALL:
+  x: 3
+  y: 1
+AGENT5_BALL:
+  x: 4
+  y: 1
+AGENT6_BALL:
+  x: 0
+  y: 3
+AGENT7_BALL:
+  x: 1
+  y: 3
+AGENT8_BALL:
+  x: 2
+  y: 3
+AGENT9_BALL:
+  x: 3
+  y: 3
+AGENT10_BALL:
+  x: 4
   y: 3
