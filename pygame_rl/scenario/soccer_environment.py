@@ -630,9 +630,6 @@ class SoccerEnvironmentOptions(object):
       self.map_path = map_path
     else:
       self.map_path = file_util.get_resource_path(self.map_resource_name)
-    # Check the team size
-    if not (team_size >= 1 and team_size <= 2):
-      raise ValueError('"team_size" should be either 1 or 2')
     # Save the team size
     self.team_size = team_size
     # Save the frame skip
