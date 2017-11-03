@@ -21,7 +21,7 @@ def main():
 
   # Resolve the map path relative to this file
   map_path = file_util.resolve_path(
-      __file__, '../data/map/soccer/soccer_large.tmx')
+      __file__, '../data/map/soccer/soccer_21x14_goal_4.tmx')
 
   # Create a soccer environment options
   # "map_data" is specified to use the custom map.
