@@ -214,9 +214,11 @@ class TiledRenderer(TiledLoader):
       numpy.ndarray: The full screenshot.
     """
     # Get the entire image
-    image = pygame.surfarray.array3d(self.screen)
+    image = pygame.surfarray.pixels3d(self.screen)
     # Swap the axes as the X and Y axes in Pygame and Scipy are opposite
-    return np.swapaxes(image, 0, 1)
+    image_rotated = np.swapaxes(image, 0, 1)
+    # Copy the array, otherwise the surface will be locked
+    return np.array(image_rotated)
 
   def get_po_screenshot(self, pos, radius):
     """Get the partially observable (po) screenshot.
