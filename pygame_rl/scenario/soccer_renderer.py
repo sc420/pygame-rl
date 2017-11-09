@@ -58,8 +58,6 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
 
     # Create the agent sprite group
     self.agents = pygame.sprite.RenderUpdates()
-    for overlay in self.overlays.values():
-      self.agents.add(overlay)
 
     # Blit the background to the screen
     self.screen.blit(self.background, [0, 0])
