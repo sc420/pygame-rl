@@ -289,6 +289,9 @@ class PredatorPreyEnvironment(environment.Environment):
 
   def _add_weighted_predator_actions(self, predator_pos, prey_pos,
                                      weighted_actions):
+    # Only when the distance is within the partially observable range
+    if not self._is_distance_in_po(predator_pos, prey_pos):
+      return
     finder = astar.pathfinder(distance=astar.absolute_distance,
                               cost=self._pathfinder_weighted_cost(),
                               neighbors=self._pathfinder_grid_neighbors())
@@ -307,17 +310,18 @@ class PredatorPreyEnvironment(environment.Environment):
   def _add_weighted_prey_actions(self, prey_pos, predator_pos,
                                  weighted_actions):
     # Only when the distance is within the partially observable range
-    if self._is_distance_in_po(prey_pos, predator_pos):
-      # Get distances to move away
-      distances = self._get_moved_away_distances(prey_pos, predator_pos)
-      # Choose the farthest distance
-      action_index = np.argmax(distances)
-      # Get the farthest distance
-      distance = distances[action_index]
-      # Get the action weight
-      weight = self.action_weight[action_index]
-      # Add the weighted action
-      weighted_actions[action_index] += weight / distance
+    if not self._is_distance_in_po(prey_pos, predator_pos):
+      return
+    # Get distances to move away
+    distances = self._get_moved_away_distances(prey_pos, predator_pos)
+    # Choose the farthest distance
+    action_index = np.argmax(distances)
+    # Get the farthest distance
+    distance = distances[action_index]
+    # Get the action weight
+    weight = self.action_weight[action_index]
+    # Add the weighted action
+    weighted_actions[action_index] += weight / distance
 
   def _is_overlapping_allowed(self, object_index_list):
     # Get the group names
@@ -347,17 +351,19 @@ class PredatorPreyEnvironment(environment.Environment):
       return None
 
   def _get_predator_ai_action(self, predator_object_index):
+    # Get predator position
+    predator_pos = self.state.get_object_pos(predator_object_index)
     # Get index ranges
     prey_index_range = self.get_group_index_range('PREY')
-    predator_pos = self.state.get_object_pos(predator_object_index)
     # Calculate weighted actions
     weighted_actions = [0.0 for _ in self.actions]
     for prey_object_index in range(*prey_index_range):
       # Skip unavailable prey
       if not self.state.get_object_availability(prey_object_index):
         continue
-      # Add weighted actions
+      # Get prey position
       prey_pos = self.state.get_object_pos(prey_object_index)
+      # Add weighted actions
       self._add_weighted_predator_actions(
           predator_pos, prey_pos, weighted_actions)
     # Add noises to the weighted actions
@@ -367,15 +373,16 @@ class PredatorPreyEnvironment(environment.Environment):
     return self.actions[action_index]
 
   def _get_prey_ai_action(self, prey_object_index):
+    # Get prey position
+    prey_pos = self.state.get_object_pos(prey_object_index)
     # Get index ranges
     predator_index_range = self.get_group_index_range('PREDATOR')
-    # Get predator positions
-    predator_pos_list = [self.state.get_object_pos(object_index)
-                         for object_index in range(*predator_index_range)]
-    prey_pos = self.state.get_object_pos(prey_object_index)
     # Calculate weighted actions
     weighted_actions = [0.0 for _ in self.actions]
-    for predator_pos in predator_pos_list:
+    for predator_object_index in range(*predator_index_range):
+      # Get predator position
+      predator_pos = self.state.get_object_pos(predator_object_index)
+      # Add weighted actions
       self._add_weighted_prey_actions(prey_pos, predator_pos, weighted_actions)
     # Add noises to the weighted actions
     weighted_actions = self._get_noised_values(weighted_actions)
