@@ -150,6 +150,9 @@ class SoccerEnvironment(environment.Environment):
     else:
       raise KeyError('Unknown team name {}'.format(team_name))
 
+  def get_team_agent_index(self, agent_index):
+    return agent_index % self.options.team_size
+
   def _init_cached_action(self):
     self.cached_action = {}
     for team_name in self.team_names:
@@ -716,6 +719,9 @@ class SoccerState(object):
   # after it reaches the frame skip
   agent_list = []
 
+  # Position to object index map
+  pos_map = None
+
   # Time step
   time_step = 0
 
@@ -736,13 +742,9 @@ class SoccerState(object):
 
   def reset(self):
     # Initialize the agent list
-    self.agent_list = [{} for _ in range(self.env_options.get_agent_size())]
-    for agent_index in range(self.env_options.get_agent_size()):
-      self.set_agent_pos(agent_index, None)
-      self.set_agent_ball(agent_index, False)
-      self.set_agent_mode(agent_index, None)
-      self.set_agent_action(agent_index, None)
-      self.set_agent_frame_skip_index(agent_index, 0)
+    self._reset_agent_list()
+    # Reset position map
+    self._reset_pos_map()
     # Randomize the agent statuses
     self.randomize()
     # Initialize the time step
@@ -811,6 +813,17 @@ class SoccerState(object):
     return self.agent_list[agent_index]['pos']
 
   def set_agent_pos(self, agent_index, pos):
+    # Get old position
+    old_pos = self.agent_list[agent_index].get('pos', None)
+    # Remove old position from map
+    if old_pos:
+      old_pos_tuple = tuple(old_pos)
+      self.pos_map.pop(old_pos_tuple, None)
+    # Set position in map
+    if pos:
+      pos_tuple = tuple(pos)
+      self.pos_map[pos_tuple] = agent_index
+    # Set the new position
     self.agent_list[agent_index]['pos'] = pos
 
   def get_agent_ball(self, agent_index):
@@ -838,16 +851,18 @@ class SoccerState(object):
     self.agent_list[agent_index]['frame_skip_index'] = frame_skip_index
 
   def get_pos_status(self, pos):
-    for team_name in self.env.team_names:
-      for team_agent_index in range(self.env_options.team_size):
-        agent_index = self.env.get_agent_index(team_name, team_agent_index)
-        if pos == self.get_agent_pos(agent_index):
-          return {
-              'team_name': team_name,
-              'team_agent_index': team_agent_index,
-              'agent_index': agent_index,
-          }
-    return None
+    pos_tuple = tuple(pos)
+    agent_index = self.pos_map.get(pos_tuple, None)
+    if agent_index:
+      team_name = self.env.get_team_name(agent_index)
+      team_agent_index = self.env.get_team_agent_index(agent_index)
+      return {
+          'team_name': team_name,
+          'team_agent_index': team_agent_index,
+          'agent_index': agent_index,
+      }
+    else:
+      return None
 
   def get_ball_possession(self):
     for team_name in self.env.team_names:
@@ -873,6 +888,18 @@ class SoccerState(object):
 
   def increase_time_step(self):
     self.time_step += 1
+
+  def _reset_agent_list(self):
+    self.agent_list = [{} for _ in range(self.env_options.get_agent_size())]
+    for agent_index in range(self.env_options.get_agent_size()):
+      self.set_agent_pos(agent_index, None)
+      self.set_agent_ball(agent_index, False)
+      self.set_agent_mode(agent_index, None)
+      self.set_agent_action(agent_index, None)
+      self.set_agent_frame_skip_index(agent_index, 0)
+
+  def _reset_pos_map(self):
+    self.pos_map = {}
 
   def __repr__(self):
     message = ''
