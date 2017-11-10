@@ -22,13 +22,16 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
   display_quitted = False
 
   # TMX objects
-  overlays = None
+  static_overlays = None
 
   # Clock object (pygame.time.Clock())
   clock = None
 
-  # Render updates (pygame.sprite.RenderUpdates)
-  agents = None
+  # Dirty groups (pygame.sprite.RenderUpdates)
+  dirty_groups = None
+
+  # Previous ball state
+  prev_ball_state = None
 
   def __init__(self, map_path, env, renderer_options=None):
     super().__init__(map_path)
@@ -53,11 +56,14 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
     # Get the background
     self.background = super().get_background()
 
-    # Get the overlay
-    self.overlays = super().get_overlays()
+    # Get the static overlays
+    self.static_overlays = super().get_overlays()
 
-    # Create the agent sprite group
-    self.agents = pygame.sprite.RenderUpdates()
+    # Initialize previous ball state
+    self._init_prev_ball_state()
+
+    # Initialize the dirty group
+    self._load_dirty_group()
 
     # Blit the background to the screen
     self.screen.blit(self.background, [0, 0])
@@ -80,30 +86,14 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
       self.display_quitted = True
 
     # Clear the overlays
-    self.agents.clear(self.screen, self.background)
+    self.dirty_groups.clear(self.screen, self.background)
 
     # Update the overlays by the environment state
-    self.agents.empty()
-    for agent_index in range(self.env.options.get_agent_size()):
-      name_no_ball = 'AGENT{}'.format(agent_index + 1)
-      name_has_ball = 'AGENT{}_BALL'.format(agent_index + 1)
-      agent_no_ball = self.overlays[name_no_ball]
-      agent_has_ball = self.overlays[name_has_ball]
-      # Get the agent state
-      agent_pos = self.env.state.get_agent_pos(agent_index)
-      has_ball = self.env.state.get_agent_ball(agent_index)
-      # Choose the overlay
-      if has_ball:
-        agent = agent_has_ball
-      else:
-        agent = agent_no_ball
-      # Set the overlay position
-      agent.set_pos(agent_pos)
-      # Add the sprite to the group
-      self.agents.add(agent)
+    self._update_overlay_pos()
+    self._update_overlay_visibility()
 
     # Draw the overlays
-    dirty = self.agents.draw(self.screen)
+    dirty = self.dirty_groups.draw(self.screen)
 
     # Update only the dirty surface
     if self.renderer_options.show_display:
@@ -146,6 +136,50 @@ class SoccerRenderer(pygame_renderer.TiledRenderer):
 
     # Indicate the rendering should continue
     return True
+
+  def _init_prev_ball_state(self):
+    agent_size = self.env.options.get_agent_size()
+    self.prev_ball_state = agent_size * [None]
+
+  def _load_dirty_group(self):
+    self.dirty_groups = pygame.sprite.RenderUpdates()
+
+  def _update_overlay_pos(self):
+    for agent_index in range(self.env.options.get_agent_size()):
+      [overlay_has_ball, overlay_no_ball] = self._get_overlays(agent_index)
+      has_ball = self.env.state.get_agent_ball(agent_index)
+      agent_pos = self.env.state.get_agent_pos(agent_index)
+      if has_ball:
+        overlay_has_ball.set_pos(agent_pos)
+      else:
+        overlay_no_ball.set_pos(agent_pos)
+
+  def _update_overlay_visibility(self):
+    for agent_index in range(self.env.options.get_agent_size()):
+      # Get the static overlays
+      [overlay_has_ball, overlay_no_ball] = self._get_overlays(agent_index)
+      # Check whether the agent has the ball
+      has_ball = self.env.state.get_agent_ball(agent_index)
+      # Get the previous ball state
+      prev_has_ball = self.prev_ball_state[agent_index]
+      # Check whether the ball state has changed
+      if prev_has_ball is None or prev_has_ball != has_ball:
+        # Remove the old sprite and add the new sprite in the dirty group
+        if has_ball:
+          self.dirty_groups.remove(overlay_no_ball)
+          self.dirty_groups.add(overlay_has_ball)
+        else:
+          self.dirty_groups.remove(overlay_has_ball)
+          self.dirty_groups.add(overlay_no_ball)
+        # Set the previous ball state
+        self.prev_ball_state[agent_index] = has_ball
+
+  def _get_overlays(self, agent_index):
+    name_has_ball = 'AGENT{}_BALL'.format(agent_index + 1)
+    name_no_ball = 'AGENT{}'.format(agent_index + 1)
+    overlay_has_ball = self.static_overlays[name_has_ball]
+    overlay_no_ball = self.static_overlays[name_no_ball]
+    return [overlay_has_ball, overlay_no_ball]
 
 
 class RendererOptions(object):

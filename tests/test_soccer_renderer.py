@@ -16,11 +16,11 @@ class SoccerRendererTest(object):
   def test_load(self):
     self.renderer.load()
     # Check the types of the attributes
-    assert isinstance(self.renderer.overlays, dict)
+    assert isinstance(self.renderer.static_overlays, dict)
     assert not self.renderer.clock is None
     assert isinstance(self.renderer.screen, pygame.Surface)
     assert isinstance(self.renderer.background, pygame.Surface)
-    assert isinstance(self.renderer.agents, pygame.sprite.RenderUpdates)
+    assert isinstance(self.renderer.dirty_groups, pygame.sprite.RenderUpdates)
 
   def test_render(self):
     # The renderer should indicate to continue
@@ -28,7 +28,7 @@ class SoccerRendererTest(object):
     # The display should have quitted
     assert self.renderer.display_quitted
     # The agent sprites should contain exactly 2 sprites
-    assert len(self.renderer.agents.sprites()) == 2
+    assert len(self.renderer.dirty_groups.sprites()) == 2
 
   def test_get_screenshot(self):
     # Get the display size
