@@ -70,11 +70,10 @@ def main():
       # Build actions without obstacles
       actions_wo = [None] * (env.options.object_size['PREDATOR'] +
                              env.options.object_size['PREY'])
-      for predator_index in range(env.options.object_size['PREDATOR']):
-        # Get a random action from the action list
-        action = random.choice(env.actions)
-        # Set the action
-        actions_wo[predator_index] = action
+      # Get a random action from the action list
+      action = random.choice(env.actions)
+      # Set the action of the first predator
+      actions_wo[0] = action
       # Update the environment and get observation
       observation = env.step_without_obstacles(actions_wo)
       # Check the terminal state
