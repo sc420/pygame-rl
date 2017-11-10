@@ -430,8 +430,7 @@ class SoccerEnvironment(environment.Environment):
 
   @staticmethod
   def get_pos_distance(pos1, pos2):
-    vec = [pos2[0] - pos1[0], pos2[1] - pos1[1]]
-    return np.linalg.norm(vec)
+    return math.hypot(pos2[0] - pos1[0], pos2[1] - pos1[1])
 
 
 class SoccerLegacyEnvironment(SoccerEnvironment):
