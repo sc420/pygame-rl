@@ -235,7 +235,7 @@ class TiledRenderer(TiledLoader):
       numpy.ndarray: The partially observable screenshot.
     """
     # Get the entire image
-    image = pygame.surfarray.array3d(self.screen)
+    image = pygame.surfarray.pixels3d(self.screen)
     # Get the size of a single tile as a Numpy array
     tile_size = np.array(self.get_tile_size())
     # Get the size of the display
