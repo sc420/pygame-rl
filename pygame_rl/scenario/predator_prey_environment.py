@@ -337,7 +337,7 @@ class PredatorPreyEnvironment(environment.Environment):
       return False
 
   def _is_distance_in_po(self, pos1, pos2):
-    distance = self._get_pos_distance(pos1, pos2)
+    distance = get_pos_distance(pos1, pos2)
     po_distance = self.options.po_radius
     return distance <= po_distance
 
@@ -442,7 +442,7 @@ class PredatorPreyEnvironment(environment.Environment):
       else:
         moved_pos_list[action_index] = pos_move
     # Calculate distances for each moved position
-    distances = [self._get_pos_distance(moved_pos, pos_ref)
+    distances = [get_pos_distance(moved_pos, pos_ref)
                  for moved_pos in moved_pos_list]
     return distances
 
@@ -511,9 +511,6 @@ class PredatorPreyEnvironment(environment.Environment):
           return self.action_indexes['MOVE_LEFT']
       else:
         raise ValueError('Expect two positions to be adjacent')
-
-  def _get_pos_distance(self, pos1, pos2):
-    return math.hypot(pos2[0] - pos1[0], pos2[1] - pos1[1])
 
   def _get_noised_values(self, values):
     return [value + random.gauss(*self.gauss_noise) for value in values]
@@ -650,15 +647,28 @@ class PredatorPreyState(object):
 
   def randomize(self):
     free_pos = copy.deepcopy(self.map_data.field)
+    # Shuffle the positions
     random.shuffle(free_pos)
+    # Create a unused indicators
+    unused = [True] * len(free_pos)
     # Randomize the position of each object in each group
     for group_name in self.env.group_names:
       index_range = self.env.get_group_index_range(group_name)
       for object_index in range(*index_range):
         # Get one of the shuffled position in the field
-        pos = free_pos[object_index]
-        # Update the position
-        self.set_object_pos(object_index, pos)
+        found = False
+        for pos_index, pos in enumerate(free_pos):
+          if unused[pos_index] and self._check_no_adjacent_object(pos):
+            # Update the position
+            self.set_object_pos(object_index, pos)
+            # Set the unused indicator
+            unused[pos_index] = False
+            # Mark the position has been found
+            found = True
+            # Continue to the next object
+            break
+        if not found:
+          raise ValueError('Unable to find free position')
 
   def is_terminal(self):
     # When the time step hits the limit
@@ -828,6 +838,14 @@ class PredatorPreyState(object):
       features[pair_size * object_index + 4] = availability
     return features
 
+  def _check_no_adjacent_object(self, pos):
+    total_object_size = self.env_options.get_total_object_size()
+    for object_index in range(total_object_size):
+      object_pos = self.get_object_pos(object_index)
+      if object_pos and get_pos_distance(pos, object_pos) < 2:
+        return False
+    return True
+
   def _reset_object_list(self):
     total_object_size = self.env_options.get_total_object_size()
     # Initialize object lists
@@ -879,3 +897,7 @@ class PredatorPreyState(object):
     # The time step
     message += '\nTime step: {}'.format(self.time_step)
     return message
+
+
+def get_pos_distance(pos1, pos2):
+  return math.hypot(pos2[0] - pos1[0], pos2[1] - pos1[1])
