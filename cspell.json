@@ -53,6 +53,7 @@
   }, {
     "languageId": "python",
     "dictionaries": [
+      "math",
       "numpy",
       "pygame",
       "pypaths",
