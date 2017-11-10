@@ -11,12 +11,19 @@
   // For example "hte" should be "the"
   "flagWords": [],
   "dictionaryDefinitions": [{
+      "name": "math",
+      "path": "./dictionaries/math.txt"
+    }, {
       "name": "numpy",
       "path": "./dictionaries/numpy.txt"
     },
     {
       "name": "pygame",
       "path": "./dictionaries/pygame.txt"
+    },
+    {
+      "name": "pypaths",
+      "path": "./dictionaries/pypaths.txt"
     },
     {
       "name": "pytest",
@@ -48,6 +55,7 @@
     "dictionaries": [
       "numpy",
       "pygame",
+      "pypaths",
       "pytest",
       "pytmx",
       "scipy"
