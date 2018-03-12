@@ -152,7 +152,7 @@ class PredatorPreyEnvironment(environment.Environment):
         # Use the filled actions to call the step function
         return self.step(actions)
 
-    def take_action(self, actions):
+    def take_action(self, action):
         """Take actions at once and return an observation.
 
         Args:
@@ -162,7 +162,7 @@ class PredatorPreyEnvironment(environment.Environment):
         Returns:
             PredatorPreyObservation: Observation.
         """
-        self.cached_action = actions
+        self.cached_action = action
         return self.update_state()
 
     def take_cached_action(self, object_index, action):
@@ -331,10 +331,7 @@ class PredatorPreyEnvironment(environment.Environment):
         predator_count = group_name_list.count('PREDATOR')
         prey_count = group_name_list.count('PREY')
         # Allow when there are more than 1 predators and at least 1 prey
-        if predator_count >= 2 and prey_count >= 1:
-            return True
-        else:
-            return False
+        return predator_count >= 2 and prey_count >= 1
 
     def _is_distance_in_po(self, pos1, pos2):
         distance = get_pos_distance(pos1, pos2)
@@ -347,8 +344,6 @@ class PredatorPreyEnvironment(environment.Environment):
             return self._get_predator_ai_action(object_index)
         elif group_name == 'PREY':
             return self._get_prey_ai_action(object_index)
-        else:
-            return None
 
     def _get_predator_ai_action(self, predator_object_index):
         # Get predator position

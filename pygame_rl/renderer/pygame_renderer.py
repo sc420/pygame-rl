@@ -50,9 +50,6 @@ class TiledLoader(metaclass=abc.ABCMeta):
 
 
 class TiledData(TiledLoader):
-    def __init__(self, filename):
-        super().__init__(filename)
-
     def load(self):
         # Load the tiled map
         self.tiled_map = pytmx.TiledMap(self.filename)
@@ -94,11 +91,11 @@ class TiledData(TiledLoader):
                 for name in tile_name_to_tid.keys():
                     tile_name_to_pos[name] = []
                 # Add the positions
-                for (x, y, gid) in layer:
+                for (px, py, gid) in layer:
                     # Ignore the empty tile
                     if gid <= 0:
                         continue
-                    pos = [x, y]
+                    pos = [px, py]
                     tid = self.tiled_map.tiledgidmap[gid]
                     # Append when the mapping exists
                     if tid in tid_to_tile_name:
@@ -114,9 +111,6 @@ class TiledRenderer(TiledLoader):
     # Pygame surfaces (pygame.Surface)
     screen = None
     background = None
-
-    def __init__(self, filename):
-        super().__init__(filename)
 
     def load(self):
         # Load the tiled map
@@ -146,9 +140,9 @@ class TiledRenderer(TiledLoader):
         # Create a new Pygame surface by bliting all the images on it
         background = pygame.Surface(self.screen.get_size())
         for layer in background_layers:
-            for (x, y, image) in layer.tiles():
-                area = [x * self.tiled_map.tilewidth,
-                        y * self.tiled_map.tileheight]
+            for (px, py, image) in layer.tiles():
+                area = [px * self.tiled_map.tilewidth,
+                        py * self.tiled_map.tileheight]
                 background.blit(image, area)
         return background
 
@@ -175,8 +169,8 @@ class TiledRenderer(TiledLoader):
             if 'sprite' in layer.properties:
                 # Build the table by pointing the position to the image
                 pos_to_image = {}
-                for (x, y, image) in layer.tiles():
-                    pos_to_image[(x, y)] = image
+                for (px, py, image) in layer.tiles():
+                    pos_to_image[(px, py)] = image
                 # Get the sprite file path relative to the map file
                 path = layer.properties['sprite']
                 resolved_path = file_util.resolve_path(self.filename, path)
@@ -184,12 +178,12 @@ class TiledRenderer(TiledLoader):
                 sprite = file_util.read_yaml(resolved_path)
                 # Map the name to the sprite
                 for (name, pos) in sprite.items():
-                    x = pos['x']
-                    y = pos['y']
-                    pos = (x, y)
+                    px = pos['x']
+                    py = pos['y']
+                    pos = (px, py)
                     if pos not in pos_to_image:
                         raise KeyError('{} ({}, {}) is not found in the layer'
-                                       .format(name, x, y))
+                                       .format(name, px, py))
                     # Get the image
                     image = pos_to_image[pos]
                     # Create a new sprite
