@@ -1,65 +1,70 @@
 // cSpell Settings
 {
-  // Version of the setting file.  Always 0.1
-  "version": "0.1",
-  // language - current active spelling language
-  "language": "en",
-  // words - list of words to be always considered correct
-  "words": [],
-  // flagWords - list of words to be always considered incorrect
-  // This is useful for offensive words and common spelling errors.
-  // For example "hte" should be "the"
-  "flagWords": [],
-  "dictionaryDefinitions": [{
-      "name": "math",
-      "path": "./dictionaries/math.txt"
-    }, {
-      "name": "numpy",
-      "path": "./dictionaries/numpy.txt"
-    },
-    {
-      "name": "pygame",
-      "path": "./dictionaries/pygame.txt"
-    },
-    {
-      "name": "pypaths",
-      "path": "./dictionaries/pypaths.txt"
-    },
-    {
-      "name": "pytest",
-      "path": "./dictionaries/pytest.txt"
-    },
-    {
-      "name": "pytmx",
-      "path": "./dictionaries/pytmx.txt"
-    },
-    {
-      "name": "readme",
-      "path": "./dictionaries/readme.txt"
-    },
-    {
-      "name": "scipy",
-      "path": "./dictionaries/scipy.txt"
-    }
-  ],
-  "dictionaries": [],
-  "languageSettings": [{
-    "languageId": "markdown",
-    "dictionaries": [
-      "pygame",
-      "pytest",
-      "readme"
+    // Version of the setting file.  Always 0.1
+    "version": "0.1",
+    // language - current active spelling language
+    "language": "en",
+    // words - list of words to be always considered correct
+    "words": [],
+    // flagWords - list of words to be always considered incorrect
+    // This is useful for offensive words and common spelling errors.
+    // For example "hte" should be "the"
+    "flagWords": [],
+    "dictionaryDefinitions": [
+        {
+            "name": "math",
+            "path": "./dictionaries/math.txt"
+        },
+        {
+            "name": "numpy",
+            "path": "./dictionaries/numpy.txt"
+        },
+        {
+            "name": "pygame",
+            "path": "./dictionaries/pygame.txt"
+        },
+        {
+            "name": "pypaths",
+            "path": "./dictionaries/pypaths.txt"
+        },
+        {
+            "name": "pytest",
+            "path": "./dictionaries/pytest.txt"
+        },
+        {
+            "name": "pytmx",
+            "path": "./dictionaries/pytmx.txt"
+        },
+        {
+            "name": "readme",
+            "path": "./dictionaries/readme.txt"
+        },
+        {
+            "name": "scipy",
+            "path": "./dictionaries/scipy.txt"
+        }
+    ],
+    "dictionaries": [],
+    "languageSettings": [
+        {
+            "languageId": "markdown",
+            "dictionaries": [
+                "pygame",
+                "pytest",
+                "readme"
+            ]
+        },
+        {
+            "languageId": "python",
+            "dictionaries": [
+                "math",
+                "numpy",
+                "pygame",
+                "pypaths",
+                "pytest",
+                "pytmx",
+                "scipy"
+            ]
+        }
     ]
-  }, {
-    "languageId": "python",
-    "dictionaries": [
-      "math",
-      "numpy",
-      "pygame",
-      "pypaths",
-      "pytest",
-      "pytmx",
-      "scipy"
-    ]
-  }]
 }

@@ -44,16 +44,16 @@ Player can control part of predators and preys. Rule-based predators approach pr
 
 ### Requirements
 
-- [Python 3.6](https://www.continuum.io/)
+* [Python 3.6](https://www.continuum.io/)
 
 ### Getting Started
 
 1. Clone the repository.
 2. Open a command line and change the working directory to the cloned directory.
 3. Install the package in [editable](https://pip.pypa.io/en/stable/reference/pip_install/#editable-installs) mode because this package is not intended to be published.
-```shell
-pip install -e .
-```
+    ```shell
+    pip install -e .
+    ```
 
 ### Running the Samples
 
@@ -71,43 +71,43 @@ Run and see the sample files in `sample/` to get started.
 ### Getting Started
 
 1. Install the test dependencies.
-```shell
-pip install -e .[test]
-```
+    ```shell
+    pip install -e .[test]
+    ```
 
 ### Running the Tests
 
 1. Run the tests with Pytest.
-```shell
-pytest
-```
+    ```shell
+    pytest
+    ```
 2. Debug the tests with Python.
-```shell
-python tests/main.py
-```
+    ```shell
+    python tests/main.py
+    ```
 
 ### Measuring Code Coverage
 
 1. Run the tests with Coverage.py.
-```shell
-coverage run tests/main.py
-```
+    ```shell
+    coverage run tests/main.py
+    ```
 2. Generate the web page report.
-```shell
-coverage html
-```
+    ```shell
+    coverage html
+    ```
 3. See the report in `htmlcov\index.html`.
 
 ### Measuring Performance
 
 1. Run the sample with cProfile.
-```shell
-python -m cProfile -o environment_advanced.prof sample/soccer/environment_advanced.py
-```
+    ```shell
+    python -m cProfile -o environment_advanced.prof sample/soccer/environment_advanced.py
+    ```
 2. See the report with SnakeViz.
-```shell
-snakeviz environment_advanced.prof
-```
+    ```shell
+    snakeviz environment_advanced.prof
+    ```
 
 ### Resources
 
