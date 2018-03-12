@@ -3,7 +3,7 @@
  <properties>
   <property name="tile" type="file" value="spawn_tile.yaml"/>
  </properties>
- <tileset firstgid="1" source="minecraft_sprite.tsx"/>
+ <tileset firstgid="1" source="minecraft_tileset.tsx"/>
  <layer name="ground" width="13" height="10">
   <properties>
    <property name="background" type="bool" value="true"/>
