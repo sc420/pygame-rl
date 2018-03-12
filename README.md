@@ -68,7 +68,7 @@ Run and see the sample files in `sample/` to get started.
 * [Tiled Map Editor](http://www.mapeditor.org/) for editing `.tmx` and `.tsx` files.
 * [GIMP](https://www.gimp.org/) for editing the image files.
 
-### Getting Started
+### Installing the Test Dependencies
 
 1. Install the test dependencies.
     ```shell
