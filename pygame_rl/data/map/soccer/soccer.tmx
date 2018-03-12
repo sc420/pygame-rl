@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" tiledversion="1.1.3" orientation="orthogonal" renderorder="right-down" width="9" height="6" tilewidth="32" tileheight="32" infinite="0" nextobjectid="3">
- <tileset firstgid="1" source="../../sprite/minecraft_sprite.tsx"/>
+ <tileset firstgid="1" source="minecraft_tileset.tsx"/>
  <layer name="ground" width="9" height="6">
   <properties>
    <property name="background" type="bool" value="true"/>
