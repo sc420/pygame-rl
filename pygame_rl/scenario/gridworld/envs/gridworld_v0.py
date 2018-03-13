@@ -25,7 +25,9 @@ class GridworldV0(gym.Env):
     # Environment Attributes
     ############################################################################
     # Environment options
-    options = None
+    env_options = None
+    # Renderer options
+    renderer_options = None
     # Map data
     map_data = None
     # Renderer
@@ -54,23 +56,6 @@ class GridworldV0(gym.Env):
     # Total object numbers
     total_object_num = 0
 
-    def __init__(self, env_options=None, renderer_options=None):
-        # Save or create environment options
-        self.options = env_options or options.GridworldOptions()
-        # Initialize object indexes
-        self._init_object_indexes()
-        # Load map data
-        self.map_data = map_data.GridworldMapData(self.options.map_path)
-        # Initialize renderer
-        self.renderer = renderer.GridworldRenderer(
-            self.options.map_path, self, renderer_options)
-        # Load the renderer
-        self.renderer.load()
-        # Initialize observation space
-        self._init_obs_space()
-        # Initialize action space
-        self.action_space = self.options.action_sapce
-
     ############################################################################
     # Gym Methods
     ############################################################################
@@ -79,10 +64,27 @@ class GridworldV0(gym.Env):
         pass
 
     def step(self, action):
-        return self.options.step_callback(self.state)
+        return self.env_options.step_callback(self.state)
 
     def reset(self):
-        self.state = self.options.reset_callback()
+        # Save or create environment options
+        self.env_options = self.env_options or options.GridworldOptions()
+        # Initialize object indexes
+        self._init_object_indexes()
+        # Load map data
+        self.map_data = map_data.GridworldMapData(self.env_options.map_path)
+        # Initialize renderer
+        self.renderer = renderer.GridworldRenderer(
+            self.env_options.map_path, self, self.renderer_options)
+        # Load the renderer
+        self.renderer.load()
+        # Initialize observation space
+        self._init_obs_space()
+        # Initialize action space
+        self.action_space = self.env_options.action_sapce
+        # Reset the state
+        self.state = self.env_options.reset_callback()
+        # Return initial observation
         return self._get_obs()
 
     def render(self, mode='human'):
@@ -97,9 +99,9 @@ class GridworldV0(gym.Env):
         global_index = 0
         # Iterate each group
         for group_index, group_name in enumerate(
-                self.options.sprite_group_names):
+                self.env_options.sprite_group_names):
             group_indexes = {}
-            group_size = self.options.sprite_group_sizes[group_index]
+            group_size = self.env_options.sprite_group_sizes[group_index]
             # Iterate each local object
             for local_index in range(group_size):
                 group_indexes[local_index] = global_index

@@ -89,7 +89,6 @@ class GridworldRenderer(pygame_renderer.TiledRenderer):
 
         # Update the overlays by the environment state
         self._update_overlay_pos()
-        self._update_overlay_visibility()
 
         # Draw the overlays
         dirty = self.dirty_groups.draw(self.screen)
@@ -113,17 +112,15 @@ class GridworldRenderer(pygame_renderer.TiledRenderer):
                 if self.renderer_options.enable_key_events:
                     if event.type == pygame.locals.KEYDOWN:
                         if event.key == pygame.locals.K_RIGHT:
-                            self.env.take_cached_action(0, 'MOVE_RIGHT')
+                            self.env.step(0)
                         elif event.key == pygame.locals.K_UP:
-                            self.env.take_cached_action(0, 'MOVE_UP')
+                            self.env.step(1)
                         elif event.key == pygame.locals.K_LEFT:
-                            self.env.take_cached_action(0, 'MOVE_LEFT')
+                            self.env.step(2)
                         elif event.key == pygame.locals.K_DOWN:
-                            self.env.take_cached_action(0, 'MOVE_DOWN')
+                            self.env.step(3)
                         elif event.key == pygame.locals.K_s:
-                            self.env.take_cached_action(0, 'STAND')
-                        # Update the state
-                        self.env.update_state()
+                            self.env.step(4)
 
         # Indicate the rendering should continue
         return True
@@ -141,15 +138,10 @@ class GridworldRenderer(pygame_renderer.TiledRenderer):
         self.dirty_groups.add(self.moving_overlays)
 
     def _update_overlay_pos(self):
-        for object_index in range(self.env.options.get_total_object_size()):
-            pos = self.env.state.get_object_pos(object_index)
-            self.moving_overlays[object_index].set_pos(pos)
-
-    def _update_overlay_visibility(self):
-        for object_index in range(self.env.options.get_total_object_size()):
-            availability = self.env.state.get_object_availability(object_index)
-            if not availability:
-                self.dirty_groups.remove(self.moving_overlays[object_index])
+        for group_name, positions in self.env.state.items():
+            for local_index, pos in enumerate(positions):
+                global_index = self.env.object_indexes[group_name][local_index]
+                self.moving_overlays[global_index].set_pos(pos)
 
 
 class RendererOptions(object):
