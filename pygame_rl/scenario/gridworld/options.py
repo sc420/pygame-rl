@@ -18,21 +18,21 @@ class GridworldOptions:
     map_path = None
     # Action space
     action_sapce = None
-    # Sprite group names
-    sprite_group_names = None
-    # Sprite group sizes
-    sprite_group_sizes = None
+    # Group names
+    group_names = None
+    # Group sizes
+    group_sizes = None
     # Callback to step
     step_callback = None
     # Callback to reset state
     reset_callback = None
 
     def __init__(self, map_path=None, action_space=None,
-                 sprite_group_names=None, sprite_group_sizes=None,
+                 group_names=None, group_sizes=None,
                  step_callback=None, reset_callback=None):
         self._init_map_path(map_path)
         self._init_action_space(action_space)
-        self._init_sprite_group(sprite_group_names, sprite_group_sizes)
+        self._init_group(group_names, group_sizes)
         self._init_step_callback(step_callback)
         self._init_reset_callback(reset_callback)
 
@@ -49,16 +49,16 @@ class GridworldOptions:
             # 4-directional walk and stand still
             self.action_sapce = gym.spaces.Discrete(5)
 
-    def _init_sprite_group(self, sprite_group_names, sprite_group_sizes):
-        if sprite_group_names and sprite_group_sizes:
-            if len(self.sprite_group_names) != len(self.sprite_group_sizes):
+    def _init_group(self, group_names, group_sizes):
+        if group_names and group_sizes:
+            if len(self.group_names) != len(self.group_sizes):
                 raise ValueError('Length of group names and sizes should be the'
                                  'same')
-            self.sprite_group_names = sprite_group_names
-            self.sprite_group_sizes = sprite_group_sizes
+            self.group_names = group_names
+            self.group_sizes = group_sizes
         else:
             # Set default group names and sizes in internal map
-            self.sprite_group_names = [
+            self.group_names = [
                 'PLAYER1',
                 'PLAYER2',
                 'PLAYER3',
@@ -66,7 +66,7 @@ class GridworldOptions:
                 'OBSTACLE1',
                 'OBSTACLE2',
             ]
-            self.sprite_group_sizes = [
+            self.group_sizes = [
                 1,
                 1,
                 1,
@@ -76,12 +76,60 @@ class GridworldOptions:
             ]
 
     def _init_step_callback(self, step_callback):
-        def default_callback(prev_state):
+        def default_callback(prev_state, action):
             state = copy.deepcopy(prev_state)
-            reward = 0.0
-            done = False
+            # Get player 1 position
+            pos = prev_state['PLAYER1'][0]
+            # Set new position
+            new_pos = np.array(pos)
+            if action == 0:  # Move right
+                new_pos[0] += 1
+            elif action == 1:  # Move up
+                new_pos[1] -= 1
+            elif action == 2:  # Move left
+                new_pos[0] -= 1
+            elif action == 3:  # Move down
+                new_pos[1] += 1
+            elif action == 4:  # Stand still
+                pass
+            else:
+                raise ValueError('Unknown action: {}'.format(action))
+            # Update state
+            if is_valid_pos(new_pos, prev_state):
+                state['PLAYER1'][0] = new_pos
+            done = is_done(pos, state)
+            reward = 1.0 if done else 0.0
             info = {}
             return state, reward, done, info
+
+        def is_valid_pos(pos, prev_state):
+            in_bound = (pos[0] >= 0 and pos[0] < 9 and
+                        pos[1] >= 0 and pos[1] < 9)
+            collision_group_names = [
+                'PLAYER2',
+                'PLAYER3',
+                'OBSTACLE1',
+                'OBSTACLE2',
+            ]
+            no_collision = not check_collision(
+                pos, collision_group_names, prev_state)
+            return in_bound and no_collision
+
+        def is_done(pos, state):
+            collision_group_names = [
+                'GOAL',
+            ]
+            return check_collision(pos, collision_group_names, state)
+
+        def check_collision(pos, collision_group_names, state):
+            for group_index, group_name in enumerate(self.group_names):
+                if not group_name in collision_group_names:
+                    continue
+                for local_index in range(self.group_sizes[group_index]):
+                    other_pos = state[group_name][local_index]
+                    if np.array_equal(pos, other_pos):
+                        return True
+            return False
 
         if step_callback:
             self.step_callback = step_callback

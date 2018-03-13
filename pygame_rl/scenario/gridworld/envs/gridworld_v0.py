@@ -64,7 +64,10 @@ class GridworldV0(gym.Env):
         pass
 
     def step(self, action):
-        return self.env_options.step_callback(self.state)
+        next_state, reward, done, info = self.env_options.step_callback(
+            self.state, action)
+        self.state = next_state
+        return next_state, reward, done, info
 
     def reset(self):
         # Save or create environment options
@@ -98,10 +101,9 @@ class GridworldV0(gym.Env):
         self.object_indexes = {}
         global_index = 0
         # Iterate each group
-        for group_index, group_name in enumerate(
-                self.env_options.sprite_group_names):
+        for group_index, group_name in enumerate(self.env_options.group_names):
             group_indexes = {}
-            group_size = self.env_options.sprite_group_sizes[group_index]
+            group_size = self.env_options.group_sizes[group_index]
             # Iterate each local object
             for local_index in range(group_size):
                 group_indexes[local_index] = global_index
