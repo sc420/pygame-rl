@@ -26,7 +26,7 @@ def main():
         # Reset the environment
         state = env.reset()
         # Print the initial state
-        print('Initial observation:\n{}\n'.format(state))
+        print('Initial state:\n{}\n'.format(state))
         # Run the episode
         done = False
         timestep = 0
@@ -41,10 +41,10 @@ def main():
             next_state, reward, done, _ = env.step(random_action)
             # Print the status
             print('Timestep: {}'.format(timestep + 1))
-            print('Next state:\n{}\n'.format(next_state))
             print('Reward: {}'.format(reward))
             # Transition to the next state
             state = next_state
+            timestep += 1
 
     # # Save the last screenshot
     # env.render()

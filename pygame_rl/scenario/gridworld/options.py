@@ -1,5 +1,9 @@
+# Native modules
+import copy
+
 # Third-party modules
 import gym
+import numpy as np
 
 # User-defined modules
 import pygame_rl.util.file_util as file_util
@@ -18,16 +22,19 @@ class GridworldOptions:
     sprite_group_names = None
     # Sprite group sizes
     sprite_group_sizes = None
-    # Callback to update overlays
-    update_overlay_callback = None
+    # Callback to step
+    step_callback = None
+    # Callback to reset state
+    reset_callback = None
 
     def __init__(self, map_path=None, action_space=None,
                  sprite_group_names=None, sprite_group_sizes=None,
-                 update_overlay_callback=None):
+                 step_callback=None, reset_callback=None):
         self._init_map_path(map_path)
         self._init_action_space(action_space)
         self._init_sprite_group(sprite_group_names, sprite_group_sizes)
-        self.update_overlay_callback = update_overlay_callback
+        self._init_step_callback(step_callback)
+        self._init_reset_callback(reset_callback)
 
     def _init_map_path(self, map_path):
         if map_path:
@@ -67,3 +74,50 @@ class GridworldOptions:
                 5,
                 1,
             ]
+
+    def _init_step_callback(self, step_callback):
+        def default_callback(prev_state):
+            state = copy.deepcopy(prev_state)
+            reward = 0.0
+            done = False
+            info = {}
+            return state, reward, done, info
+
+        if step_callback:
+            self.step_callback = step_callback
+        else:
+            self.step_callback = default_callback
+
+    def _init_reset_callback(self, reset_callback):
+        def default_callback():
+            return {
+                'PLAYER1': np.asarray([
+                    np.array([0, 0]),
+                ]),
+                'PLAYER2': np.asarray([
+                    np.array([8, 0]),
+                ]),
+                'PLAYER3': np.asarray([
+                    np.array([0, 8]),
+                ]),
+                'GOAL': np.asarray([
+                    np.array([8, 4]),
+                    np.array([4, 8]),
+                    np.array([8, 8]),
+                ]),
+                'OBSTACLE1': np.asarray([
+                    np.array([4, 3]),
+                    np.array([3, 4]),
+                    np.array([4, 4]),
+                    np.array([5, 4]),
+                    np.array([4, 5]),
+                ]),
+                'OBSTACLE2': np.asarray([
+                    np.array([4, 4]),
+                ]),
+            }
+
+        if reset_callback:
+            self.reset_callback = reset_callback
+        else:
+            self.reset_callback = default_callback
