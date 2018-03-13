@@ -15,7 +15,7 @@ class GridworldV0(gym.Env):
     # Gym Attributes
     ############################################################################
     # Metadata
-    metadata = {'render.modes': ['human', 'rgb_array']}
+    metadata = {'render.modes': ['rgb_array']}
     # Observation space
     observation_space = None
     # Action space
@@ -90,8 +90,11 @@ class GridworldV0(gym.Env):
         # Return initial observation
         return self._get_obs()
 
-    def render(self, mode='human'):
-        pass
+    def render(self, mode='rgb_array'):
+        # Render
+        self.renderer.render()
+        # Return renderer sceenshot
+        return self.renderer.get_screenshot()
 
     ############################################################################
     # Initialization Methods
