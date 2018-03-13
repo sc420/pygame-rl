@@ -38,7 +38,7 @@
  <layer name="agents" width="9" height="9">
   <properties>
    <property name="overlay" type="bool" value="true"/>
-   <property name="sprite" type="file" value="agent_sprite.yaml"/>
+   <property name="sprite" type="file" value="agents_sprite.yaml"/>
   </properties>
   <data encoding="csv">
 829,830,831,205,0,0,0,0,0,
