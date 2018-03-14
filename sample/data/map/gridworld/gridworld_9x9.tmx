@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="1.1.3" orientation="orthogonal" renderorder="right-down" width="9" height="9" tilewidth="32" tileheight="32" infinite="0" nextobjectid="3">
+ <tileset firstgid="1" source="minecraft_tileset.tsx"/>
+ <layer name="ground" width="9" height="9">
+  <properties>
+   <property name="background" type="bool" value="true"/>
+   <property name="tile" type="file" value="ground_tile.yaml"/>
+  </properties>
+  <data encoding="csv">
+686,686,686,686,686,686,686,686,686,
+686,686,686,686,686,686,686,686,686,
+686,686,686,686,686,686,686,686,686,
+686,686,686,686,686,686,686,686,686,
+686,686,686,686,686,686,686,686,686,
+686,686,686,686,686,686,686,686,686,
+686,686,686,686,686,686,686,686,686,
+686,686,686,686,686,686,686,686,686,
+686,686,686,686,686,686,686,686,686
+</data>
+ </layer>
+ <layer name="obstacles" width="9" height="9">
+  <properties>
+   <property name="overlay" type="bool" value="true"/>
+   <property name="sprite" type="file" value="obstacles_sprite.yaml"/>
+  </properties>
+  <data encoding="csv">
+25,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer name="agents" width="9" height="9">
+  <properties>
+   <property name="overlay" type="bool" value="true"/>
+   <property name="sprite" type="file" value="agents_sprite.yaml"/>
+  </properties>
+  <data encoding="csv">
+829,205,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+</map>

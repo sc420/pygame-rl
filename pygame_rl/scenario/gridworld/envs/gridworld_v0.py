@@ -36,11 +36,11 @@ class GridworldV0(gym.Env):
     ############################################################################
     # State
     ############################################################################
-    # Timestamp
-    timestamp = 0
     # State. A dict where the key is the group name and the value is the
     # list of positions of each object.
     state = None
+    # Numpy random state
+    random_state = None
 
     ############################################################################
     # Cached Objects
@@ -61,11 +61,12 @@ class GridworldV0(gym.Env):
     ############################################################################
 
     def seed(self, seed=None):
-        pass
+        self.random_state = np.random.RandomState(seed)
+        return self.random_state
 
     def step(self, action):
         next_state, reward, done, info = self.env_options.step_callback(
-            self.state, action)
+            self.state, action, random_state=self.random_state)
         self.state = next_state
         return next_state, reward, done, info
 
@@ -86,7 +87,8 @@ class GridworldV0(gym.Env):
         # Initialize action space
         self.action_space = self.env_options.action_sapce
         # Reset the state
-        self.state = self.env_options.reset_callback()
+        self.state = self.env_options.reset_callback(
+            random_state=self.random_state)
         # Return initial observation
         return self._get_obs()
 

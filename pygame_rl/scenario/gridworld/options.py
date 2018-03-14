@@ -51,7 +51,7 @@ class GridworldOptions:
 
     def _init_group(self, group_names, group_sizes):
         if group_names and group_sizes:
-            if len(self.group_names) != len(self.group_sizes):
+            if len(group_names) != len(group_sizes):
                 raise ValueError('Length of group names and sizes should be the'
                                  'same')
             self.group_names = group_names
@@ -76,11 +76,22 @@ class GridworldOptions:
             ]
 
     def _init_step_callback(self, step_callback):
-        def default_callback(prev_state, action):
+        def default_callback(prev_state, action, random_state):
+            del random_state
             state = copy.deepcopy(prev_state)
             # Get player 1 position
             pos = prev_state['PLAYER1'][0]
-            # Set new position
+            # Get new position
+            new_pos = get_new_pos(pos, action)
+            # Update state
+            if is_valid_pos(new_pos, prev_state):
+                state['PLAYER1'][0] = new_pos
+            done = is_done(pos, state)
+            reward = 1.0 if done else 0.0
+            info = {}
+            return state, reward, done, info
+
+        def get_new_pos(pos, action):
             new_pos = np.array(pos)
             if action == 0:  # Move right
                 new_pos[0] += 1
@@ -94,13 +105,7 @@ class GridworldOptions:
                 pass
             else:
                 raise ValueError('Unknown action: {}'.format(action))
-            # Update state
-            if is_valid_pos(new_pos, prev_state):
-                state['PLAYER1'][0] = new_pos
-            done = is_done(pos, state)
-            reward = 1.0 if done else 0.0
-            info = {}
-            return state, reward, done, info
+            return new_pos
 
         def is_valid_pos(pos, prev_state):
             in_bound = (pos[0] >= 0 and pos[0] < 9 and
@@ -137,7 +142,8 @@ class GridworldOptions:
             self.step_callback = default_callback
 
     def _init_reset_callback(self, reset_callback):
-        def default_callback():
+        def default_callback(random_state):
+            del random_state
             return {
                 'PLAYER1': np.asarray([
                     np.array([0, 0]),
