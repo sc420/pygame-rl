@@ -11,8 +11,8 @@ import pygame_rl.scenario.gridworld.renderer as renderer
 class GridworldV0(gym.Env):
     """Generic gridworld Gym environment.
 
-    The states (observation) returned by step() and reset() are high-level
-    features while render() returns RGB array.
+    The states (observation) returned by step(), reset(), render() are RGB
+    arrays.
     """
     ############################################################################
     # Gym Attributes
@@ -71,7 +71,8 @@ class GridworldV0(gym.Env):
         next_state, reward, done, info = self.env_options.step_callback(
             self.state, action, random_state=self.random_state)
         self.state = next_state
-        return next_state, reward, done, info
+        obs = self._get_obs()
+        return obs, reward, done, info
 
     def reset(self):
         # Save or create environment options
@@ -133,24 +134,10 @@ class GridworldV0(gym.Env):
     ############################################################################
 
     def _get_obs(self):
-        """Get flattened observation.
-
-        The observation is a flattened vector of one-hot vectors, the flattened
-        (row-major) vector is the representation of the 2D map, and each one-hot
-        vector represents existence of the objects, with each index the global
-        index of the object.
-        """
-        map_size = self.renderer.get_map_size()
-        map_width = map_size[1]
-        flattened_map_size = map_size.prod()
-        obs = np.zeros(
-            [flattened_map_size, self.total_object_num], dtype=np.int)
-        for group_name, positions in self.state.items():
-            for local_index, pos in enumerate(positions):
-                index_1d = index_2d_to_1d(pos, map_width)
-                global_index = self.object_indexes[group_name][local_index]
-                obs[index_1d][global_index] = 1
-        return obs
+        # Render
+        self.renderer.render()
+        # Return renderer sceenshot
+        return self.renderer.get_screenshot()
 
 
 def index_2d_to_1d(pos, width):
