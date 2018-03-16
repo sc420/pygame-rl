@@ -124,8 +124,8 @@ class GridworldV1(gym.Env):
         self.total_object_num = global_index
 
     def _init_obs_space(self):
-        map_size = self.renderer.get_map_size()
-        nvec = [map_size[0], map_size[1], 3]
+        display_size = self.renderer.get_display_size()
+        nvec = [display_size[0], display_size[1], 3]
         self.observation_space = gym.spaces.MultiDiscrete(nvec)
 
     ############################################################################
