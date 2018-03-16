@@ -8,7 +8,7 @@ import pygame_rl.scenario.gridworld.options as options
 import pygame_rl.scenario.gridworld.renderer as renderer
 
 
-class GridworldV0(gym.Env):
+class GridworldV1(gym.Env):
     """Generic gridworld Gym environment.
 
     The states (observation) returned by step(), reset(), render() are RGB
