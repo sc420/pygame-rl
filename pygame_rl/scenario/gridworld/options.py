@@ -18,23 +18,29 @@ class GridworldOptions:
     map_path = None
     # Action space
     action_sapce = None
-    # Group names
-    group_names = None
-    # Group sizes
-    group_sizes = None
     # Callback to step
     step_callback = None
     # Callback to reset state
     reset_callback = None
+    # Group names
+    group_names = []
+    # Group sizes
+    group_sizes = []
 
     def __init__(self, map_path=None, action_space=None,
-                 group_names=None, group_sizes=None,
                  step_callback=None, reset_callback=None):
         self._init_map_path(map_path)
         self._init_action_space(action_space)
-        self._init_group(group_names, group_sizes)
         self._init_step_callback(step_callback)
         self._init_reset_callback(reset_callback)
+        self._init_default_group()
+
+    def set_group(self, group_names, group_sizes):
+        if len(group_names) != len(group_sizes):
+            raise ValueError('Length of group names and sizes should be the '
+                             'same')
+        self.group_names = group_names
+        self.group_sizes = group_sizes
 
     def _init_map_path(self, map_path):
         if map_path:
@@ -49,31 +55,23 @@ class GridworldOptions:
             # 4-directional walk and stand still
             self.action_sapce = gym.spaces.Discrete(5)
 
-    def _init_group(self, group_names, group_sizes):
-        if group_names and group_sizes:
-            if len(group_names) != len(group_sizes):
-                raise ValueError('Length of group names and sizes should be the'
-                                 'same')
-            self.group_names = group_names
-            self.group_sizes = group_sizes
-        else:
-            # Set default group names and sizes in internal map
-            self.group_names = [
-                'PLAYER1',
-                'PLAYER2',
-                'PLAYER3',
-                'GOAL',
-                'OBSTACLE1',
-                'OBSTACLE2',
-            ]
-            self.group_sizes = [
-                1,
-                1,
-                1,
-                3,
-                5,
-                1,
-            ]
+    def _init_default_group(self):
+        self.group_names = [
+            'PLAYER1',
+            'PLAYER2',
+            'PLAYER3',
+            'GOAL',
+            'OBSTACLE1',
+            'OBSTACLE2',
+        ]
+        self.group_sizes = [
+            1,
+            1,
+            1,
+            3,
+            5,
+            1,
+        ]
 
     def _init_step_callback(self, step_callback):
         def default_callback(prev_state, action, random_state):

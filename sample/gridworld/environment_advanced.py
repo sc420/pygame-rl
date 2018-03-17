@@ -15,6 +15,7 @@ import scipy.misc
 # User-defined modules
 import pygame_rl.scenario.gridworld
 import pygame_rl.scenario.gridworld.options as options
+import pygame_rl.scenario.gridworld.renderer as renderer
 import pygame_rl.util.file_util as file_util
 
 
@@ -28,18 +29,21 @@ GROUP_NAMES = [
     'OBSTACLE1',
     'GOAL',
 ]
-GROUP_SIZES = [
-    1,
-    5,
-    1,
-]
 # Probability of random action
 RANDOM_ACTION_PROB = 0.1
 
 
+# Group sizes
+group_sizes = []
+# Reset counter
+reset_counter = 0
+
+
 def main():
+    global group_sizes
+
     # Create an environment
-    env = gym.make('gridworld-v0')
+    env = gym.make('gridworld-v1')
 
     # Resolve the map path relative to this file
     map_path = file_util.resolve_path(
@@ -49,11 +53,12 @@ def main():
     env.env_options = options.GridworldOptions(
         map_path=map_path,
         action_space=gym.spaces.Discrete(ACTION_SIZE),
-        group_names=GROUP_NAMES,
-        group_sizes=GROUP_SIZES,
         step_callback=step_callback,
         reset_callback=reset_callback
     )
+
+    env.renderer_options = renderer.RendererOptions(
+        show_display=False, max_fps=60)
 
     # Load the enviornment
     env.load()
@@ -62,14 +67,21 @@ def main():
     env.seed(0)
 
     # Run many episodes
-    for episode_index in range(10):
+    for episode_ind in range(6):
         # Print the episode number
         print('')
-        print('Episode {}:'.format(episode_index + 1))
+        print('Episode {}:'.format(episode_ind + 1))
+        # Set the group names and sizes
+        group_sizes = [
+            1,
+            episode_ind,
+            1,
+        ]
+        env.env_options.set_group(GROUP_NAMES, group_sizes)
         # Reset the environment
         state = env.reset()
-        # Print the initial state
-        print('Initial state:\n{}\n'.format(state))
+        # Print the shape of initial state
+        print('Shape of initial state:{}'.format(state.shape))
         # Run the episode
         done = False
         timestep = 0
@@ -109,18 +121,21 @@ def step_callback(prev_state, action, random_state):
 
 
 def reset_callback(random_state):
+    global reset_counter
     del random_state
+    obstacles1 = np.asarray([
+        np.array([4, 3]),
+        np.array([3, 4]),
+        np.array([4, 4]),
+        np.array([5, 4]),
+        np.array([4, 5]),
+    ])
+    reset_counter += 1
     return {
         'PLAYER1': np.asarray([
             np.array([0, 0]),
         ]),
-        'OBSTACLE1': np.asarray([
-            np.array([4, 3]),
-            np.array([3, 4]),
-            np.array([4, 4]),
-            np.array([5, 4]),
-            np.array([4, 5]),
-        ]),
+        'OBSTACLE1': obstacles1[:(reset_counter - 1)],
         'GOAL': np.asarray([
             np.array([8, 8]),
         ]),
@@ -167,10 +182,11 @@ def is_done(pos, state):
 
 
 def check_collision(pos, collision_group_names, state):
+    global group_sizes
     for group_index, group_name in enumerate(GROUP_NAMES):
         if not group_name in collision_group_names:
             continue
-        for local_index in range(GROUP_SIZES[group_index]):
+        for local_index in range(group_sizes[group_index]):
             other_pos = state[group_name][local_index]
             if np.array_equal(pos, other_pos):
                 return True

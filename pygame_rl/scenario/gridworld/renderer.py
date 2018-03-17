@@ -57,12 +57,6 @@ class GridworldRenderer(pygame_renderer.TiledRenderer):
         # Get the static overlays
         self.static_overlays = super().get_overlays()
 
-        # Initialize the moving overlays
-        self._load_moving_overlays()
-
-        # Initialize the dirty group
-        self._load_dirty_group()
-
         # Blit the background to the screen
         self.screen.blit(self.background, [0, 0])
 
@@ -124,6 +118,28 @@ class GridworldRenderer(pygame_renderer.TiledRenderer):
 
         # Indicate the rendering should continue
         return True
+
+    def reset(self):
+        # Clear the previous overlays
+        if self.dirty_groups:
+            # Remove all sprites
+            self.dirty_groups.empty()
+
+            # Clear the overlays
+            self.dirty_groups.clear(self.screen, self.background)
+
+            # Draw the overlays
+            dirty = self.dirty_groups.draw(self.screen)
+
+            # Update only the dirty surface
+            if self.renderer_options.show_display:
+                pygame.display.update(dirty)
+
+        # Initialize the moving overlays
+        self._load_moving_overlays()
+
+        # Initialize the dirty group
+        self._load_dirty_group()
 
     def _load_moving_overlays(self):
         self.moving_overlays = []

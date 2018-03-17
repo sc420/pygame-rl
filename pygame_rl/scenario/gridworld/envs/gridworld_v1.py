@@ -75,9 +75,13 @@ class GridworldV1(gym.Env):
         return obs, reward, done, info
 
     def reset(self):
+        # Initialize object indexes
+        self._init_object_indexes()
         # Reset the state
         self.state = self.env_options.reset_callback(
             random_state=self.random_state)
+        # Reset the renderer
+        self.renderer.reset()
         # Return initial observation
         return self._get_obs()
 
@@ -94,8 +98,6 @@ class GridworldV1(gym.Env):
     def load(self):
         # Save or create environment options
         self.env_options = self.env_options or options.GridworldOptions()
-        # Initialize object indexes
-        self._init_object_indexes()
         # Load map data
         self.map_data = map_data.GridworldMapData(self.env_options.map_path)
         # Initialize renderer

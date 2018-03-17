@@ -22,14 +22,14 @@ def main():
     env.load()
 
     # Run many episodes
-    for episode_index in range(10):
+    for episode_ind in range(10):
         # Print the episode number
         print('')
-        print('Episode {}:'.format(episode_index + 1))
+        print('Episode {}:'.format(episode_ind + 1))
         # Reset the environment
         state = env.reset()
-        # Print the initial state
-        print('Initial state:\n{}\n'.format(state))
+        # Print the shape of initial state
+        print('Shape of initial state:{}'.format(state.shape))
         # Run the episode
         done = False
         timestep = 0
