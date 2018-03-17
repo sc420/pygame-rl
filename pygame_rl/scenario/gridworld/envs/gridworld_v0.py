@@ -74,21 +74,6 @@ class GridworldV0(gym.Env):
         return next_state, reward, done, info
 
     def reset(self):
-        # Save or create environment options
-        self.env_options = self.env_options or options.GridworldOptions()
-        # Initialize object indexes
-        self._init_object_indexes()
-        # Load map data
-        self.map_data = map_data.GridworldMapData(self.env_options.map_path)
-        # Initialize renderer
-        self.renderer = renderer.GridworldRenderer(
-            self.env_options.map_path, self, self.renderer_options)
-        # Load the renderer
-        self.renderer.load()
-        # Initialize observation space
-        self._init_obs_space()
-        # Initialize action space
-        self.action_space = self.env_options.action_sapce
         # Reset the state
         self.state = self.env_options.reset_callback(
             random_state=self.random_state)
@@ -104,6 +89,23 @@ class GridworldV0(gym.Env):
     ############################################################################
     # Initialization Methods
     ############################################################################
+
+    def load(self):
+        # Save or create environment options
+        self.env_options = self.env_options or options.GridworldOptions()
+        # Initialize object indexes
+        self._init_object_indexes()
+        # Load map data
+        self.map_data = map_data.GridworldMapData(self.env_options.map_path)
+        # Initialize renderer
+        self.renderer = renderer.GridworldRenderer(
+            self.env_options.map_path, self, self.renderer_options)
+        # Load the renderer
+        self.renderer.load()
+        # Initialize observation space
+        self._init_obs_space()
+        # Initialize action space
+        self.action_space = self.env_options.action_sapce
 
     def _init_object_indexes(self):
         self.object_indexes = {}

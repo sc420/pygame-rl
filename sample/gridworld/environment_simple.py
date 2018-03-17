@@ -18,6 +18,9 @@ def main():
     # Create an environment
     env = gym.make('gridworld-v0')
 
+    # Load the enviornment
+    env.load()
+
     # Run many episodes
     for episode_index in range(10):
         # Print the episode number

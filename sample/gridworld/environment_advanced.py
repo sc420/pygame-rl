@@ -55,6 +55,9 @@ def main():
         reset_callback=reset_callback
     )
 
+    # Load the enviornment
+    env.load()
+
     # Set the random seed of the environment
     env.seed(0)
 
