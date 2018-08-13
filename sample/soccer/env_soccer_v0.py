@@ -16,6 +16,9 @@ def main():
     # Create a soccer environment
     env = gym.make('soccer-v0')
 
+    # Load the environment
+    env.load()
+
     # Run many episodes
     for ep_idx in range(20):
         # Print the episode number

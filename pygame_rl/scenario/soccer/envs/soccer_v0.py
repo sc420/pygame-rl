@@ -93,6 +93,8 @@ class SoccerV0(gym.Env):
     def __init__(self):
         # Use default random state
         self.random_state = np.random.RandomState(0)
+
+    def load(self):
         # Save or create environment options
         self.options = self.options or Options()
         # Load map data
