@@ -41,6 +41,9 @@ class State(object):
         self.random_state = random_state
         self.reset()
 
+    def update_random_state(self, random_state):
+        self.random_state = random_state
+
     def reset(self):
         # Initialize the agent list
         self._reset_agent_list()

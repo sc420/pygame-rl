@@ -49,6 +49,7 @@ class SoccerV0(gym.Env):
 
     def seed(self, seed=None):
         self.random_state = np.random.RandomState(seed)
+        self.state.update_random_state(self.random_state)
         return self.random_state
 
     def step(self, action):
@@ -90,9 +91,8 @@ class SoccerV0(gym.Env):
     ### Initialization Methods ###
 
     def __init__(self):
+        # Use default random state
         self.random_state = np.random.RandomState(0)
-
-    def load(self):
         # Save or create environment options
         self.options = self.options or Options()
         # Load map data
