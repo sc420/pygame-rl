@@ -1,3 +1,6 @@
+# Third-party modules
+import numpy as np
+
 # Project modules
 from pygame_rl.scenario.soccer.actions import Actions
 from pygame_rl.scenario.soccer.agent_modes import AgentModes
@@ -118,6 +121,34 @@ class State(object):
         team_name = Teams(agent_index)
         # Check whether the position is in the goal area
         return agent_pos in self.map_data.goals[team_name.name]
+
+    def get_gym_state(self, map_size):
+        agent_size = len(self.agent_list)
+        map_2d = np.zeros(map_size)
+        ball_list = np.zeros(agent_size)
+        mode_list = np.zeros(agent_size)
+        action_list = np.zeros(agent_size)
+        for pos in self.map_data.walkable:
+            # Walkable
+            map_2d[tuple(pos)] = 1
+        for pos in self.map_data.goals['PLAYER']:
+            # Player goal
+            map_2d[tuple(pos)] = 2
+        for pos in self.map_data.goals['COMPUTER']:
+            # Computer goal
+            map_2d[tuple(pos)] = 3
+        for idx, agent in enumerate(self.agent_list):
+            # Agent index
+            map_2d[tuple(agent['pos'])] = 4 + idx
+            ball_list[idx] = self.get_agent_ball(idx)
+            mode_list[idx] = self.get_agent_mode(idx)
+            action_list[idx] = self.get_agent_action(idx)
+        return {
+            'map': map_2d,
+            'ball': ball_list,
+            'mode': mode_list,
+            'action': action_list
+        }
 
     def get_agent_pos(self, agent_index):
         return self.agent_list[agent_index]['pos']

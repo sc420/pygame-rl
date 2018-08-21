@@ -71,16 +71,14 @@ class SoccerV0(gym.Env):
         # Check terminal
         done = self.state.is_terminal()
         # Return the state, reward, done, and info
-        return self.state, reward, done, {}
+        gym_state = self._gym_state()
+        return gym_state, reward, done, {}
 
     def reset(self):
         self.state.reset()
-        # Get the reward
-        reward = self._get_reward()
-        # Check terminal
-        done = self.state.is_terminal()
-        # Return the state, reward, done, and info
-        return self.state, reward, done, {}
+        # Return the state
+        gym_state = self._gym_state()
+        return gym_state
 
     def render(self, mode='rgb_array'):
         # Render
@@ -113,10 +111,19 @@ class SoccerV0(gym.Env):
 
     def _init_obs_space(self):
         map_size = self.renderer.get_map_size()
-        self.observation_space = gym.spaces.MultiDiscrete(map_size)
+        map_len = np.prod(map_size)
+        agent_size = len(Teams) * self.options.team_size
+        # Map, ball, mode, action
+        nvec = [map_len] + 3 * [agent_size]
+        self.observation_space = gym.spaces.MultiDiscrete(nvec)
 
     def _init_action_space(self):
         self.action_space = gym.spaces.Discrete(len(Actions))
+
+    def _gym_state(self):
+        map_size = self.renderer.get_map_size()
+        state = self.state.get_gym_state(map_size)
+        return state
 
     def _update_agent_actions(self):
         for team_name in Teams:
