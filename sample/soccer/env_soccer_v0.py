@@ -9,6 +9,7 @@ import gym
 import scipy.misc
 
 # User-defined modules
+from pygame_rl.scenario.soccer.actions import Actions
 import pygame_rl.scenario.soccer
 
 
@@ -32,10 +33,10 @@ def main():
         while True:
             # Render the environment
             screenshot = env.render()
-            # Get a random action from the action list
-            player_action = env.action_space.sample()
-            # Build the action list
-            actions = [player_action, None]
+            # Get random actions
+            actions = env.action_space.sample()
+            # Reset the computer action because we don't want to control it
+            actions[1] = Actions.NOOP
             # Interact with the environment
             new_state, reward, done, _ = env.step(actions)
             # Check the terminal state

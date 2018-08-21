@@ -53,15 +53,14 @@ class SoccerV0(gym.Env):
         return self.random_state
 
     def step(self, action):
-        # Update agent actions
+        # Cache the actions
         self.cached_action = action
+        # Update agent actions
         self._update_agent_actions()
         # Get the intended positions
         intended_pos = self._get_intended_pos(self.cached_action)
         # Update the agent positions
         self._update_agent_pos(intended_pos)
-        # Update taken actions
-        self._update_taken_actions()
         # Update frame skipping index
         self._update_frame_skip_index()
         # Update time step
@@ -118,7 +117,9 @@ class SoccerV0(gym.Env):
         self.observation_space = gym.spaces.MultiDiscrete(nvec)
 
     def _init_action_space(self):
-        self.action_space = gym.spaces.Discrete(len(Actions))
+        agent_size = len(Teams) * self.options.team_size
+        nvec = [len(Actions)] * agent_size
+        self.action_space = gym.spaces.MultiDiscrete(nvec)
 
     def _gym_state(self):
         map_size = self.renderer.get_map_size()
@@ -131,9 +132,8 @@ class SoccerV0(gym.Env):
                 agent_index = self.get_agent_index(team_name, team_agent_index)
                 # Skip and update if the cached action has been specified
                 agent_action = self.cached_action[agent_index]
-                if agent_action is not None:
-                    if isinstance(agent_action, int):
-                        self.cached_action[agent_index] = Actions(agent_action)
+                if agent_action != Actions.NOOP:
+                    self.cached_action[agent_index] = Actions(agent_action)
                     continue
                 # Select the previous action if it's frame skipping
                 if self.state.get_agent_frame_skip_index(agent_index) > 0:
@@ -230,14 +230,6 @@ class SoccerV0(gym.Env):
         # Update the non-overlapping positions
         for (agent_index, pos) in intended_pos.items():
             self.state.set_agent_pos(agent_index, pos)
-
-    def _update_taken_actions(self):
-        for team_name in Teams:
-            for team_agent_index in range(self.options.team_size):
-                agent_index = self.get_agent_index(team_name, team_agent_index)
-                action = self.cached_action[agent_index]
-                action = action or Actions.STAND
-                self.state.set_agent_action(agent_index, action)
 
     def _update_frame_skip_index(self):
         for team_name in Teams:
@@ -380,13 +372,13 @@ class SoccerV0(gym.Env):
         # Calculate the original Euclidean distance
         orig_dist = self.get_pos_distance(source_pos, target_pos)
         # Find the best action
-        rand_idx = self.random_state.randint(len(Actions))
-        best_action = Actions(rand_idx)
+        rand_idx = self.random_state.randint(len(Actions) - 1)
+        best_action = Actions(rand_idx + 1)
         best_dist = orig_dist
-        # Shuffle the actions
+        # Shuffle the actions except NOOP
         rand_idxs = self.random_state.choice(
-            len(Actions), len(Actions), replace=False)
-        shuffled_actions = [Actions(i) for i in rand_idxs]
+            len(Actions) - 1, len(Actions) - 1, replace=False)
+        shuffled_actions = [Actions(i + 1) for i in rand_idxs]
         # Find the best action
         for action in shuffled_actions:
             # Get the moved position after doing the action

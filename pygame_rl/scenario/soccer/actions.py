@@ -3,8 +3,10 @@ from enum import IntEnum
 
 
 class Actions(IntEnum):
-    MOVE_RIGHT = 0
-    MOVE_UP = 1
-    MOVE_LEFT = 2
-    MOVE_DOWN = 3
-    STAND = 4
+    # Indicates that rule-based AI will override the action
+    NOOP = 0
+    MOVE_RIGHT = 1
+    MOVE_UP = 2
+    MOVE_LEFT = 3
+    MOVE_DOWN = 4
+    STAND = 5
