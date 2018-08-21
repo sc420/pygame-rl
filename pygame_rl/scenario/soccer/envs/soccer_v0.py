@@ -113,9 +113,12 @@ class SoccerV0(gym.Env):
         map_len = np.prod(map_size)
         agent_size = len(Teams) * self.options.team_size
         # Map, ball, mode, action
-        nvec = map_len * [4 + agent_size] + agent_size * [2] + \
+        low = map_len * [0] + agent_size * [0] + \
+            agent_size * [0] + agent_size * [0]
+        high = map_len * [4 + agent_size] + agent_size * [2] + \
             agent_size * [len(AgentModes)] + agent_size * [len(Actions)]
-        self.observation_space = gym.spaces.MultiDiscrete(nvec)
+        self.observation_space = gym.spaces.Box(
+            low=np.array(low), high=np.array(high))
 
     def _init_action_space(self):
         agent_size = len(Teams) * self.options.team_size
