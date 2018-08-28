@@ -44,6 +44,8 @@ class SoccerV0(gym.Env):
     random_state = None
     # Cached action
     cached_action = None
+    # Lazy loading of renderer
+    renderer_loaded = False
 
     ### Gym Methods ###
 
@@ -80,6 +82,10 @@ class SoccerV0(gym.Env):
         return gym_state
 
     def render(self, mode='rgb_array'):
+        # Lazy load the renderer
+        if not self.renderer_loaded:
+            self.renderer.load()
+            self.renderer_loaded = True
         # Render
         self.renderer.render()
         # Return renderer screenshot
@@ -102,15 +108,13 @@ class SoccerV0(gym.Env):
         # Initialize renderer
         self.renderer = Renderer(
             self.options.map_path, self, self.renderer_options)
-        self.renderer.load()
         # Initialize observation space
         self._init_obs_space()
         # Initialize action space
         self._init_action_space()
 
     def _init_obs_space(self):
-        map_size = self.renderer.get_map_size()
-        map_len = np.prod(map_size)
+        map_len = np.prod(self.map_data.map_size)
         agent_size = len(Teams) * self.options.team_size
         # Map, ball, mode, action
         low = map_len * [0] + agent_size * [0] + \
@@ -126,7 +130,7 @@ class SoccerV0(gym.Env):
         self.action_space = gym.spaces.MultiDiscrete(nvec)
 
     def _gym_state(self):
-        map_size = self.renderer.get_map_size()
+        map_size = self.map_data.map_size
         state = self.state.get_gym_state(map_size)
         return state
 

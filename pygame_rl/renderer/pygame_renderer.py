@@ -57,6 +57,9 @@ class TiledData(TiledLoader):
         # Load the layers
         self.load_layers()
 
+    def get_map_size(self):
+        return np.array([self.tiled_map.width, self.tiled_map.height])
+
     def get_tile_positions(self):
         """Get the tile positions.
 
