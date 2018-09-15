@@ -63,6 +63,8 @@ class SoccerV0(gym.Env):
         intended_pos = self._get_intended_pos(self.cached_action)
         # Update the agent positions
         self._update_agent_pos(intended_pos)
+        # Update taken actions
+        self._update_taken_actions()
         # Update frame skipping index
         self._update_frame_skip_index()
         # Update time step
@@ -238,6 +240,13 @@ class SoccerV0(gym.Env):
         # Update the non-overlapping positions
         for (agent_index, pos) in intended_pos.items():
             self.state.set_agent_pos(agent_index, pos)
+
+    def _update_taken_actions(self):
+        for team_name in Teams:
+            for team_agent_index in range(self.options.team_size):
+                agent_index = self.get_agent_index(team_name, team_agent_index)
+                action = self.cached_action[agent_index]
+                self.state.set_agent_action(agent_index, action)
 
     def _update_frame_skip_index(self):
         for team_name in Teams:
