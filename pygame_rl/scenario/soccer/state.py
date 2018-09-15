@@ -124,7 +124,13 @@ class State(object):
 
     def get_gym_state(self, map_size):
         agent_size = len(self.agent_list)
+        player_goal_size = len(self.map_data.goals['PLAYER'])
+        computer_goal_size = len(self.map_data.goals['COMPUTER'])
         map_2d = np.zeros(map_size)
+        agent_pos_list = np.zeros((agent_size, 2))
+        rel_player_goals = np.zeros((agent_size, player_goal_size, 2))
+        rel_computer_goals = np.zeros((agent_size, computer_goal_size, 2))
+        rel_other_agent_pos = np.zeros((agent_size, agent_size - 1, 2))
         ball_list = np.zeros(agent_size)
         mode_list = np.zeros(agent_size)
         action_list = np.zeros(agent_size)
@@ -138,16 +144,37 @@ class State(object):
             # Computer goal
             map_2d[tuple(pos)] = 3
         for idx, agent in enumerate(self.agent_list):
-            # Agent index
-            map_2d[tuple(agent['pos'])] = 4 + idx
+            # Agent
             ball_list[idx] = self.get_agent_ball(idx)
             mode_list[idx] = self.get_agent_mode(idx)
             action_list[idx] = self.get_agent_action(idx)
+            # Agent position
+            agent_pos = agent['pos']
+            agent_pos_list[idx, :] = agent_pos
+            # Other agent positions
+            for other_idx, other_agent in enumerate(self.agent_list):
+                if idx != other_idx:
+                    other_agent_pos = other_agent['pos']
+                    rel_other_agent_pos[idx, :] = self.get_rel_pos(
+                        agent_pos, other_agent_pos)
+            # Relative goal positions
+            for pos_idx, goal in enumerate(self.map_data.goals['PLAYER']):
+                rel_player_goals[idx, pos_idx, :] = self.get_rel_pos(
+                    agent_pos, goal)
+            for pos_idx, goal in enumerate(self.map_data.goals['COMPUTER']):
+                rel_computer_goals[idx, pos_idx, :] = self.get_rel_pos(
+                    agent_pos, goal)
         return {
             'map': map_2d,
+            'agent_pos': agent_pos_list,
+            'relative': {
+                'player_goals': rel_player_goals,
+                'computer_goals': rel_computer_goals,
+                'other_agent_pos': rel_other_agent_pos,
+            },
             'ball': ball_list,
             'mode': mode_list,
-            'action': action_list
+            'action': action_list,
         }
 
     def get_agent_pos(self, agent_index):
@@ -230,6 +257,10 @@ class State(object):
 
     def increase_time_step(self):
         self.time_step += 1
+
+    @staticmethod
+    def get_rel_pos(ref, target):
+        return [target[0] - ref[0], target[1] - ref[1]]
 
     def _reset_agent_list(self):
         self.agent_list = [{}
