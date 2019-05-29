@@ -67,9 +67,9 @@ setup(
     install_requires=[
         'gym',
         'numpy',
-        'pygame',
-        'pypaths',
-        'pytmx',
+        'pygame==1.9.6',
+        'pypaths==0.1.2',
+        'pytmx==3.21.7',
         'pyyaml',
     ],
 
