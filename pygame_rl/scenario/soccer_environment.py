@@ -467,7 +467,7 @@ class SoccerLegacyEnvironment(SoccerEnvironment):
 
     def reset(self):
         self.state.reset()
-        self._set_weights()
+https://www.cnblogs.com/artesian0526/p/9267906.html        self._set_weights()
         self._set_previous_actions()
         return SoccerObservation(self.state, None, 0.0, None)
 
@@ -489,7 +489,7 @@ class SoccerLegacyEnvironment(SoccerEnvironment):
                     self.state.set_agent_mode(agent_index, 'OFFENSIVE')
                 # Set the weights for each mode
                 self.weights['ADVANCE'] = 1.0 - self.defensiveness
-                self.weights['INTERCEPT'] = 1.0 - self.defensiveness
+                self.weights['INTERCEPT'] = 1.0 - self.defensivenesshttps://www.cnblogs.com/artesian0526/p/9267906.html
                 self.weights['AVOID'] = self.defensiveness
                 self.weights['DEFEND'] = self.defensiveness
 
@@ -863,7 +863,7 @@ class SoccerState(object):
     def get_pos_status(self, pos):
         pos_tuple = tuple(pos)
         agent_index = self.pos_map.get(pos_tuple, None)
-        if agent_index:
+        if agent_index is not None:
             team_name = self.env.get_team_name(agent_index)
             team_agent_index = self.env.get_team_agent_index(agent_index)
             return {
