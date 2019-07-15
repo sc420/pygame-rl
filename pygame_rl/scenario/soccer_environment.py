@@ -467,7 +467,7 @@ class SoccerLegacyEnvironment(SoccerEnvironment):
 
     def reset(self):
         self.state.reset()
-https://www.cnblogs.com/artesian0526/p/9267906.html        self._set_weights()
+        self._set_weights()
         self._set_previous_actions()
         return SoccerObservation(self.state, None, 0.0, None)
 
@@ -489,7 +489,7 @@ https://www.cnblogs.com/artesian0526/p/9267906.html        self._set_weights()
                     self.state.set_agent_mode(agent_index, 'OFFENSIVE')
                 # Set the weights for each mode
                 self.weights['ADVANCE'] = 1.0 - self.defensiveness
-                self.weights['INTERCEPT'] = 1.0 - self.defensivenesshttps://www.cnblogs.com/artesian0526/p/9267906.html
+                self.weights['INTERCEPT'] = 1.0 - self.defensiveness
                 self.weights['AVOID'] = self.defensiveness
                 self.weights['DEFEND'] = self.defensiveness
 
