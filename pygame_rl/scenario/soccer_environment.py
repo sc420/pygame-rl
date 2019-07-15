@@ -863,7 +863,7 @@ class SoccerState(object):
     def get_pos_status(self, pos):
         pos_tuple = tuple(pos)
         agent_index = self.pos_map.get(pos_tuple, None)
-        if agent_index:
+        if agent_index is not None:
             team_name = self.env.get_team_name(agent_index)
             team_agent_index = self.env.get_team_agent_index(agent_index)
             return {
